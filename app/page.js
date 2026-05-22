@@ -271,6 +271,7 @@ export default function Home() {
         <a href="/" className="nav-logo">Prop<span>Match</span></a>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           <Link href="/services" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Services</Link>
+          <Link href="/marketplace" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Marketplace</Link>
           <Link href="/post" className="nav-cta">Post a Requirement</Link>
         </div>
       </nav>
