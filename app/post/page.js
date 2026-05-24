@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { getPriceGuide } from '../../lib/suburbData'
 
@@ -21,6 +22,10 @@ function validateEmail(email) {
 }
 
 export default function PostRequirement() {
+  const router = useRouter()
+  const [user, setUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -44,6 +49,26 @@ export default function PostRequirement() {
   const [errors, setErrors] = useState({})
   const [priceGuide, setPriceGuide] = useState(null)
 
+  // Check auth on mount
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        router.push('/?auth=1')
+      } else {
+        setUser(session.user)
+        // Pre-fill email and name from auth
+        const meta = session.user.user_metadata || {}
+        setFormData(prev => ({
+          ...prev,
+          buyer_email: session.user.email || '',
+          first_name: meta.full_name?.split(' ')[0] || '',
+          last_name: meta.full_name?.split(' ').slice(1).join(' ') || '',
+        }))
+      }
+      setAuthLoading(false)
+    })
+  }, [])
+
   // Price guide: recalculate when suburb/type/bedrooms change
   useEffect(() => {
     const { location, property_type, bedrooms } = formData
@@ -57,7 +82,6 @@ export default function PostRequirement() {
   function handleChange(e) {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-    // Clear error on change
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }))
   }
 
@@ -103,7 +127,6 @@ export default function PostRequirement() {
     const validationErrors = validate()
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
-      // Scroll to first error
       const firstError = document.querySelector('[data-error="true"]')
       if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' })
       return
@@ -111,6 +134,7 @@ export default function PostRequirement() {
 
     setLoading(true)
     const { error } = await supabase.from('requirements').insert([{
+      user_id: user.id,
       buyer_name: `${formData.first_name.trim()} ${formData.last_name.trim()}`,
       first_name: formData.first_name.trim(),
       last_name: formData.last_name.trim(),
@@ -124,6 +148,7 @@ export default function PostRequirement() {
       land_size_max: formData.land_size_max ? parseInt(formData.land_size_max) : null,
       mobile_number: formData.mobile_number.trim(),
       phone_number: formData.phone_number.trim() || null,
+      budget_min: formData.budget_min ? parseInt(formData.budget_min) : null,
       budget_max: parseInt(formData.budget_max),
       proximity_preferences: proximity,
       notes: formData.notes
@@ -144,7 +169,7 @@ export default function PostRequirement() {
 
   function resetForm() {
     setSuccess(false)
-    setFormData({ first_name: '', last_name: '', buyer_email: '', location: '', property_type: '', bedrooms: '', bathrooms: '', toilets: '', land_size_min: '', land_size_max: '', budget_min: '', budget_max: '', mobile_number: '', phone_number: '', notes: '' })
+    setFormData({ first_name: '', last_name: '', buyer_email: user?.email || '', location: '', property_type: '', bedrooms: '', bathrooms: '', toilets: '', land_size_min: '', land_size_max: '', budget_min: '', budget_max: '', mobile_number: '', phone_number: '', notes: '' })
     setProximity([])
     setErrors({})
     setPriceGuide(null)
@@ -154,7 +179,18 @@ export default function PostRequirement() {
   const trendBg    = { rising: '#f0faf4', stable: '#fffdf7', falling: '#fdf0f0' }
   const trendIcon  = { rising: '↑', stable: '→', falling: '↓' }
 
-  // ── SUCCESS ──────────────────────────────────────────────
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <main style={s.page}>
+        <div style={{ textAlign: 'center', padding: '4rem', fontFamily: 'system-ui, sans-serif', color: '#999' }}>
+          Loading...
+        </div>
+      </main>
+    )
+  }
+
+  // SUCCESS
   if (success) {
     return (
       <main style={s.page}>
@@ -170,19 +206,19 @@ export default function PostRequirement() {
               <strong>Melina & Mikayla</strong> are working on your request and will contact you shortly.
             </p>
           </div>
-          <button style={s.btnPrimary} onClick={resetForm}>
-            Post another requirement
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button style={s.btnPrimary} onClick={resetForm}>Post another</button>
+            <button style={{ ...s.btnPrimary, background: '#9c7c4a' }} onClick={() => router.push('/account')}>View my account</button>
+          </div>
         </div>
       </main>
     )
   }
 
-  // ── FORM ─────────────────────────────────────────────────
+  // FORM
   return (
     <main style={s.page}>
       <div style={s.container}>
-
         <div style={s.header}>
           <a href="/" style={s.backBtn}>← Back to home</a>
           <p style={s.eyebrow}>For buyers</p>
@@ -192,7 +228,7 @@ export default function PostRequirement() {
 
         <form onSubmit={handleSubmit} noValidate style={s.form}>
 
-          {/* ── YOUR DETAILS ── */}
+          {/* YOUR DETAILS */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Your details</h2>
             <div style={s.row}>
@@ -221,7 +257,7 @@ export default function PostRequirement() {
                   placeholder="e.g. 0412 345 678" value={formData.mobile_number} onChange={handleChange}
                   data-error={!!errors.mobile_number} />
               </Field>
-              <Field label="Phone number" error={errors.phone_number} hint="Optional — home or work number">
+              <Field label="Phone number" error={errors.phone_number} hint="Optional">
                 <input style={inputStyle(errors.phone_number)} type="tel" name="phone_number"
                   placeholder="e.g. 03 9123 4567" value={formData.phone_number} onChange={handleChange}
                   data-error={!!errors.phone_number} />
@@ -229,7 +265,7 @@ export default function PostRequirement() {
             </div>
           </div>
 
-          {/* ── PROPERTY DETAILS ── */}
+          {/* PROPERTY DETAILS */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Property details</h2>
             <Field label="Preferred suburb / location" error={errors.location}>
@@ -284,7 +320,7 @@ export default function PostRequirement() {
             </div>
           </div>
 
-          {/* ── LAND SIZE ── */}
+          {/* LAND SIZE */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Land size <span style={s.optional}>(optional)</span></h2>
             <p style={s.sectionHint}>Leave blank if land size isn't important to you.</p>
@@ -300,7 +336,7 @@ export default function PostRequirement() {
             </div>
           </div>
 
-          {/* ── PRICE GUIDE ── */}
+          {/* PRICE GUIDE */}
           {priceGuide && (
             <div style={{ ...s.priceGuideBox, borderColor: trendColor[priceGuide.trend] + '55', background: trendBg[priceGuide.trend] }}>
               <div style={s.priceGuideHeader}>
@@ -342,7 +378,7 @@ export default function PostRequirement() {
             </div>
           )}
 
-          {/* ── BUDGET ── */}
+          {/* BUDGET */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Your budget</h2>
             {priceGuide && (
@@ -366,28 +402,21 @@ export default function PostRequirement() {
             </div>
           </div>
 
-          {/* ── PROXIMITY PREFERENCES ── */}
+          {/* PROXIMITY */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Proximity preferences <span style={s.optional}>(optional)</span></h2>
             <p style={s.sectionHint}>Select everything that matters to you.</p>
             <div style={s.proximityGrid}>
               {PROXIMITY_OPTIONS.map(opt => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => toggleProximity(opt.id)}
-                  style={{
-                    ...s.proximityBtn,
-                    ...(proximity.includes(opt.id) ? s.proximityBtnActive : {})
-                  }}
-                >
+                <button key={opt.id} type="button" onClick={() => toggleProximity(opt.id)}
+                  style={{ ...s.proximityBtn, ...(proximity.includes(opt.id) ? s.proximityBtnActive : {}) }}>
                   {opt.label}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* ── ADDITIONAL NOTES ── */}
+          {/* NOTES */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Additional notes <span style={s.optional}>(optional)</span></h2>
             <textarea
@@ -410,7 +439,6 @@ export default function PostRequirement() {
   )
 }
 
-// ── Helper components ────────────────────────────────────
 function Field({ label, error, hint, children }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '12px', position: 'relative' }}>
@@ -431,12 +459,11 @@ function inputStyle(hasError) {
   }
 }
 
-// ── Styles ───────────────────────────────────────────────
 const s = {
   page: { minHeight: '100vh', background: '#f8f7f4', padding: '2rem 1rem', fontFamily: 'Georgia, serif' },
   container: { maxWidth: '660px', margin: '0 auto' },
   header: { marginBottom: '2rem' },
-  backBtn: { display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'system-ui, sans-serif', color: '#9c7c4a', textDecoration: 'none', marginBottom: '1.5rem', transition: 'color 0.15s' },
+  backBtn: { display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'system-ui, sans-serif', color: '#9c7c4a', textDecoration: 'none', marginBottom: '1.5rem' },
   eyebrow: { fontSize: '12px', fontFamily: 'monospace', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#9c7c4a', marginBottom: '8px' },
   title: { fontSize: '2rem', fontWeight: '600', color: '#1a1a1a', margin: '0 0 8px', lineHeight: 1.2 },
   subtitle: { fontSize: '1rem', color: '#666', margin: 0, lineHeight: 1.6 },
@@ -448,8 +475,6 @@ const s = {
   row: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' },
   input: { padding: '10px 14px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '15px', fontFamily: 'system-ui, sans-serif', color: '#1a1a1a', background: '#fafafa', outline: 'none', width: '100%', boxSizing: 'border-box' },
   validTick: { fontSize: '12px', color: '#2d6a4f', fontFamily: 'system-ui, sans-serif' },
-
-  // Price guide
   priceGuideBox: { border: '1.5px solid', borderRadius: '12px', padding: '1.25rem 1.5rem', marginBottom: '1rem' },
   priceGuideHeader: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem', flexWrap: 'wrap' },
   priceGuideEyebrow: { fontSize: '12px', fontFamily: 'monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#666', fontWeight: '600' },
@@ -468,17 +493,12 @@ const s = {
   barFill: { height: '100%', borderRadius: '3px', transition: 'width 0.4s ease' },
   barLabels: { display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#aaa', fontFamily: 'system-ui, sans-serif' },
   sourceNote: { fontSize: '11px', color: '#aaa', fontFamily: 'system-ui, sans-serif', margin: 0, fontStyle: 'italic' },
-
-  // Proximity
   proximityGrid: { display: 'flex', flexWrap: 'wrap', gap: '8px' },
   proximityBtn: { fontFamily: 'system-ui, sans-serif', fontSize: '13px', padding: '8px 14px', borderRadius: '20px', border: '1px solid #ddd', background: '#fafafa', color: '#555', cursor: 'pointer', transition: 'all 0.15s' },
   proximityBtnActive: { background: '#1a1a1a', color: '#fff', borderColor: '#1a1a1a' },
-
   budgetHint: { fontSize: '13px', color: '#555', fontFamily: 'system-ui, sans-serif', background: '#fffdf0', borderRadius: '6px', padding: '8px 12px', marginBottom: '12px', border: '1px solid #e8d9b0' },
   btnPrimary: { background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '10px', padding: '14px 28px', fontSize: '15px', fontFamily: 'system-ui, sans-serif', fontWeight: '500', cursor: 'pointer', marginTop: '0.5rem' },
   errorMsg: { color: '#c0392b', fontSize: '14px', fontFamily: 'system-ui, sans-serif', background: '#fdf0f0', padding: '10px 14px', borderRadius: '8px', border: '1px solid #f5c6c6', marginBottom: '1rem' },
-
-  // Success
   successBox: { maxWidth: '480px', margin: '4rem auto', background: '#fff', border: '1px solid #e8e4dc', borderRadius: '16px', padding: '3rem 2rem', textAlign: 'center', fontFamily: 'system-ui, sans-serif' },
   successIcon: { width: '56px', height: '56px', background: '#f0faf4', border: '1px solid #b7e4c7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', color: '#2d6a4f', margin: '0 auto 1.5rem' },
   successTitle: { fontSize: '1.5rem', fontWeight: '600', color: '#1a1a1a', margin: '0 0 0.75rem' },
