@@ -272,6 +272,7 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           <Link href="/services" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Services</Link>
           <Link href="/marketplace" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Marketplace</Link>
+          <Link href="/pricing" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Pricing</Link>
           <Link href="/post" className="nav-cta">Post a Requirement</Link>
         </div>
       </nav>
@@ -290,7 +291,7 @@ export default function Home() {
             </p>
             <div className="hero-actions">
               <Link href="/post" className="btn-primary">Post your requirement</Link>
-              <a href="#how-it-works" className="btn-secondary">See how it works</a>
+              <Link href="/pricing" className="btn-secondary">See pricing</Link>
             </div>
           </div>
 
@@ -423,8 +424,32 @@ export default function Home() {
       <section className="cta-section">
         <h2 className="cta-title">Ready to find your<br /><em>perfect property?</em></h2>
         <p className="cta-sub">Post your requirement in 2 minutes and start receiving offers from sellers in your area.</p>
-        <Link href="/post" className="btn-primary">Post your requirement — it's free</Link>
-        <p className="cta-note">No account needed · No spam · Cancel anytime</p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
+          <Link href="/post" className="btn-primary">Post your requirement — it's free</Link>
+          <Link href="/pricing" style={{ fontFamily: 'var(--sans)', fontSize: '13px', fontWeight: '500', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', border: '1px solid var(--gold)', padding: '14px 28px', borderRadius: '2px', transition: 'all 0.2s', display: 'inline-block' }}>View pricing</Link>
+        </div>
+        <p className="cta-note">Buyers free forever · Sellers from $49 · No commissions</p>
+      </section>
+
+      {/* PRICING STRIP */}
+      <section style={{ background: 'var(--warm-white)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '3rem', textAlign: 'center' }}>
+        <p style={{ fontFamily: 'var(--sans)', fontSize: '12px', fontWeight: '500', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '1.5rem' }}>Simple, transparent pricing</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1px', flexWrap: 'wrap', background: 'var(--border)', border: '1px solid var(--border)', maxWidth: '700px', margin: '0 auto 2rem' }}>
+          {[
+            { label: 'Buyers', price: 'Free', sub: 'Post requirements · Always free', highlight: false },
+            { label: 'Featured listing', price: '$99', sub: 'One-time · 60 day listing', highlight: true },
+            { label: 'Agent bundle', price: '$199', sub: 'Per month · Up to 10 listings', highlight: false },
+          ].map((tier, i) => (
+            <div key={i} style={{ flex: 1, minWidth: '180px', background: tier.highlight ? 'var(--ink)' : 'var(--warm-white)', padding: '1.5rem 1.25rem', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--sans)', fontSize: '11px', fontWeight: '500', letterSpacing: '0.12em', textTransform: 'uppercase', color: tier.highlight ? 'var(--gold)' : 'var(--ink-light)', marginBottom: '0.5rem' }}>{tier.label}</div>
+              <div style={{ fontFamily: 'var(--serif)', fontSize: '2.2rem', fontWeight: '300', color: tier.highlight ? 'var(--gold)' : 'var(--ink)', lineHeight: 1, marginBottom: '0.4rem' }}>{tier.price}</div>
+              <div style={{ fontFamily: 'var(--sans)', fontSize: '12px', color: tier.highlight ? 'rgba(250,248,243,0.5)' : 'var(--ink-light)', fontWeight: '300' }}>{tier.sub}</div>
+            </div>
+          ))}
+        </div>
+        <Link href="/pricing" style={{ fontFamily: 'var(--sans)', fontSize: '12px', fontWeight: '500', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--gold)', paddingBottom: '2px' }}>
+          See full pricing & compare plans →
+        </Link>
       </section>
 
       {/* FOOTER */}
