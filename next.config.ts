@@ -1,9 +1,5 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  turbopack: {
-    root: '/Users/callumweerakoon/Desktop/my-realestate-app',
-  },
-};
+const nextConfig: NextConfig = {};
 
 export default nextConfig;
