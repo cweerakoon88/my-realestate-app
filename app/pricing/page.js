@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import NavBar from '@/components/NavBar'
 
 export default function Pricing() {
   return (
@@ -7,6 +8,7 @@ export default function Pricing() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { overflow-x: hidden; }
         :root {
           --cream: #faf8f3; --warm-white: #fffefb; --ink: #1a1714; --ink-light: #4a4540;
           --gold: #b8924a; --gold-light: #d4aa6a; --gold-pale: #f5ecd8; --border: #e8e0d0;
@@ -14,15 +16,7 @@ export default function Pricing() {
           --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'DM Sans', sans-serif;
         }
         body { background: var(--cream); color: var(--ink); font-family: var(--sans); }
-        .nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 3rem; background: rgba(250,248,243,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
-        .nav-logo { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; color: var(--ink); text-decoration: none; }
-        .nav-logo span { color: var(--gold); }
-        .nav-links { display: flex; align-items: center; gap: 2rem; }
-        .nav-link { font-family: var(--sans); font-size: 13px; color: var(--ink-light); text-decoration: none; transition: color 0.2s; }
-        .nav-link:hover, .nav-link.active { color: var(--gold); }
-        .nav-cta { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); text-decoration: none; border: 1px solid var(--ink); padding: 8px 20px; transition: all 0.2s; }
-        .nav-cta:hover { background: var(--ink); color: var(--cream); }
-        .page-header { max-width: 860px; margin: 0 auto; padding: 5rem 3rem 3rem; text-align: center; }
+        .page-header { max-width: 860px; margin: 0 auto; padding: 8rem 3rem 3rem; text-align: center; }
         .header-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .header-eyebrow::before, .header-eyebrow::after { content: ''; display: block; width: 28px; height: 1px; background: var(--gold); }
         .header-title { font-family: var(--serif); font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; line-height: 1.05; color: var(--ink); margin-bottom: 1.25rem; }
@@ -103,8 +97,10 @@ export default function Pricing() {
         .footer { padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); font-family: var(--sans); font-size: 12px; color: #bbb; flex-wrap: wrap; gap: 1rem; }
         .footer-logo { font-family: var(--serif); font-size: 1.1rem; color: var(--ink-light); }
         .footer-logo span { color: var(--gold); }
+        .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .footer-link { color: #bbb; text-decoration: none; }
+        .footer-link:hover { color: var(--gold); }
         @media (max-width: 860px) {
-          .nav { padding: 1rem 1.5rem; } .nav-links { gap: 1rem; }
           .page-header, .pricing-section, .compare-section, .faq-section { padding-left: 1.5rem; padding-right: 1.5rem; }
           .pricing-grid, .pricing-grid-2 { grid-template-columns: 1fr; }
           .cta-banner { padding: 4rem 1.5rem; }
@@ -112,16 +108,7 @@ export default function Pricing() {
         }
       `}</style>
 
-      <nav className="nav">
-        <a href="/" className="nav-logo">Prop<span>Match</span></a>
-        <div className="nav-links">
-          <Link href="/" className="nav-link">Home</Link>
-          <Link href="/marketplace" className="nav-link">Marketplace</Link>
-          <Link href="/services" className="nav-link">Services</Link>
-          <Link href="/pricing" className="nav-link active">Pricing</Link>
-          <Link href="/post" className="nav-cta">Post Requirement</Link>
-        </div>
-      </nav>
+      <NavBar />
 
       <div className="page-header">
         <div className="header-eyebrow">Simple, transparent pricing</div>
@@ -175,7 +162,6 @@ export default function Pricing() {
         </div>
       </div>
 
-      {/* SELLER PLANS */}
       <div className="pricing-section" id="seller-plans">
         <div className="pricing-grid">
           <div className="plan">
@@ -197,9 +183,8 @@ export default function Pricing() {
               <li><span className="feat-x">—</span>Buyer match email alerts</li>
               <li><span className="feat-x">—</span>Verified seller badge</li>
             </ul>
-            <a href="mailto:hello@propmatch.com.au?subject=Basic Listing Enquiry" className="plan-cta">Get started</a>
+            <a href="mailto:hello@propoffer.com.au?subject=Basic Listing Enquiry" className="plan-cta">Get started</a>
           </div>
-
           <div className="plan featured">
             <span className="plan-badge">Most popular</span>
             <h2 className="plan-name">Featured listing</h2>
@@ -219,9 +204,8 @@ export default function Pricing() {
               <li><span className="feat-check">✦</span>Priority support from our team</li>
               <li><span className="feat-check">✦</span>50% off relist if not sold in 60 days</li>
             </ul>
-            <a href="mailto:hello@propmatch.com.au?subject=Featured Listing Enquiry" className="plan-cta">Get started</a>
+            <a href="mailto:hello@propoffer.com.au?subject=Featured Listing Enquiry" className="plan-cta">Get started</a>
           </div>
-
           <div className="plan">
             <span className="plan-badge">For agencies</span>
             <h2 className="plan-name">Agent bundle</h2>
@@ -241,12 +225,11 @@ export default function Pricing() {
               <li><span className="feat-check">✦</span>Dedicated account manager</li>
               <li><span className="feat-check">✦</span>Cancel anytime</li>
             </ul>
-            <a href="mailto:hello@propmatch.com.au?subject=Agent Bundle Enquiry" className="plan-cta">Contact us</a>
+            <a href="mailto:hello@propoffer.com.au?subject=Agent Bundle Enquiry" className="plan-cta">Contact us</a>
           </div>
         </div>
       </div>
 
-      {/* BUYER PLANS */}
       <div className="pricing-section" id="buyer-plans" style={{ display: 'none' }}>
         <div className="pricing-grid-2">
           <div className="plan">
@@ -284,12 +267,11 @@ export default function Pricing() {
               <li><span className="feat-check">✦</span>Weekly digest of new matching listings</li>
               <li><span className="feat-check">✦</span>Renew or cancel anytime</li>
             </ul>
-            <a href="mailto:hello@propmatch.com.au?subject=Boost Enquiry" className="plan-cta">Boost my requirement</a>
+            <a href="mailto:hello@propoffer.com.au?subject=Boost Enquiry" className="plan-cta">Boost my requirement</a>
           </div>
         </div>
       </div>
 
-      {/* COMPARE TABLE */}
       <div className="compare-section" id="compare-table">
         <h2 className="section-title">Compare seller <em>plans</em></h2>
         <table className="compare">
@@ -326,17 +308,16 @@ export default function Pricing() {
         </table>
       </div>
 
-      {/* FAQ */}
       <div className="faq-section">
         <h2 className="section-title">Common <em>questions</em></h2>
         {[
           ['Is it really free for buyers?', 'Yes — posting a buyer requirement is completely free and always will be. We charge sellers to list their properties, not buyers to find them.'],
-          ['How is PropMatch different from Domain or REA?', 'On Domain and REA, sellers list and buyers search. On PropMatch it\'s reversed — buyers post exactly what they want and sellers come to them. You also reach buyers who have pre-stated their suburb, budget and requirements. Plus we\'re dramatically cheaper — REA charges up to $4,000 per listing. We charge $49–$99.'],
-          ['Can I list an off-market property?', 'Absolutely. Many sellers prefer PropMatch precisely because they can list quietly without a full public campaign. Connect directly with motivated buyers without the cost of a traditional marketing campaign.'],
-          ['What happens after I list?', 'Your listing goes live in the marketplace immediately. Featured listings are pinned at the top and trigger an email to matching buyers in your suburb. Buyers contact you directly — no middlemen or commission taken.'],
-          ['Do I need a real estate licence to list?', 'Private sellers (homeowners) can list without a licence. Licensed agents should use the Agent Bundle plan which includes a verified agent badge. We are building licence verification against state databases for 2025.'],
-          ['What if my property doesn\'t sell?', 'We don\'t offer refunds as we charge for the connection service, not a guaranteed sale. Featured listing customers receive 50% off a relist if the property hasn\'t sold after 60 days. Agent Bundle subscribers can cancel anytime.'],
-          ['Who reviews my listing before it goes live?', 'Our team — Melina & Mikayla — personally reviews every listing to ensure it\'s genuine and complete. We also manually match new listings to relevant buyer requirements and reach out where appropriate.'],
+          ['How is PropMatch different from Domain or REA?', "On Domain and REA, sellers list and buyers search. On PropMatch it's reversed — buyers post exactly what they want and sellers come to them. Plus we're dramatically cheaper — REA charges up to $4,000 per listing. We charge $49–$99."],
+          ['Can I list an off-market property?', 'Absolutely. Many sellers prefer PropMatch precisely because they can list quietly without a full public campaign.'],
+          ['What happens after I list?', 'Your listing goes live in the marketplace immediately. Featured listings are pinned at the top and trigger an email to matching buyers in your suburb.'],
+          ["Do I need a real estate licence to list?", "Private sellers (homeowners) can list without a licence. Licensed agents should use the Agent Bundle plan which includes a verified agent badge."],
+          ["What if my property doesn't sell?", "Featured listing customers receive 50% off a relist if the property hasn't sold after 60 days. Agent Bundle subscribers can cancel anytime."],
+          ['Who reviews my listing before it goes live?', 'Our team — Melina & Mikayla — personally reviews every listing to ensure it\'s genuine and complete.'],
         ].map(([q, a], i) => (
           <details className="faq-item" key={i}>
             <summary className="faq-q">{q}<span className="faq-icon">+</span></summary>
@@ -345,18 +326,23 @@ export default function Pricing() {
         ))}
       </div>
 
-      {/* CTA */}
       <section className="cta-banner">
         <h2 className="cta-title">Ready to find your<br /><em>perfect match?</em></h2>
         <p className="cta-sub">Buyers post free. Sellers reach motivated buyers from $49.<br />No lock-ins. No commissions. No surprises.</p>
         <div className="cta-actions">
           <Link href="/post" className="cta-btn-gold">Post a requirement — free</Link>
-          <a href="mailto:hello@propmatch.com.au" className="cta-btn-ghost">Talk to our team</a>
+          <Link href="/contact" className="cta-btn-ghost">Talk to our team</Link>
         </div>
       </section>
 
       <footer className="footer">
         <div className="footer-logo">Prop<span>Match</span></div>
+        <div className="footer-links">
+          <Link href="/marketplace" className="footer-link">Marketplace</Link>
+          <Link href="/services" className="footer-link">Services</Link>
+          <Link href="/about" className="footer-link">About</Link>
+          <Link href="/contact" className="footer-link">Contact</Link>
+        </div>
         <div>© 2025 PropMatch · Transparent pricing, always</div>
       </footer>
     </>

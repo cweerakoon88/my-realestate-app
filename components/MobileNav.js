@@ -117,6 +117,8 @@ export default function MobileNav({ onPostClick }) {
         <Link href="/marketplace" className="mob-menu-link" onClick={() => setOpen(false)}>Marketplace</Link>
         <Link href="/services" className="mob-menu-link" onClick={() => setOpen(false)}>Services</Link>
         <Link href="/pricing" className="mob-menu-link" onClick={() => setOpen(false)}>Pricing</Link>
+        <Link href="/about" className="mob-menu-link" onClick={() => setOpen(false)}>About</Link>
+        <Link href="/contact" className="mob-menu-link" onClick={() => setOpen(false)}>Contact</Link>
 
         {user ? (
           <>
