@@ -143,7 +143,7 @@ export default function Home() {
           <div className="hero-left">
             <div className="hero-eyebrow">Australia's smarter property market</div>
             <h1 className="hero-title">You name<br />the property.<br /><em>Sellers find you.</em></h1>
-            <p className="hero-subtitle">Stop scrolling endless listings. Post exactly what you want — suburb, size, budget — and let motivated sellers come directly to you with their best offers.</p>
+            <p className="hero-subtitle">Post your property requirement — suburb, type and budget — and sellers with matching or similar properties will contact you directly with what they have to offer. No more endless searching.</p>
             <div className="hero-actions">
               <button onClick={handlePostClick} className="btn-primary">Post your requirement</button>
               <Link href="/pricing" className="btn-secondary">See pricing</Link>

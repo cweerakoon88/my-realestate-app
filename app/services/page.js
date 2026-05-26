@@ -2,202 +2,282 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import EnquiryModal from '@/components/EnquiryModal'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/components/AuthProvider'
+import AuthModal from '@/components/AuthModal'
+import MobileNav from '@/components/MobileNav'
 
-export default function Services() {
-  const [activeEnquiry, setActiveEnquiry] = useState(null)
+export default function Home() {
+  const { user } = useAuth()
+  const router = useRouter()
+  const [showAuth, setShowAuth] = useState(false)
 
-  const services = [
-    {
-      num: '01', icon: '🏦',
-      name: 'Mortgage', nameEm: 'Broking',
-      tagline: 'Get the right loan, not just any loan.',
-      badge: 'Free for buyers',
-      desc: "Our accredited mortgage brokers compare hundreds of loan products across major banks and non-bank lenders to find you the most competitive rate and structure. Whether you're a first home buyer, upgrading, or investing — we match you with a broker who specialises in your situation.",
-      features: [
-        'Free borrowing capacity assessment before you post your requirement',
-        'Access to 40+ lenders including major banks, credit unions & non-banks',
-        'Pre-approval support so you can make offers with confidence',
-        'Guidance on first home buyer grants & stamp duty concessions',
-        'Ongoing support through to settlement and beyond',
-      ],
-      note: 'No cost to you — brokers are paid by the lender',
-      cta: 'Get in touch →',
-    },
-    {
-      num: '02', icon: '🔍',
-      name: 'Building & Pest', nameEm: 'Inspections',
-      tagline: "Know exactly what you're buying.",
-      badge: 'Book in 24 hrs',
-      desc: 'Before you commit to any property, our licensed inspectors give you a thorough, plain-English report on the structural condition of the building and any pest activity. We cover all Australian states and can typically complete an inspection within 24–48 hours of your request.',
-      features: [
-        'Full structural building inspection by a licensed builder',
-        'Timber pest & termite inspection to Australian Standard AS 4349',
-        'Roof, subfloor, and drainage assessment',
-        'Same-day report with photos and priority findings highlighted',
-        'Inspector debrief call to walk you through the findings',
-      ],
-      note: 'Combined reports from $450 · Results same day',
-      cta: 'Book inspection →',
-    },
-    {
-      num: '03', icon: '📜',
-      name: 'Conveyancing', nameEm: '& Settlement',
-      tagline: 'Expert hands on your paperwork.',
-      badge: 'All states covered',
-      desc: "Buying property involves a mountain of legal documentation. Our licensed conveyancers and property solicitors handle every step of the legal transfer — from reviewing the contract of sale and conducting title searches, right through to settlement day — so you don't miss a thing.",
-      features: [
-        'Contract of sale review and plain-English summary before you sign',
-        'Title search, certificate of title & encumbrance checks',
-        'Council, water, and land tax certificate searches',
-        "Liaison with your lender's solicitors and the seller's conveyancer",
-        'Settlement day coordination and key handover confirmation',
-      ],
-      note: 'Fixed fee from $990 · No hidden charges',
-      cta: 'Get a quote →',
-    },
-    {
-      num: '04', icon: '🌿',
-      name: 'Landscaping', nameEm: '& Gardens',
-      tagline: 'Transform your outdoor space from day one.',
-      badge: 'Free consultation',
-      desc: "First impressions start outside. Whether you're preparing a property for sale, settling into a new home, or simply want to bring your garden to life, our network of professional landscapers delivers beautiful, low-maintenance outdoor spaces tailored to your budget and lifestyle.",
-      features: [
-        'Free on-site consultation and design concept',
-        'Garden design, planting, and lawn installation',
-        'Irrigation systems and water-wise landscaping',
-        'Paving, decking, retaining walls, and outdoor structures',
-        'Ongoing maintenance plans available',
-      ],
-      note: 'Quotes from $500 · All metro areas covered',
-      cta: 'Get a quote →',
-    },
-    {
-      num: '05', icon: '🔧',
-      name: 'Handyman', nameEm: 'Services',
-      tagline: 'Every property needs a little TLC.',
-      badge: 'Same week booking',
-      desc: "Moving into a new property always reveals a to-do list. Our trusted handyman network handles everything from minor repairs and painting to flat-pack assembly and general maintenance — so your new home is move-in ready without the stress of finding reliable tradespeople yourself.",
-      features: [
-        'General repairs — doors, windows, locks, tiling, grouting',
-        'Interior and exterior painting & touch-ups',
-        'Flat-pack furniture assembly (IKEA, Bunnings & more)',
-        'Picture hanging, shelving, and TV wall mounting',
-        'Pre-sale property preparation and minor renovations',
-      ],
-      note: 'From $95/hr · No call-out fee for PropMatch clients',
-      cta: 'Book now →',
-    },
-  ]
-
-  const bundleItems = [
-    { icon: '🏦', name: 'Mortgage Broking', desc: 'Best rate from 40+ lenders · Free for buyers' },
-    { icon: '🔍', name: 'Building & Pest Inspection', desc: 'Licensed inspectors · Same-day report' },
-    { icon: '📜', name: 'Conveyancing & Settlement', desc: 'Fixed fee · All states covered' },
-    { icon: '🌿', name: 'Landscaping & Gardens', desc: 'Free consultation · All metro areas' },
-    { icon: '🔧', name: 'Handyman Services', desc: 'Same week · No call-out fee' },
-  ]
+  const handlePostClick = (e) => {
+    e?.preventDefault()
+    if (user) router.push('/post')
+    else setShowAuth(true)
+  }
 
   return (
     <>
-      <style>{styles}</style>
-
-      {activeEnquiry && (
-        <EnquiryModal
-          service={activeEnquiry}
-          onClose={() => setActiveEnquiry(null)}
+      {showAuth && (
+        <AuthModal
+          onClose={() => setShowAuth(false)}
+          onSuccess={() => router.push('/post')}
+          defaultMode="signup"
         />
       )}
 
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --cream: #faf8f3; --warm-white: #fffefb; --ink: #1a1714; --ink-light: #4a4540;
+          --gold: #b8924a; --gold-light: #d4aa6a; --gold-pale: #f5ecd8; --border: #e8e0d0;
+          --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'DM Sans', sans-serif;
+        }
+        html, body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+        body { background: var(--cream); color: var(--ink); font-family: var(--sans); }
+
+        /* DESKTOP NAV */
+        .nav {
+          position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 1.25rem 3rem;
+          background: rgba(250,248,243,0.92); backdrop-filter: blur(12px);
+          border-bottom: 1px solid var(--border);
+        }
+        .nav-logo { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; color: var(--ink); letter-spacing: 0.02em; text-decoration: none; }
+        .nav-logo span { color: var(--gold); }
+        .nav-links { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { font-family: var(--sans); font-size: 13px; color: var(--ink-light); text-decoration: none; }
+        .nav-cta { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); text-decoration: none; border: 1px solid var(--ink); padding: 8px 20px; border-radius: 2px; transition: all 0.2s; cursor: pointer; background: none; }
+        .nav-cta:hover { background: var(--ink); color: var(--cream); }
+
+        /* HERO */
+        .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 8rem 3rem 4rem; gap: 4rem; max-width: 1300px; margin: 0 auto; }
+        .hero-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 10px; margin-bottom: 1.75rem; }
+        .hero-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
+        .hero-title { font-family: var(--serif); font-size: clamp(2.5rem, 5vw, 5rem); font-weight: 300; line-height: 1.05; color: var(--ink); margin-bottom: 1.5rem; }
+        .hero-title em { font-style: italic; color: var(--gold); }
+        .hero-subtitle { font-family: var(--sans); font-size: 1rem; font-weight: 300; line-height: 1.75; color: var(--ink-light); max-width: 420px; margin-bottom: 2.5rem; }
+        .hero-actions { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+        .btn-primary { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: var(--ink); color: var(--cream); padding: 14px 32px; border-radius: 2px; text-decoration: none; transition: all 0.2s; border: 1px solid var(--ink); cursor: pointer; }
+        .btn-primary:hover { background: var(--gold); border-color: var(--gold); }
+        .btn-secondary { font-family: var(--sans); font-size: 13px; font-weight: 400; color: var(--ink-light); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color 0.2s; background: none; border: none; cursor: pointer; }
+        .btn-secondary:hover { color: var(--gold); }
+        .btn-secondary::after { content: '→'; }
+
+        /* HERO CARD */
+        .hero-card { background: var(--warm-white); border: 1px solid var(--border); border-radius: 4px; padding: 2rem; position: relative; }
+        .hero-card::before { content: ''; position: absolute; top: -12px; left: -12px; right: 12px; bottom: 12px; border: 1px solid var(--gold-pale); border-radius: 4px; z-index: -1; }
+        .card-tag { font-family: var(--sans); font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); background: var(--gold-pale); padding: 4px 10px; border-radius: 2px; display: inline-block; margin-bottom: 1rem; }
+        .card-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; color: var(--ink); margin-bottom: 0.5rem; line-height: 1.3; }
+        .card-location { font-family: var(--sans); font-size: 13px; color: var(--ink-light); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 6px; }
+        .card-location::before { content: '◎'; color: var(--gold); font-size: 11px; }
+        .card-specs { display: flex; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .card-spec { display: flex; flex-direction: column; gap: 3px; }
+        .spec-value { font-family: var(--serif); font-size: 1.2rem; color: var(--ink); }
+        .spec-label { font-family: var(--sans); font-size: 11px; color: #aaa; letter-spacing: 0.06em; text-transform: uppercase; }
+        .card-budget { display: flex; justify-content: space-between; align-items: center; }
+        .budget-label { font-family: var(--sans); font-size: 12px; color: var(--ink-light); }
+        .budget-value { font-family: var(--serif); font-size: 1.4rem; color: var(--gold); font-weight: 600; }
+        .offer-count { font-family: var(--sans); font-size: 12px; color: var(--gold); background: var(--gold-pale); padding: 4px 10px; border-radius: 2px; }
+
+        /* SECTIONS */
+        .divider { display: flex; align-items: center; gap: 1.5rem; max-width: 1300px; margin: 0 auto; padding: 0 3rem; }
+        .divider-line { flex: 1; height: 1px; background: var(--border); }
+        .divider-text { font-family: var(--serif); font-size: 1rem; color: #bbb; font-style: italic; white-space: nowrap; }
+        .section { max-width: 1300px; margin: 0 auto; padding: 6rem 3rem; }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        .section-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+        .section-title { font-family: var(--serif); font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 300; color: var(--ink); line-height: 1.1; }
+        .section-title em { font-style: italic; color: var(--gold); }
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border); border: 1px solid var(--border); }
+        .step { background: var(--warm-white); padding: 2.5rem 2rem; position: relative; }
+        .step-number { font-family: var(--serif); font-size: 4rem; font-weight: 300; color: var(--gold-pale); line-height: 1; position: absolute; top: 1.5rem; right: 1.5rem; }
+        .step-icon { width: 40px; height: 40px; background: var(--gold-pale); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 1.25rem; }
+        .step-title { font-family: var(--serif); font-size: 1.3rem; color: var(--ink); margin-bottom: 0.75rem; font-weight: 400; }
+        .step-desc { font-family: var(--sans); font-size: 14px; color: var(--ink-light); line-height: 1.7; font-weight: 300; }
+        .advantages { background: var(--ink); padding: 6rem 0; }
+        .advantages-inner { max-width: 1300px; margin: 0 auto; padding: 0 3rem; }
+        .advantages-header { margin-bottom: 4rem; }
+        .advantages-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+        .advantages-title { font-family: var(--serif); font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 300; color: var(--cream); line-height: 1.1; }
+        .advantages-title em { font-style: italic; color: var(--gold); }
+        .advantages-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08); }
+        .advantage { padding: 2.5rem 2rem; background: var(--ink); transition: background 0.2s; }
+        .advantage:hover { background: #242018; }
+        .advantage-num { font-family: var(--serif); font-size: 0.85rem; color: var(--gold); margin-bottom: 1rem; font-style: italic; }
+        .advantage-title { font-family: var(--serif); font-size: 1.3rem; color: var(--cream); margin-bottom: 0.75rem; font-weight: 400; }
+        .advantage-desc { font-family: var(--sans); font-size: 14px; color: rgba(250,248,243,0.55); line-height: 1.7; font-weight: 300; }
+        .stats { max-width: 1300px; margin: 0 auto; padding: 6rem 3rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border); border: 1px solid var(--border); }
+        .stat { background: var(--warm-white); padding: 2.5rem 2rem; text-align: center; }
+        .stat-value { font-family: var(--serif); font-size: 3rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 0.5rem; }
+        .stat-label { font-family: var(--sans); font-size: 13px; color: var(--ink-light); font-weight: 300; }
+        .cta-section { background: var(--gold-pale); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6rem 3rem; text-align: center; }
+        .cta-title { font-family: var(--serif); font-size: clamp(2rem, 3.5vw, 3.5rem); font-weight: 300; color: var(--ink); margin-bottom: 1rem; }
+        .cta-title em { font-style: italic; color: var(--gold); }
+        .cta-sub { font-family: var(--sans); font-size: 15px; color: var(--ink-light); font-weight: 300; margin-bottom: 2.5rem; line-height: 1.7; }
+        .cta-note { font-family: var(--sans); font-size: 12px; color: #bbb; margin-top: 1rem; }
+        .footer { padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); font-family: var(--sans); font-size: 12px; color: #bbb; }
+        .footer-logo { font-family: var(--serif); font-size: 1.1rem; color: var(--ink-light); }
+        .footer-logo span { color: var(--gold); }
+
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+          .nav { display: none; }
+          .hero { grid-template-columns: 1fr; padding: 5.5rem 1.25rem 2.5rem; gap: 2rem; min-height: auto; }
+          .hero-right { display: none; }
+          .hero-title { font-size: 2.6rem; margin-bottom: 1rem; }
+          .hero-eyebrow { margin-bottom: 1.25rem; }
+          .hero-subtitle { font-size: 0.95rem; margin-bottom: 2rem; max-width: 100%; }
+          .hero-actions { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+          .btn-primary { text-align: center; padding: 15px 24px; font-size: 12px; }
+          .btn-secondary { justify-content: center; }
+          .divider { padding: 0 1.25rem; }
+          .section { padding: 3.5rem 1.25rem; }
+          .section-header { margin-bottom: 2.5rem; }
+          .steps { grid-template-columns: 1fr; }
+          .step { padding: 2rem 1.5rem; }
+          .advantages { padding: 3.5rem 0; }
+          .advantages-inner { padding: 0 1.25rem; }
+          .advantages-grid { grid-template-columns: 1fr; }
+          .advantage { padding: 2rem 1.5rem; }
+          .stats { padding: 3.5rem 1.25rem; }
+          .stats-grid { grid-template-columns: 1fr; }
+          .stat { padding: 2rem 1.5rem; }
+          .cta-section { padding: 3.5rem 1.25rem; }
+          .cta-section .hero-actions { flex-direction: column; align-items: stretch; }
+          .footer { padding: 1.5rem 1.25rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+        }
+      `}</style>
+
+      {/* MOBILE NAV */}
+      <MobileNav onPostClick={handlePostClick} />
+
+      {/* DESKTOP NAV */}
       <nav className="nav">
         <a href="/" className="nav-logo">Prop<span>Match</span></a>
         <div className="nav-links">
-          <Link href="/" className="nav-link">Home</Link>
-          <Link href="/services" className="nav-link active">Services</Link>
-          <Link href="/post" className="nav-cta">Post Requirement</Link>
+          <Link href="/services" className="nav-link" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Services</Link>
+          <Link href="/marketplace" className="nav-link" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Marketplace</Link>
+          <Link href="/pricing" className="nav-link" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Pricing</Link>
+          {user ? (
+            <Link href="/account" className="nav-cta">My Account</Link>
+          ) : (
+            <button onClick={handlePostClick} className="nav-cta">Post a Requirement</button>
+          )}
         </div>
       </nav>
 
-      <div className="page-header">
-        <div>
-          <div className="header-eyebrow">Full service property support</div>
-          <h1 className="header-title">Everything you need,<br /><em>all in one place.</em></h1>
+      {/* HERO */}
+      <section>
+        <div className="hero">
+          <div className="hero-left">
+            <div className="hero-eyebrow">Australia's smarter property market</div>
+            <h1 className="hero-title">Buyers post.<br />Sellers reach out.<br /><em>You choose.</em></h1>
+            <p className="hero-subtitle">Post your property requirement — suburb, type and budget — and sellers with matching or similar properties will contact you directly with what they have to offer. No more endless searching.</p>
+            <div className="hero-actions">
+              <button onClick={handlePostClick} className="btn-primary">Post your requirement</button>
+              <Link href="/pricing" className="btn-secondary">See pricing</Link>
+            </div>
+          </div>
+          <div className="hero-right">
+            <div className="hero-card">
+              <div className="card-tag">Buyer Requirement</div>
+              <div className="card-title">3-bed house with a garden</div>
+              <div className="card-location">Richmond, Melbourne VIC</div>
+              <div className="card-specs">
+                <div className="card-spec"><span className="spec-value">3</span><span className="spec-label">Bedrooms</span></div>
+                <div className="card-spec"><span className="spec-value">2</span><span className="spec-label">Bathrooms</span></div>
+                <div className="card-spec"><span className="spec-value">House</span><span className="spec-label">Type</span></div>
+              </div>
+              <div className="card-budget">
+                <div><div className="budget-label">Budget range</div><div className="budget-value">$1.4M – $1.7M</div></div>
+                <div className="offer-count">4 offers received</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <p className="header-desc">
-          Finding the property is just the beginning. We've partnered with trusted professionals
-          to guide you through every step — finance, inspections, settlement, landscaping and maintenance.
-        </p>
-      </div>
+      </section>
 
-      <div className="divider"><div className="divider-line" /></div>
+      <div className="divider"><div className="divider-line" /><div className="divider-text">How it works</div><div className="divider-line" /></div>
 
-      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '4rem 3rem 6rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', background: 'var(--border)', border: '1px solid var(--border)' }}>
-          {services.map((s) => (
-            <div className="service-card" key={s.num}>
-              <div className="service-left">
-                <div>
-                  <div className="service-icon-wrap">{s.icon}</div>
-                  <h2 className="service-name">{s.name}<br /><em>{s.nameEm}</em></h2>
-                  <p className="service-tagline">{s.tagline}</p>
-                </div>
-                <span className="service-badge">{s.badge}</span>
-                <div className="service-bg-num">{s.num}</div>
+      <section className="section" id="how-it-works">
+        <div className="section-header">
+          <div className="section-eyebrow">The process</div>
+          <h2 className="section-title">Three steps to your<br /><em>perfect property</em></h2>
+        </div>
+        <div className="steps">
+          <div className="step"><div className="step-number">01</div><div className="step-icon">📋</div><h3 className="step-title">Post your requirement</h3><p className="step-desc">Tell us your ideal suburb, property type, number of bedrooms and your budget range. It takes less than 2 minutes and it's completely free.</p></div>
+          <div className="step"><div className="step-number">02</div><div className="step-icon">🔍</div><h3 className="step-title">Sellers reach out to you</h3><p className="step-desc">Sellers and agents who have a matching or similar property see your requirement and contact you directly — no middlemen, no auctions, no pressure.</p></div>
+          <div className="step"><div className="step-number">03</div><div className="step-icon">🤝</div><h3 className="step-title">You compare & choose</h3><p className="step-desc">Review everything sellers send you, compare properties at your own pace, and connect only with the ones that genuinely interest you.</p></div>
+        </div>
+      </section>
+
+      <section className="advantages">
+        <div className="advantages-inner">
+          <div className="advantages-header">
+            <div className="advantages-eyebrow">Why PropMatch</div>
+            <h2 className="advantages-title">A smarter way to<br /><em>buy property</em></h2>
+          </div>
+          <div className="advantages-grid">
+            {[
+              { n: 'i.', t: "You set the terms", d: "Post your suburb, property type, bedrooms and budget. Sellers who have something matching or close to what you want will reach out to you — you stay in control the entire time." },
+              { n: 'ii.', t: "Access off-market properties", d: "Many sellers don't want to list publicly. PropMatch lets them connect directly with serious, pre-qualified buyers like you — properties that never appear on Domain or realestate.com.au." },
+              { n: 'iii.', t: "Know what's fair", d: "Our built-in suburb price guide shows median prices, market trends and recent sales before you post — so your budget is grounded in reality." },
+              { n: 'iv.', t: "No more weekend open homes", d: "Stop spending weekends at inspections that don't match your needs. Post once and only engage with sellers whose properties genuinely fit what you're looking for." },
+              { n: 'v.', t: "Direct seller contact", d: "Sellers contact you directly with what they have. No agents inflating prices, no bidding wars — just a straightforward conversation between buyer and seller." },
+              { n: 'vi.', t: "Free for buyers, always", d: "Posting a requirement costs you nothing. Receive seller contacts, compare properties and connect — all at no cost to you, ever." },
+            ].map((a, i) => (
+              <div key={i} className="advantage">
+                <div className="advantage-num">{a.n}</div>
+                <h3 className="advantage-title">{a.t}</h3>
+                <p className="advantage-desc">{a.d}</p>
               </div>
-              <div className="service-right">
-                <p className="service-desc">{s.desc}</p>
-                <div>
-                  <div className="features-title">What's included</div>
-                  <ul className="features-list">
-                    {s.features.map((f, i) => <li key={i}>{f}</li>)}
-                  </ul>
-                </div>
-                <div className="service-footer">
-                  <span className="service-note">{s.note}</span>
-                  <button
-                    className="service-cta"
-                    onClick={() => setActiveEnquiry(`${s.name} ${s.nameEm}`)}
-                  >
-                    {s.cta}
-                  </button>
-                </div>
-              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="stats">
+        <div className="stats-grid">
+          <div className="stat"><div className="stat-value">2 min</div><div className="stat-label">Average time to post a requirement</div></div>
+          <div className="stat"><div className="stat-value">Free</div><div className="stat-label">For all buyers, always</div></div>
+          <div className="stat"><div className="stat-value">Direct</div><div className="stat-label">Seller contact, no agents required</div></div>
+        </div>
+      </section>
+
+      <section className="cta-section">
+        <h2 className="cta-title">Ready to let sellers<br /><em>come to you?</em></h2>
+        <p className="cta-sub">Post your property requirement for free. Sellers with matching properties will reach out to you directly — you compare and choose at your own pace.</p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
+          <button onClick={handlePostClick} className="btn-primary">Post your requirement — it's free</button>
+          <Link href="/pricing" style={{ fontFamily: 'var(--sans)', fontSize: '13px', fontWeight: '500', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', border: '1px solid var(--gold)', padding: '14px 28px', borderRadius: '2px', display: 'inline-block' }}>View pricing</Link>
+        </div>
+        <p className="cta-note">Buyers free forever · Sellers from $49 · No commissions</p>
+      </section>
+
+      <section style={{ background: 'var(--warm-white)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '3rem 1.25rem', textAlign: 'center' }}>
+        <p style={{ fontFamily: 'var(--sans)', fontSize: '12px', fontWeight: '500', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '1.5rem' }}>Simple, transparent pricing</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1px', flexWrap: 'wrap', background: 'var(--border)', border: '1px solid var(--border)', maxWidth: '700px', margin: '0 auto 2rem' }}>
+          {[
+            { label: 'Buyers', price: 'Free', sub: 'Post requirements · Always free', highlight: false },
+            { label: 'Featured listing', price: '$99', sub: 'One-time · 60 day listing', highlight: true },
+            { label: 'Agent bundle', price: '$199', sub: 'Per month · Up to 10 listings', highlight: false },
+          ].map((tier, i) => (
+            <div key={i} style={{ flex: 1, minWidth: '140px', background: tier.highlight ? 'var(--ink)' : 'var(--warm-white)', padding: '1.5rem 1rem', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--sans)', fontSize: '11px', fontWeight: '500', letterSpacing: '0.12em', textTransform: 'uppercase', color: tier.highlight ? 'var(--gold)' : 'var(--ink-light)', marginBottom: '0.5rem' }}>{tier.label}</div>
+              <div style={{ fontFamily: 'var(--serif)', fontSize: '2rem', fontWeight: '300', color: tier.highlight ? 'var(--gold)' : 'var(--ink)', lineHeight: 1, marginBottom: '0.4rem' }}>{tier.price}</div>
+              <div style={{ fontFamily: 'var(--sans)', fontSize: '11px', color: tier.highlight ? 'rgba(250,248,243,0.5)' : 'var(--ink-light)', fontWeight: '300' }}>{tier.sub}</div>
             </div>
           ))}
         </div>
-      </div>
-
-      <section className="bundle">
-        <div className="bundle-inner">
-          <div>
-            <div className="bundle-eyebrow">The complete package</div>
-            <h2 className="bundle-title">Use all five.<br /><em>Save thousands.</em></h2>
-            <p className="bundle-desc">When you bundle our services together, our team coordinates everything on your behalf. One point of contact from offer to keys — and beyond.</p>
-            <button className="bundle-cta" onClick={() => setActiveEnquiry('Full Service Bundle')}>
-              Enquire about the bundle
-            </button>
-          </div>
-          <div className="bundle-checklist">
-            {bundleItems.map((item, i) => (
-              <div className="bundle-item" key={i}>
-                <span className="bundle-item-icon">{item.icon}</span>
-                <div>
-                  <div className="bundle-item-name">{item.name}</div>
-                  <div className="bundle-item-desc">{item.desc}</div>
-                </div>
-                <span className="bundle-tick">✦</span>
-              </div>
-            ))}
-            <div className="bundle-item" style={{ background: 'rgba(184,146,74,0.08)', borderTop: '1px solid rgba(184,146,74,0.2)' }}>
-              <span className="bundle-item-icon">👋</span>
-              <div>
-                <div className="bundle-item-name">Dedicated coordinator</div>
-                <div className="bundle-item-desc">Melina & Mikayla manage your entire journey</div>
-              </div>
-              <span className="bundle-tick">✦</span>
-            </div>
-          </div>
-        </div>
+        <Link href="/pricing" style={{ fontFamily: 'var(--sans)', fontSize: '12px', fontWeight: '500', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--gold)', paddingBottom: '2px' }}>
+          See full pricing & compare plans →
+        </Link>
       </section>
 
       <footer className="footer">
@@ -207,74 +287,3 @@ export default function Services() {
     </>
   )
 }
-
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --cream: #faf8f3; --warm-white: #fffefb; --ink: #1a1714; --ink-light: #4a4540;
-    --gold: #b8924a; --gold-light: #d4aa6a; --gold-pale: #f5ecd8; --border: #e8e0d0;
-    --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'DM Sans', sans-serif;
-  }
-  body { background: var(--cream); color: var(--ink); font-family: var(--sans); }
-  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 3rem; background: rgba(250,248,243,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
-  .nav-logo { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; color: var(--ink); letter-spacing: 0.02em; text-decoration: none; }
-  .nav-logo span { color: var(--gold); }
-  .nav-links { display: flex; align-items: center; gap: 2rem; }
-  .nav-link { font-family: var(--sans); font-size: 13px; color: var(--ink-light); text-decoration: none; transition: color 0.2s; }
-  .nav-link:hover, .nav-link.active { color: var(--gold); }
-  .nav-cta { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); text-decoration: none; border: 1px solid var(--ink); padding: 8px 20px; border-radius: 2px; transition: all 0.2s; }
-  .nav-cta:hover { background: var(--ink); color: var(--cream); }
-  .page-header { padding: 10rem 3rem 5rem; max-width: 1300px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end; }
-  .header-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
-  .header-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
-  .header-title { font-family: var(--serif); font-size: clamp(2.5rem, 4vw, 4rem); font-weight: 300; line-height: 1.05; color: var(--ink); }
-  .header-title em { font-style: italic; color: var(--gold); }
-  .header-desc { font-family: var(--sans); font-size: 15px; font-weight: 300; color: var(--ink-light); line-height: 1.8; max-width: 420px; align-self: end; }
-  .divider { display: flex; align-items: center; gap: 1.5rem; max-width: 1300px; margin: 0 auto; padding: 0 3rem; }
-  .divider-line { flex: 1; height: 1px; background: var(--border); }
-  .service-card { background: var(--warm-white); display: grid; grid-template-columns: 1fr 1.4fr; overflow: hidden; }
-  .service-left { padding: 3rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
-  .service-bg-num { position: absolute; bottom: -1rem; right: -0.5rem; font-family: var(--serif); font-size: 8rem; font-weight: 300; color: var(--gold-pale); line-height: 1; pointer-events: none; user-select: none; }
-  .service-icon-wrap { width: 52px; height: 52px; background: var(--gold-pale); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 1.5rem; }
-  .service-name { font-family: var(--serif); font-size: 1.8rem; font-weight: 300; color: var(--ink); line-height: 1.2; margin-bottom: 0.75rem; }
-  .service-name em { font-style: italic; color: var(--gold); }
-  .service-tagline { font-family: var(--sans); font-size: 13px; font-weight: 300; color: var(--ink-light); line-height: 1.6; margin-bottom: 2rem; }
-  .service-badge { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); background: var(--gold-pale); padding: 5px 12px; border-radius: 2px; display: inline-block; }
-  .service-right { padding: 3rem; display: flex; flex-direction: column; gap: 2rem; }
-  .service-desc { font-family: var(--sans); font-size: 14px; font-weight: 300; color: var(--ink-light); line-height: 1.8; }
-  .features-title { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #bbb; margin-bottom: 0.75rem; }
-  .features-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-  .features-list li { font-family: var(--sans); font-size: 14px; color: var(--ink-light); font-weight: 300; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
-  .features-list li::before { content: '✦'; color: var(--gold); font-size: 9px; margin-top: 4px; flex-shrink: 0; }
-  .service-footer { margin-top: auto; padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-  .service-note { font-family: var(--sans); font-size: 12px; color: #bbb; font-weight: 300; }
-  .service-cta { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: var(--ink); color: var(--cream); padding: 10px 24px; border-radius: 2px; text-decoration: none; transition: all 0.2s; border: 1px solid var(--ink); cursor: pointer; }
-  .service-cta:hover { background: var(--gold); border-color: var(--gold); }
-  .bundle { background: var(--ink); padding: 6rem 0; }
-  .bundle-inner { max-width: 1300px; margin: 0 auto; padding: 0 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-  .bundle-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; }
-  .bundle-title { font-family: var(--serif); font-size: clamp(2rem, 3vw, 3rem); font-weight: 300; color: var(--cream); line-height: 1.1; margin-bottom: 1.25rem; }
-  .bundle-title em { font-style: italic; color: var(--gold); }
-  .bundle-desc { font-family: var(--sans); font-size: 14px; color: rgba(250,248,243,0.6); font-weight: 300; line-height: 1.8; margin-bottom: 2rem; }
-  .bundle-cta { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: var(--gold); color: var(--cream); padding: 14px 32px; border-radius: 2px; border: none; cursor: pointer; transition: all 0.2s; display: inline-block; }
-  .bundle-cta:hover { background: var(--gold-light); }
-  .bundle-checklist { display: flex; flex-direction: column; gap: 1px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); }
-  .bundle-item { background: rgba(255,255,255,0.03); padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
-  .bundle-item-icon { font-size: 20px; flex-shrink: 0; }
-  .bundle-item-name { font-family: var(--serif); font-size: 1.1rem; color: var(--cream); margin-bottom: 2px; }
-  .bundle-item-desc { font-family: var(--sans); font-size: 12px; color: rgba(250,248,243,0.45); font-weight: 300; }
-  .bundle-tick { margin-left: auto; color: var(--gold); font-size: 16px; flex-shrink: 0; }
-  .footer { padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); font-family: var(--sans); font-size: 12px; color: #bbb; }
-  .footer-logo { font-family: var(--serif); font-size: 1.1rem; color: var(--ink-light); }
-  .footer-logo span { color: var(--gold); }
-  @media (max-width: 900px) {
-    .nav { padding: 1rem 1.5rem; } .nav-links { gap: 1rem; }
-    .page-header { grid-template-columns: 1fr; padding: 8rem 1.5rem 3rem; gap: 1.5rem; }
-    .service-card { grid-template-columns: 1fr; }
-    .service-left { border-right: none; border-bottom: 1px solid var(--border); }
-    .bundle-inner { grid-template-columns: 1fr; padding: 0 1.5rem; gap: 2rem; }
-    .footer { padding: 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
-    .divider { padding: 0 1.5rem; }
-  }
-`
