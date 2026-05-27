@@ -1,17 +1,115 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../lib/supabase'
 import NavBar from '@/components/NavBar'
 
+// ── IMAGE UPLOADER ────────────────────────────────────────────────────
+function ImageUploader({ images, onChange }) {
+  const inputRef = useRef(null)
+  const [dragging, setDragging] = useState(false)
+  const MAX = 5
+
+  async function handleFiles(files) {
+    const remaining = MAX - images.length
+    if (remaining <= 0) return
+    const toUpload = Array.from(files).slice(0, remaining).filter(f => f.type.startsWith('image/'))
+
+    for (const file of toUpload) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        onChange(prev => [...prev, { file, preview: e.target.result, uploading: false }])
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  function handleDrop(e) {
+    e.preventDefault()
+    setDragging(false)
+    handleFiles(e.dataTransfer.files)
+  }
+
+  function removeImage(index) {
+    onChange(prev => prev.filter((_, i) => i !== index))
+  }
+
+  return (
+    <div>
+      <div
+        style={{
+          border: `2px dashed ${dragging ? '#b8924a' : '#e8e0d0'}`,
+          borderRadius: '8px',
+          padding: '2rem',
+          textAlign: 'center',
+          background: dragging ? '#fdf8f0' : '#fafafa',
+          cursor: 'pointer',
+          transition: 'all 0.2s',
+          marginBottom: '1rem',
+        }}
+        onClick={() => images.length < MAX && inputRef.current?.click()}
+        onDragOver={e => { e.preventDefault(); setDragging(true) }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+      >
+        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📷</div>
+        <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: '14px', color: '#555', marginBottom: '4px' }}>
+          {images.length >= MAX ? `Maximum ${MAX} images reached` : 'Drag & drop photos here, or click to browse'}
+        </p>
+        <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#bbb' }}>
+          {images.length}/{MAX} images · JPG, PNG, WEBP
+        </p>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          style={{ display: 'none' }}
+          onChange={e => handleFiles(e.target.files)}
+        />
+      </div>
+
+      {images.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+          {images.map((img, i) => (
+            <div key={i} style={{ position: 'relative', aspectRatio: '1', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e8e0d0' }}>
+              <img src={img.preview || img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <button
+                type="button"
+                onClick={() => removeImage(i)}
+                style={{
+                  position: 'absolute', top: '4px', right: '4px',
+                  background: 'rgba(0,0,0,0.6)', color: '#fff',
+                  border: 'none', borderRadius: '50%',
+                  width: '22px', height: '22px',
+                  fontSize: '12px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >✕</button>
+              {i === 0 && (
+                <div style={{ position: 'absolute', bottom: '4px', left: '4px', background: '#b8924a', color: '#fff', fontSize: '9px', fontFamily: 'system-ui,sans-serif', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '2px 6px', borderRadius: '3px' }}>
+                  Cover
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── SELLER POST FORM ──────────────────────────────────────────────────
 function SellerPostForm({ onSuccess, onCancel }) {
   const [form, setForm] = useState({
     seller_name: '', seller_email: '', seller_phone: '',
     title: '', location: '', property_type: '', bedrooms: '',
     bathrooms: '', land_size: '', asking_price: '', description: ''
   })
+  const [images, setImages] = useState([])
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState('')
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -37,22 +135,65 @@ function SellerPostForm({ onSuccess, onCancel }) {
     const v = validate()
     if (Object.keys(v).length) { setErrors(v); return }
     setLoading(true)
-    const { error } = await supabase.from('listings').insert([{
-      seller_name: form.seller_name.trim(),
-      seller_email: form.seller_email.trim().toLowerCase(),
-      seller_phone: form.seller_phone.trim() || null,
-      title: form.title.trim(),
-      location: form.location.trim(),
-      property_type: form.property_type,
-      bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
-      bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
-      land_size: form.land_size ? parseInt(form.land_size) : null,
-      asking_price: parseInt(form.asking_price),
-      description: form.description.trim(),
-    }])
-    setLoading(false)
-    if (error) { setErrors({ form: 'Something went wrong. Please try again.' }); return }
-    onSuccess()
+
+    try {
+      // 1. Insert listing first to get ID
+      const { data: listing, error: listingError } = await supabase
+        .from('listings')
+        .insert([{
+          seller_name: form.seller_name.trim(),
+          seller_email: form.seller_email.trim().toLowerCase(),
+          seller_phone: form.seller_phone.trim() || null,
+          title: form.title.trim(),
+          location: form.location.trim(),
+          property_type: form.property_type,
+          bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
+          bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
+          land_size: form.land_size ? parseInt(form.land_size) : null,
+          asking_price: parseInt(form.asking_price),
+          description: form.description.trim(),
+          images: [],
+        }])
+        .select()
+        .single()
+
+      if (listingError) throw listingError
+
+      // 2. Upload images if any
+      let imageUrls = []
+      if (images.length > 0) {
+        setUploadProgress(`Uploading ${images.length} image${images.length > 1 ? 's' : ''}...`)
+        for (let i = 0; i < images.length; i++) {
+          const img = images[i]
+          const ext = img.file.name.split('.').pop()
+          const path = `listings/${listing.id}/${Date.now()}-${i}.${ext}`
+          const { error: uploadError } = await supabase.storage
+            .from('listing-images')
+            .upload(path, img.file, { contentType: img.file.type })
+
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('listing-images')
+              .getPublicUrl(path)
+            imageUrls.push(publicUrl)
+          }
+        }
+
+        // 3. Update listing with image URLs
+        await supabase
+          .from('listings')
+          .update({ images: imageUrls })
+          .eq('id', listing.id)
+      }
+
+      setLoading(false)
+      setUploadProgress('')
+      onSuccess()
+    } catch (err) {
+      setLoading(false)
+      setUploadProgress('')
+      setErrors({ form: 'Something went wrong. Please try again.' })
+    }
   }
 
   return (
@@ -63,6 +204,7 @@ function SellerPostForm({ onSuccess, onCancel }) {
           <button style={fs.closeBtn} onClick={onCancel}>✕</button>
         </div>
         <form onSubmit={handleSubmit} noValidate style={fs.form}>
+
           <div style={fs.sectionTitle}>Your details</div>
           <div style={fs.row}>
             <FormField label="Full name" error={errors.seller_name}>
@@ -75,6 +217,7 @@ function SellerPostForm({ onSuccess, onCancel }) {
           <FormField label="Phone (optional)">
             <input style={fieldInput()} name="seller_phone" placeholder="e.g. 0412 345 678" value={form.seller_phone} onChange={handleChange} />
           </FormField>
+
           <div style={{ ...fs.sectionTitle, marginTop: '1.25rem' }}>Property details</div>
           <FormField label="Listing title" error={errors.title}>
             <input style={fieldInput(errors.title)} name="title" placeholder="e.g. Charming 3-bed home with north-facing garden" value={form.title} onChange={handleChange} />
@@ -112,12 +255,19 @@ function SellerPostForm({ onSuccess, onCancel }) {
             <input style={fieldInput(errors.asking_price)} name="asking_price" type="number" placeholder="e.g. 850000" value={form.asking_price} onChange={handleChange} />
           </FormField>
           <FormField label="Description" error={errors.description}>
-            <textarea style={{ ...fieldInput(errors.description), height: '90px', resize: 'vertical' }} name="description" placeholder="Describe the property..." value={form.description} onChange={handleChange} />
+            <textarea style={{ ...fieldInput(errors.description), height: '90px', resize: 'vertical' }} name="description" placeholder="Describe the property — features, condition, what makes it special..." value={form.description} onChange={handleChange} />
           </FormField>
+
+          <div style={{ ...fs.sectionTitle, marginTop: '1.25rem' }}>Property photos <span style={{ color: '#bbb', fontSize: '10px', fontFamily: 'system-ui,sans-serif', textTransform: 'none', letterSpacing: 0 }}>(optional · up to 5)</span></div>
+          <ImageUploader images={images} onChange={setImages} />
+
           {errors.form && <p style={fs.errorMsg}>{errors.form}</p>}
+
           <div style={fs.modalFooter}>
             <button type="button" style={fs.cancelBtn} onClick={onCancel}>Cancel</button>
-            <button type="submit" style={fs.submitBtn} disabled={loading}>{loading ? 'Listing...' : 'List my property →'}</button>
+            <button type="submit" style={fs.submitBtn} disabled={loading}>
+              {loading ? (uploadProgress || 'Submitting...') : 'List my property →'}
+            </button>
           </div>
         </form>
       </div>
@@ -139,6 +289,7 @@ function fieldInput(err) {
   return { padding: '8px 12px', border: `1px solid ${err ? '#e74c3c' : '#ddd'}`, borderRadius: '7px', fontSize: '14px', fontFamily: 'system-ui,sans-serif', color: '#1a1a1a', background: err ? '#fff8f8' : '#fafafa', outline: 'none', width: '100%', boxSizing: 'border-box' }
 }
 
+// ── BUYER CARD ────────────────────────────────────────────────────────
 function BuyerCard({ req }) {
   const [expanded, setExpanded] = useState(false)
   return (
@@ -174,10 +325,40 @@ function BuyerCard({ req }) {
   )
 }
 
+// ── LISTING CARD ──────────────────────────────────────────────────────
 function ListingCard({ listing }) {
   const [expanded, setExpanded] = useState(false)
+  const [activeImg, setActiveImg] = useState(0)
+  const hasImages = listing.images && listing.images.length > 0
+
   return (
     <div style={c.card}>
+      {/* Image gallery */}
+      {hasImages && (
+        <div style={{ marginBottom: '1rem' }}>
+          <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: '8px', overflow: 'hidden', marginBottom: '6px', background: '#f0ece4' }}>
+            <img src={listing.images[activeImg]} alt={listing.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          {listing.images.length > 1 && (
+            <div style={{ display: 'flex', gap: '6px' }}>
+              {listing.images.map((img, i) => (
+                <div
+                  key={i}
+                  onClick={() => setActiveImg(i)}
+                  style={{
+                    width: '48px', height: '48px', borderRadius: '4px', overflow: 'hidden',
+                    cursor: 'pointer', border: `2px solid ${activeImg === i ? '#b8924a' : 'transparent'}`,
+                    opacity: activeImg === i ? 1 : 0.7, transition: 'all 0.15s',
+                  }}
+                >
+                  <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div style={c.cardTop}>
         <div style={c.cardLeft}>
           <span style={{ ...c.tag, background: '#e8f4fd', color: '#1a6fa8' }}>{listing.property_type || 'Property'}</span>
@@ -186,6 +367,7 @@ function ListingCard({ listing }) {
             <span style={c.metaItem}>📍 {listing.location}</span>
             {listing.bedrooms && <span style={c.metaItem}>🛏 {listing.bedrooms} bed</span>}
             {listing.bathrooms && <span style={c.metaItem}>🚿 {listing.bathrooms} bath</span>}
+            {listing.land_size && <span style={c.metaItem}>📐 {listing.land_size.toLocaleString()}m²</span>}
           </div>
         </div>
         <div style={c.cardRight}>
@@ -194,6 +376,7 @@ function ListingCard({ listing }) {
           <div style={c.postedDate}>{timeSince(listing.created_at)}</div>
         </div>
       </div>
+
       {expanded && (
         <div style={c.expanded}>
           <p style={{ fontSize: '14px', color: '#555', fontFamily: 'system-ui,sans-serif', lineHeight: 1.6, marginBottom: '1rem' }}>{listing.description}</p>
@@ -206,6 +389,7 @@ function ListingCard({ listing }) {
   )
 }
 
+// ── MAIN PAGE ─────────────────────────────────────────────────────────
 export default function Marketplace() {
   const [tab, setTab] = useState('buyers')
   const [requirements, setRequirements] = useState([])
@@ -248,7 +432,6 @@ export default function Marketplace() {
   return (
     <div style={p.page}>
       <NavBar />
-
       <div style={p.container}>
         <div style={p.header}>
           <h1 style={p.title}>Property Marketplace</h1>
@@ -282,14 +465,14 @@ export default function Marketplace() {
         {loading ? <div style={p.loading}>Loading listings...</div> : (
           <>
             {tab === 'buyers' && (
-              filteredReqs.length === 0 ? (
-                <div style={p.empty}><div style={p.emptyIcon}>🏠</div><p style={p.emptyText}>No buyer requirements found.</p><Link href="/post" style={p.actionBtn}>Be the first to post</Link></div>
-              ) : <div style={p.grid}>{filteredReqs.map(r => <BuyerCard key={r.id} req={r} />)}</div>
+              filteredReqs.length === 0
+                ? <div style={p.empty}><div style={p.emptyIcon}>🏠</div><p style={p.emptyText}>No buyer requirements found.</p><Link href="/post" style={p.actionBtn}>Be the first to post</Link></div>
+                : <div style={p.grid}>{filteredReqs.map(r => <BuyerCard key={r.id} req={r} />)}</div>
             )}
             {tab === 'sellers' && (
-              filteredListings.length === 0 ? (
-                <div style={p.empty}><div style={p.emptyIcon}>🏷️</div><p style={p.emptyText}>No properties listed yet.</p><button style={p.actionBtn} onClick={() => setShowSellerForm(true)}>List the first property</button></div>
-              ) : <div style={p.grid}>{filteredListings.map(l => <ListingCard key={l.id} listing={l} />)}</div>
+              filteredListings.length === 0
+                ? <div style={p.empty}><div style={p.emptyIcon}>🏷️</div><p style={p.emptyText}>No properties listed yet.</p><button style={p.actionBtn} onClick={() => setShowSellerForm(true)}>List the first property</button></div>
+                : <div style={p.grid}>{filteredListings.map(l => <ListingCard key={l.id} listing={l} />)}</div>
             )}
           </>
         )}

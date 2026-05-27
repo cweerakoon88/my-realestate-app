@@ -159,7 +159,7 @@ export default function Contact() {
           </div>
 
           <div className="team-note">
-            <div className="team-note-title">👋 A note from Melina & Mikayla</div>
+            <div className="team-note-title">👋 A note from the team</div>
             <p className="team-note-desc">We personally review every message that comes through. If you have a question, a suggestion, or just want to chat about your property situation — don't hesitate to reach out. We're real people who genuinely want to help.</p>
           </div>
         </div>

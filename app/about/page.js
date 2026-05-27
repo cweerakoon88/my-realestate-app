@@ -252,12 +252,12 @@ export default function About() {
           <div className="team-card">
             <div className="team-avatar">C</div>
             <div className="team-name">Callum Weerakoon</div>
-            <div className="team-role">Founder & CEO</div>
+            <div className="team-role">Founder</div>
             <p className="team-bio">Former property buyer and seller who experienced firsthand the frustration of auctions, marketing fees, and agent pressure. Built PropMatch to create the platform he wished existed when he was searching for his own home in Melbourne.</p>
           </div>
           <div className="team-card">
             <div className="team-avatar">M</div>
-            <div className="team-name">Melina & Mikayla</div>
+            <div className="team-name">Mel</div>
             <div className="team-role">Client Experience</div>
             <p className="team-bio">Our client experience team personally reviews every requirement posted on PropMatch and works to connect buyers and sellers in a way that feels human, not algorithmic. They're your first point of contact for anything you need.</p>
           </div>
