@@ -1,8 +1,32 @@
 'use client'
 import Link from 'next/link'
+import { useState } from 'react'
 import NavBar from '@/components/NavBar'
 
 export default function Pricing() {
+  const [loading, setLoading] = useState(null)
+
+  async function handleCheckout(plan) {
+    setLoading(plan)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert('Something went wrong. Please try again.')
+      }
+    } catch (err) {
+      alert('Something went wrong. Please try again.')
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <>
       <style>{`
@@ -53,19 +77,18 @@ export default function Pricing() {
         .plan-price sup { font-size: 1.2rem; vertical-align: top; margin-top: 0.5rem; }
         .plan-period { font-family: var(--sans); font-size: 12px; color: var(--ink-light); margin-top: 6px; font-weight: 300; }
         .plan.featured .plan-period { color: rgba(250,248,243,0.5); }
-        .plan-original { font-family: var(--sans); font-size: 13px; color: var(--ink-light); text-decoration: line-through; margin-top: 4px; display: none; }
-        .plan-original.show { display: block; }
-        .plan.featured .plan-original { color: rgba(250,248,243,0.4); }
         .plan-features { list-style: none; flex: 1; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 10px; }
         .plan-features li { font-family: var(--sans); font-size: 13px; color: var(--ink-light); display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
         .plan.featured .plan-features li { color: rgba(250,248,243,0.7); }
         .feat-check { color: var(--gold); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
         .feat-x { color: #ccc; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
         .plan.featured .feat-x { color: rgba(255,255,255,0.2); }
-        .plan-cta { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 13px 24px; text-align: center; text-decoration: none; border: 1px solid var(--ink); color: var(--ink); transition: all 0.2s; display: block; background: none; cursor: pointer; }
-        .plan-cta:hover { background: var(--ink); color: var(--cream); }
+        .plan-cta { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 13px 24px; text-align: center; text-decoration: none; border: 1px solid var(--ink); color: var(--ink); transition: all 0.2s; display: block; background: none; cursor: pointer; width: 100%; }
+        .plan-cta:hover:not(:disabled) { background: var(--ink); color: var(--cream); }
+        .plan-cta:disabled { opacity: 0.6; cursor: not-allowed; }
         .plan.featured .plan-cta { background: var(--gold); border-color: var(--gold); color: var(--ink); }
-        .plan.featured .plan-cta:hover { background: var(--gold-light); border-color: var(--gold-light); }
+        .plan.featured .plan-cta:hover:not(:disabled) { background: var(--gold-light); border-color: var(--gold-light); }
+        .stripe-note { font-family: var(--sans); font-size: 11px; color: #bbb; text-align: center; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .compare-section { max-width: 900px; margin: 0 auto; padding: 0 3rem 5rem; }
         .section-title { font-family: var(--serif); font-size: 1.8rem; font-weight: 300; color: var(--ink); text-align: center; margin-bottom: 2rem; }
         .section-title em { font-style: italic; color: var(--gold); }
@@ -113,7 +136,7 @@ export default function Pricing() {
       <div className="page-header">
         <div className="header-eyebrow">Simple, transparent pricing</div>
         <h1 className="header-title">Free for buyers.<br /><em>Affordable for sellers.</em></h1>
-        <p className="header-desc">Buyers always post for free. Sellers and agents pay a simple flat fee to list their property and connect with motivated, pre-qualified buyers. No hidden costs. No commissions.</p>
+        <p className="header-desc">Buyers always post for free. Sellers pay a simple flat fee — no commissions, no hidden costs. Pay securely via Stripe.</p>
       </div>
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 3rem' }}>
@@ -137,31 +160,9 @@ export default function Pricing() {
             }
           }}>For buyers</button>
         </div>
-        <div className="toggle-wrap">
-          <span className="toggle-label active" id="label-monthly">Monthly</span>
-          <label className="toggle">
-            <input type="checkbox" id="annualToggle" onChange={() => {
-              if (typeof window !== 'undefined') {
-                const isAnnual = document.getElementById('annualToggle').checked
-                document.getElementById('label-monthly').className = 'toggle-label' + (isAnnual ? '' : ' active')
-                document.getElementById('label-annual').className = 'toggle-label' + (isAnnual ? ' active' : '')
-                document.querySelectorAll('.price-val').forEach(el => {
-                  el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly
-                })
-                document.querySelectorAll('.plan-original').forEach(el => {
-                  el.className = 'plan-original' + (isAnnual ? ' show' : '')
-                })
-                const agentPeriod = document.getElementById('agent-period')
-                if (agentPeriod) agentPeriod.textContent = isAnnual ? 'per month · billed annually' : 'per month'
-              }
-            }} />
-            <span className="toggle-slider"></span>
-          </label>
-          <span className="toggle-label" id="label-annual">Annual</span>
-          <span className="save-badge">Save 20%</span>
-        </div>
       </div>
 
+      {/* SELLER PLANS */}
       <div className="pricing-section" id="seller-plans">
         <div className="pricing-grid">
           <div className="plan">
@@ -169,9 +170,8 @@ export default function Pricing() {
             <h2 className="plan-name">Basic listing</h2>
             <p className="plan-tagline">List one property and connect with ready buyers in your suburb.</p>
             <div className="plan-price-wrap">
-              <div className="plan-price"><sup>$</sup><span className="price-val" data-monthly="49" data-annual="39">49</span></div>
+              <div className="plan-price"><sup>$</sup>49</div>
               <div className="plan-period">one-time · 60 day listing</div>
-              <div className="plan-original">Was $49</div>
             </div>
             <ul className="plan-features">
               <li><span className="feat-check">✦</span>1 property listing for 60 days</li>
@@ -183,16 +183,23 @@ export default function Pricing() {
               <li><span className="feat-x">—</span>Buyer match email alerts</li>
               <li><span className="feat-x">—</span>Verified seller badge</li>
             </ul>
-            <a href="mailto:hello@propoffer.com.au?subject=Basic Listing Enquiry" className="plan-cta">Get started</a>
+            <button
+              className="plan-cta"
+              onClick={() => handleCheckout('basic')}
+              disabled={loading === 'basic'}
+            >
+              {loading === 'basic' ? 'Redirecting…' : 'Get started — $49'}
+            </button>
+            <p className="stripe-note">🔒 Secure payment via Stripe</p>
           </div>
+
           <div className="plan featured">
             <span className="plan-badge">Most popular</span>
             <h2 className="plan-name">Featured listing</h2>
             <p className="plan-tagline">Stand out and get matched with buyers actively looking for your property type.</p>
             <div className="plan-price-wrap">
-              <div className="plan-price"><sup>$</sup><span className="price-val" data-monthly="99" data-annual="79">99</span></div>
+              <div className="plan-price"><sup>$</sup>99</div>
               <div className="plan-period">one-time · 60 day listing</div>
-              <div className="plan-original">Was $99</div>
             </div>
             <ul className="plan-features">
               <li><span className="feat-check">✦</span>1 property listing for 60 days</li>
@@ -204,16 +211,23 @@ export default function Pricing() {
               <li><span className="feat-check">✦</span>Priority support from our team</li>
               <li><span className="feat-check">✦</span>50% off relist if not sold in 60 days</li>
             </ul>
-            <a href="mailto:hello@propoffer.com.au?subject=Featured Listing Enquiry" className="plan-cta">Get started</a>
+            <button
+              className="plan-cta"
+              onClick={() => handleCheckout('featured')}
+              disabled={loading === 'featured'}
+            >
+              {loading === 'featured' ? 'Redirecting…' : 'Get started — $99'}
+            </button>
+            <p className="stripe-note" style={{ color: 'rgba(250,248,243,0.4)' }}>🔒 Secure payment via Stripe</p>
           </div>
+
           <div className="plan">
             <span className="plan-badge">For agencies</span>
             <h2 className="plan-name">Agent bundle</h2>
             <p className="plan-tagline">For real estate agencies managing multiple properties with ongoing access.</p>
             <div className="plan-price-wrap">
-              <div className="plan-price"><sup>$</sup><span className="price-val" data-monthly="199" data-annual="159">199</span></div>
-              <div className="plan-period" id="agent-period">per month</div>
-              <div className="plan-original">Was $199/mo</div>
+              <div className="plan-price"><sup>$</sup>199</div>
+              <div className="plan-period">per month</div>
             </div>
             <ul className="plan-features">
               <li><span className="feat-check">✦</span>Up to 10 active listings at a time</li>
@@ -230,6 +244,7 @@ export default function Pricing() {
         </div>
       </div>
 
+      {/* BUYER PLANS */}
       <div className="pricing-section" id="buyer-plans" style={{ display: 'none' }}>
         <div className="pricing-grid-2">
           <div className="plan">
@@ -267,11 +282,12 @@ export default function Pricing() {
               <li><span className="feat-check">✦</span>Weekly digest of new matching listings</li>
               <li><span className="feat-check">✦</span>Renew or cancel anytime</li>
             </ul>
-            <a href="mailto:hello@propoffer.com.au?subject=Boost Enquiry" className="plan-cta">Boost my requirement</a>
+            <a href="mailto:hello@propoffer.com.au?subject=Boost Enquiry" className="plan-cta">Enquire about boosting</a>
           </div>
         </div>
       </div>
 
+      {/* COMPARE TABLE */}
       <div className="compare-section" id="compare-table">
         <h2 className="section-title">Compare seller <em>plans</em></h2>
         <table className="compare">
@@ -293,13 +309,10 @@ export default function Pricing() {
             <tr><td>Marketplace listing</td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
             <tr><td>Featured / pinned placement</td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
             <tr><td>Buyer match email alerts</td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td>New requirement alerts</td><td><span className="compare-dash">—</span></td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td></tr>
             <tr><td colSpan={4} className="compare-section-row">Trust & support</td></tr>
             <tr><td>Verified seller badge</td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td>Licensed agent badge</td><td><span className="compare-dash">—</span></td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td></tr>
             <tr><td>Priority support</td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
             <tr><td>Dedicated account manager</td><td><span className="compare-dash">—</span></td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td>Monthly performance report</td><td><span className="compare-dash">—</span></td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td></tr>
             <tr><td colSpan={4} className="compare-section-row">vs. competitors</td></tr>
             <tr><td>realestate.com.au standard</td><td colSpan={3} style={{ textAlign: 'center', color: '#c0392b' }}>$200 – $4,000 per listing</td></tr>
             <tr><td>Domain standard</td><td colSpan={3} style={{ textAlign: 'center', color: '#c0392b' }}>$150 – $3,500 per listing</td></tr>
@@ -308,16 +321,17 @@ export default function Pricing() {
         </table>
       </div>
 
+      {/* FAQ */}
       <div className="faq-section">
         <h2 className="section-title">Common <em>questions</em></h2>
         {[
           ['Is it really free for buyers?', 'Yes — posting a buyer requirement is completely free and always will be. We charge sellers to list their properties, not buyers to find them.'],
           ['How is PropOffer different from Domain or REA?', "On Domain and REA, sellers list and buyers search. On PropOffer it's reversed — buyers post exactly what they want and sellers come to them. Plus we're dramatically cheaper — REA charges up to $4,000 per listing. We charge $49–$99."],
+          ['Is my payment secure?', 'Yes — all payments are processed by Stripe, one of the world\'s most trusted payment platforms. PropOffer never stores your card details.'],
           ['Can I list an off-market property?', 'Absolutely. Many sellers prefer PropOffer precisely because they can list quietly without a full public campaign.'],
-          ['What happens after I list?', 'Your listing goes live in the marketplace immediately. Featured listings are pinned at the top and trigger an email to matching buyers in your suburb.'],
-          ["Do I need a real estate licence to list?", "Private sellers (homeowners) can list without a licence. Licensed agents should use the Agent Bundle plan which includes a verified agent badge."],
-          ["What if my property doesn't sell?", "Featured listing customers receive 50% off a relist if the property hasn't sold after 60 days. Agent Bundle subscribers can cancel anytime."],
-          ['Who reviews my listing before it goes live?', 'Our team — Melina & Mikayla — personally reviews every listing to ensure it\'s genuine and complete.'],
+          ['What happens after I pay?', 'Your listing goes live in the marketplace immediately. Our team will contact you within 24 hours to confirm everything is set up correctly.'],
+          ["What if my property doesn't sell?", "Featured listing customers receive 50% off a relist if the property hasn't sold after 60 days."],
+          ['Do I need a real estate licence to list?', 'Private sellers (homeowners) can list without a licence. Licensed agents should use the Agent Bundle plan.'],
         ].map(([q, a], i) => (
           <details className="faq-item" key={i}>
             <summary className="faq-q">{q}<span className="faq-icon">+</span></summary>
@@ -342,6 +356,7 @@ export default function Pricing() {
           <Link href="/services" className="footer-link">Services</Link>
           <Link href="/about" className="footer-link">About</Link>
           <Link href="/contact" className="footer-link">Contact</Link>
+          <Link href="/terms" className="footer-link">Terms</Link>
         </div>
         <div>© 2025 PropOffer · Transparent pricing, always</div>
       </footer>
