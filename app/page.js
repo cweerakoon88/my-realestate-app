@@ -152,7 +152,7 @@ export default function Home() {
               </div>
               <div className="card-budget">
                 <div><div className="budget-label">Budget range</div><div className="budget-value">$1.4M – $1.7M</div></div>
-                <div className="offer-count">4 offers received</div>
+                <div className="offer-count">4 sellers contacted</div>
               </div>
             </div>
           </div>
