@@ -141,7 +141,7 @@ export default function About() {
       <div className="hero">
         <div className="hero-eyebrow">Our story</div>
         <h1 className="hero-title">Built from<br />frustration.<br /><em>Driven by fairness.</em></h1>
-        <p className="hero-lead">PropMatch was born from a simple but painful realisation — the Australian property market is broken for both buyers and sellers.</p>
+        <p className="hero-lead">PropOffer was born from a simple but painful realisation — the Australian property market is broken for both buyers and sellers.</p>
       </div>
 
       {/* STORY */}
@@ -159,7 +159,7 @@ export default function About() {
             <p>Then I found myself on the other side. When it came time to sell my own property, I quickly discovered the seller's experience wasn't much better. I didn't want a massive board planted in front of my home. I didn't want to pay thousands in marketing fees before a single buyer had even walked through the door.</p>
             <p>And most of all, I didn't want the constant pressure from agents pushing me to accept a price I wasn't happy with — on their timeline, not mine.</p>
             <p><strong>There had to be a better way.</strong> A way for buyers to say exactly what they want, and for sellers to respond only when they have something that genuinely matches. A direct, private, pressure-free connection between the two people who actually matter in a property transaction.</p>
-            <p>That's why we built PropMatch.</p>
+            <p>That's why we built PropOffer.</p>
           </div>
         </div>
       </div>
@@ -198,7 +198,7 @@ export default function About() {
       <div className="mission">
         <h2 className="mission-title">Our mission is<br />simple — <em>put people<br />back in control.</em></h2>
         <div className="mission-body">
-          <p>PropMatch flips the traditional model. Instead of sellers listing and buyers searching, buyers post exactly what they want — suburb, property type, bedrooms, budget — and sellers with matching properties reach out directly.</p>
+          <p>PropOffer flips the traditional model. Instead of sellers listing and buyers searching, buyers post exactly what they want — suburb, property type, bedrooms, budget — and sellers with matching properties reach out directly.</p>
           <p>No auctions. No board out front. No upfront marketing costs. No middlemen inflating prices. Just a direct, private conversation between a motivated buyer and a motivated seller.</p>
           <p>For buyers, it means no more chasing. For sellers, it means connecting with pre-qualified buyers who have already told you exactly what they're looking for and what they're willing to pay.</p>
         </div>
@@ -253,13 +253,13 @@ export default function About() {
             <div className="team-avatar">C</div>
             <div className="team-name">Callum Weerakoon</div>
             <div className="team-role">Founder</div>
-            <p className="team-bio">Former property buyer and seller who experienced firsthand the frustration of auctions, marketing fees, and agent pressure. Built PropMatch to create the platform he wished existed when he was searching for his own home in Melbourne.</p>
+            <p className="team-bio">Former property buyer and seller who experienced firsthand the frustration of auctions, marketing fees, and agent pressure. Built PropOffer to create the platform he wished existed when he was searching for his own home in Melbourne.</p>
           </div>
           <div className="team-card">
             <div className="team-avatar">M</div>
             <div className="team-name">Mel</div>
             <div className="team-role">Client Experience</div>
-            <p className="team-bio">Our client experience team personally reviews every requirement posted on PropMatch and works to connect buyers and sellers in a way that feels human, not algorithmic. They're your first point of contact for anything you need.</p>
+            <p className="team-bio">Our client experience team personally reviews every requirement posted on PropOffer and works to connect buyers and sellers in a way that feels human, not algorithmic. They're your first point of contact for anything you need.</p>
           </div>
         </div>
       </div>
@@ -283,7 +283,7 @@ export default function About() {
           <Link href="/pricing" className="footer-link">Pricing</Link>
           <Link href="/marketplace" className="footer-link">Marketplace</Link>
         </div>
-        <div>© 2025 PropMatch · Australia's buyer-first property platform</div>
+        <div>© 2025 PropOffer · Australia's buyer-first property platform</div>
       </footer>
     </>
   )

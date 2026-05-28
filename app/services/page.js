@@ -220,13 +220,13 @@ export default function Home() {
       <section className="advantages">
         <div className="advantages-inner">
           <div className="advantages-header">
-            <div className="advantages-eyebrow">Why PropMatch</div>
+            <div className="advantages-eyebrow">Why PropOffer</div>
             <h2 className="advantages-title">A smarter way to<br /><em>buy property</em></h2>
           </div>
           <div className="advantages-grid">
             {[
               { n: 'i.', t: "You set the terms", d: "Post your suburb, property type, bedrooms and budget. Sellers who have something matching or close to what you want will reach out to you — you stay in control the entire time." },
-              { n: 'ii.', t: "Access off-market properties", d: "Many sellers don't want to list publicly. PropMatch lets them connect directly with serious, pre-qualified buyers like you — properties that never appear on Domain or realestate.com.au." },
+              { n: 'ii.', t: "Access off-market properties", d: "Many sellers don't want to list publicly. PropOffer lets them connect directly with serious, pre-qualified buyers like you — properties that never appear on Domain or realestate.com.au." },
               { n: 'iii.', t: "Know what's fair", d: "Our built-in suburb price guide shows median prices, market trends and recent sales before you post — so your budget is grounded in reality." },
               { n: 'iv.', t: "No more weekend open homes", d: "Stop spending weekends at inspections that don't match your needs. Post once and only engage with sellers whose properties genuinely fit what you're looking for." },
               { n: 'v.', t: "Direct seller contact", d: "Sellers contact you directly with what they have. No agents inflating prices, no bidding wars — just a straightforward conversation between buyer and seller." },
@@ -282,7 +282,7 @@ export default function Home() {
 
       <footer className="footer">
         <div className="footer-logo">Prop<span>Match</span></div>
-        <div>© 2025 PropMatch · Australia's buyer-first property platform</div>
+        <div>© 2025 PropOffer · Australia's buyer-first property platform</div>
       </footer>
     </>
   )

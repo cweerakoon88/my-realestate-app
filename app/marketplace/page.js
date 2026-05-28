@@ -501,7 +501,7 @@ export default function Marketplace() {
             <Link key={href} href={href} style={{ color: '#bbb', textDecoration: 'none' }}>{label}</Link>
           ))}
         </div>
-        <div>© 2025 PropMatch · Australia's buyer-first property platform</div>
+        <div>© 2025 PropOffer · Australia's buyer-first property platform</div>
       </footer>
     </div>
   )

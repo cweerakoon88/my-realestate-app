@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PropMatch — Australia's buyer-first property platform",
+  title: "PropOffer — Australia's buyer-first property platform",
   description: "Post your property requirement and let sellers come to you.",
 };
 

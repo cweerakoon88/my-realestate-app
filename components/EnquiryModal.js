@@ -52,7 +52,7 @@ export default function EnquiryModal({ service, onClose }) {
             </div>
           ) : (
             <>
-              <div className="eq-eyebrow">PropMatch Services</div>
+              <div className="eq-eyebrow">PropOffer Services</div>
               <h2 className="eq-title">Enquire about<br />{service}</h2>
               <p className="eq-subtitle">Fill in your details and we'll connect you with the right provider.</p>
 

@@ -13,14 +13,14 @@ export async function POST(request) {
     }
 
     const { error } = await resend.emails.send({
-      from: 'PropMatch <onboarding@resend.dev>',
+      from: 'PropOffer <onboarding@resend.dev>',
       to: 'callum.weerakoon@gmail.com',
       replyTo: email,
       subject: `New enquiry: ${service} — ${name}`,
       html: `
         <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 2rem; background: #faf8f3; border: 1px solid #e8e0d0;">
           <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e8e0d0;">
-            <p style="font-family: sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #b8924a; margin: 0 0 8px;">PropMatch · New Service Enquiry</p>
+            <p style="font-family: sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #b8924a; margin: 0 0 8px;">PropOffer · New Service Enquiry</p>
             <h1 style="font-size: 1.8rem; font-weight: 300; color: #1a1714; margin: 0;">${service}</h1>
           </div>
 
@@ -50,7 +50,7 @@ export async function POST(request) {
           </div>
 
           <p style="font-family: sans-serif; font-size: 11px; color: #bbb; margin-top: 2rem; text-align: center;">
-            PropMatch · Australia's buyer-first property platform
+            PropOffer · Australia's buyer-first property platform
           </p>
         </div>
       `,

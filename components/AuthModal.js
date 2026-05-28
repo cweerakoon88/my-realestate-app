@@ -83,7 +83,7 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
       <div className="modal-backdrop" onClick={onClose}>
         <div className="modal-box" onClick={e => e.stopPropagation()}>
           <button className="modal-close" onClick={onClose}>✕</button>
-          <div className="modal-eyebrow">PropMatch</div>
+          <div className="modal-eyebrow">PropOffer</div>
           <h2 className="modal-title">{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h2>
           <p className="modal-subtitle">
             {mode === 'signin' ? 'Sign in to manage your requirements and offers.' : 'Join thousands of buyers finding property their way.'}

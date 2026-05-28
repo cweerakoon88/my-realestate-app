@@ -303,7 +303,7 @@ export default function Pricing() {
             <tr><td colSpan={4} className="compare-section-row">vs. competitors</td></tr>
             <tr><td>realestate.com.au standard</td><td colSpan={3} style={{ textAlign: 'center', color: '#c0392b' }}>$200 – $4,000 per listing</td></tr>
             <tr><td>Domain standard</td><td colSpan={3} style={{ textAlign: 'center', color: '#c0392b' }}>$150 – $3,500 per listing</td></tr>
-            <tr><td>PropMatch</td><td colSpan={3} style={{ textAlign: 'center', color: 'var(--green)', fontWeight: 500 }}>$49 – $99 · up to 80x cheaper</td></tr>
+            <tr><td>PropOffer</td><td colSpan={3} style={{ textAlign: 'center', color: 'var(--green)', fontWeight: 500 }}>$49 – $99 · up to 80x cheaper</td></tr>
           </tbody>
         </table>
       </div>
@@ -312,8 +312,8 @@ export default function Pricing() {
         <h2 className="section-title">Common <em>questions</em></h2>
         {[
           ['Is it really free for buyers?', 'Yes — posting a buyer requirement is completely free and always will be. We charge sellers to list their properties, not buyers to find them.'],
-          ['How is PropMatch different from Domain or REA?', "On Domain and REA, sellers list and buyers search. On PropMatch it's reversed — buyers post exactly what they want and sellers come to them. Plus we're dramatically cheaper — REA charges up to $4,000 per listing. We charge $49–$99."],
-          ['Can I list an off-market property?', 'Absolutely. Many sellers prefer PropMatch precisely because they can list quietly without a full public campaign.'],
+          ['How is PropOffer different from Domain or REA?', "On Domain and REA, sellers list and buyers search. On PropOffer it's reversed — buyers post exactly what they want and sellers come to them. Plus we're dramatically cheaper — REA charges up to $4,000 per listing. We charge $49–$99."],
+          ['Can I list an off-market property?', 'Absolutely. Many sellers prefer PropOffer precisely because they can list quietly without a full public campaign.'],
           ['What happens after I list?', 'Your listing goes live in the marketplace immediately. Featured listings are pinned at the top and trigger an email to matching buyers in your suburb.'],
           ["Do I need a real estate licence to list?", "Private sellers (homeowners) can list without a licence. Licensed agents should use the Agent Bundle plan which includes a verified agent badge."],
           ["What if my property doesn't sell?", "Featured listing customers receive 50% off a relist if the property hasn't sold after 60 days. Agent Bundle subscribers can cancel anytime."],
@@ -343,7 +343,7 @@ export default function Pricing() {
           <Link href="/about" className="footer-link">About</Link>
           <Link href="/contact" className="footer-link">Contact</Link>
         </div>
-        <div>© 2025 PropMatch · Transparent pricing, always</div>
+        <div>© 2025 PropOffer · Transparent pricing, always</div>
       </footer>
     </>
   )

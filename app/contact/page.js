@@ -129,7 +129,7 @@ export default function Contact() {
         <div>
           <div className="left-eyebrow">Get in touch</div>
           <h1 className="left-title">We'd love to<br /><em>hear from you.</em></h1>
-          <p className="left-desc">Whether you're a buyer looking for help posting your requirement, a seller wanting to list a property, or just curious about how PropMatch works — our team is here to help.</p>
+          <p className="left-desc">Whether you're a buyer looking for help posting your requirement, a seller wanting to list a property, or just curious about how PropOffer works — our team is here to help.</p>
 
           <div className="contact-methods">
             <div className="contact-method">
@@ -216,7 +216,7 @@ export default function Contact() {
 
       <footer className="footer">
         <div className="footer-logo">Prop<span>Match</span></div>
-        <div>© 2025 PropMatch · Australia's buyer-first property platform</div>
+        <div>© 2025 PropOffer · Australia's buyer-first property platform</div>
       </footer>
     </>
   )

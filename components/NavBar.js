@@ -85,7 +85,14 @@ export default function NavBar({ onPostClick }) {
 
       {/* DESKTOP */}
       <nav className="navbar">
-        <a href="/" className="navbar-logo">Prop<span>Match</span></a>
+        <a href="/" className="navbar-logo" style={{ display:'flex', alignItems:'center', gap:'10px', textDecoration:'none' }}>
+        <svg width="32" height="32" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="50" fill="none" stroke="#b8924a" strokeWidth="3"/>
+        <circle cx="55" cy="55" r="42" fill="#b8924a" fillOpacity="0.12"/>
+        <text x="55" y="73" fontFamily="Georgia,serif" fontSize="52" fontWeight="400" fill="#b8924a" textAnchor="middle">P</text>
+        </svg>
+  <span style={{ fontFamily:'Georgia,serif', fontSize:'1.4rem', fontWeight:600, color:'#1a1714' }}>Prop<span style={{ color:'#b8924a' }}>Offer</span></span>
+</a>
         <div className="navbar-links">
           {navLinks.map(link => (
             <Link key={link.href} href={link.href} className="navbar-link">{link.label}</Link>
@@ -100,7 +107,14 @@ export default function NavBar({ onPostClick }) {
 
       {/* MOBILE */}
       <nav className="mob-nav">
-        <a href="/" className="mob-logo">Prop<span>Match</span></a>
+        <a href="/" className="navbar-logo" style={{ display:'flex', alignItems:'center', gap:'10px', textDecoration:'none' }}>
+        <svg width="32" height="32" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="50" fill="none" stroke="#b8924a" strokeWidth="3"/>
+        <circle cx="55" cy="55" r="42" fill="#b8924a" fillOpacity="0.12"/>
+        <text x="55" y="73" fontFamily="Georgia,serif" fontSize="52" fontWeight="400" fill="#b8924a" textAnchor="middle">P</text>
+        </svg>
+  <span style={{ fontFamily:'Georgia,serif', fontSize:'1.4rem', fontWeight:600, color:'#1a1714' }}>Prop<span style={{ color:'#b8924a' }}>Offer</span></span>
+</a>
         <div className="mob-right">
           {user ? (
             <Link href="/account" className="mob-post-btn">Account</Link>
