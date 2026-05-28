@@ -159,7 +159,7 @@ export default function Home() {
 
       {/* DESKTOP NAV */}
       <nav className="nav">
-        <a href="/" className="nav-logo">Prop<span>Match</span></a>
+        <a href="/" className="nav-logo">Prop<span>Offer</span></a>
         <div className="nav-links">
           <Link href="/services" className="nav-link" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Services</Link>
           <Link href="/marketplace" className="nav-link" style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: 'var(--ink-light)', textDecoration: 'none' }}>Marketplace</Link>
@@ -281,7 +281,7 @@ export default function Home() {
       </section>
 
       <footer className="footer">
-        <div className="footer-logo">Prop<span>Match</span></div>
+        <div className="footer-logo">Prop<span>Offer</span></div>
         <div>© 2025 PropOffer · Australia's buyer-first property platform</div>
       </footer>
     </>

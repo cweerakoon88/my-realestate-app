@@ -237,7 +237,7 @@ export default function Home() {
       </section>
 
       <footer className="footer">
-        <div className="footer-logo">Prop<span>Match</span></div>
+        <div className="footer-logo">Prop<span>Offer</span></div>
         <div className="footer-links">
           <Link href="/marketplace" className="footer-link">Marketplace</Link>
           <Link href="/services" className="footer-link">Services</Link>

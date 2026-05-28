@@ -95,7 +95,7 @@ export default function MobileNav({ onPostClick }) {
       `}</style>
 
       <nav className="mob-nav">
-        <a href="/" className="mob-logo">Prop<span>Match</span></a>
+        <a href="/" className="mob-logo">Prop<span>Offer</span></a>
         <div className="mob-right">
           {user ? (
             <Link href="/account" className="mob-post-btn">Account</Link>

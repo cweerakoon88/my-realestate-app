@@ -495,7 +495,7 @@ export default function Marketplace() {
       )}
 
       <footer style={{ padding: '2rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e8e0d0', fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#bbb', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ fontFamily: 'Georgia,serif', fontSize: '1.1rem', color: '#4a4540' }}>Prop<span style={{ color: '#b8924a' }}>Match</span></div>
+        <div style={{ fontFamily: 'Georgia,serif', fontSize: '1.1rem', color: '#4a4540' }}>Prop<span style={{ color: '#b8924a' }}>Offer</span></div>
         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
           {[['/', 'Home'], ['/services', 'Services'], ['/pricing', 'Pricing'], ['/about', 'About'], ['/contact', 'Contact']].map(([href, label]) => (
             <Link key={href} href={href} style={{ color: '#bbb', textDecoration: 'none' }}>{label}</Link>

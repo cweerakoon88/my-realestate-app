@@ -115,7 +115,7 @@ export default function Contact() {
       `}</style>
 
       <nav className="nav">
-        <a href="/" className="nav-logo">Prop<span>Match</span></a>
+        <a href="/" className="nav-logo">Prop<span>Offer</span></a>
         <div className="nav-links">
           <Link href="/" className="nav-link">Home</Link>
           <Link href="/about" className="nav-link">About</Link>
@@ -215,7 +215,7 @@ export default function Contact() {
       </div>
 
       <footer className="footer">
-        <div className="footer-logo">Prop<span>Match</span></div>
+        <div className="footer-logo">Prop<span>Offer</span></div>
         <div>© 2025 PropOffer · Australia's buyer-first property platform</div>
       </footer>
     </>

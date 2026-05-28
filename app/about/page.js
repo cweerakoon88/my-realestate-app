@@ -127,7 +127,7 @@ export default function About() {
 
       {/* NAV */}
       <nav className="nav">
-        <a href="/" className="nav-logo">Prop<span>Match</span></a>
+        <a href="/" className="nav-logo">Prop<span>Offer</span></a>
         <div className="nav-links">
           <Link href="/" className="nav-link">Home</Link>
           <Link href="/marketplace" className="nav-link">Marketplace</Link>
@@ -276,7 +276,7 @@ export default function About() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <div className="footer-logo">Prop<span>Match</span></div>
+        <div className="footer-logo">Prop<span>Offer</span></div>
         <div className="footer-links">
           <Link href="/about" className="footer-link">About</Link>
           <Link href="/contact" className="footer-link">Contact</Link>

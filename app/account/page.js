@@ -82,7 +82,7 @@ export default function AccountPage() {
       <style>{pageStyles}</style>
 
       <nav className="acc-nav">
-        <Link href="/" className="acc-logo">Prop<span>Match</span></Link>
+        <Link href="/" className="acc-logo">Prop<span>Offer</span></Link>
         <div className="acc-nav-right">
           <Link href="/post" className="acc-nav-post">+ Post</Link>
           <div className="acc-avatar" title={displayName}>{initials}</div>
