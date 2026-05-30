@@ -638,7 +638,7 @@ function timeSince(dateStr) {
 
 const p = {
   page: { minHeight: '100vh', background: '#f8f7f4', fontFamily: 'Georgia,serif' },
-  container: { maxWidth: '900px', margin: '0 auto', padding: '2rem 1.5rem' },
+  container: { maxWidth: '900px', margin: '0 auto', padding: '5rem 1.5rem 2rem' },
   header: { marginBottom: '1.5rem', paddingTop: '1rem' },
   title: { fontSize: '2rem', fontWeight: '600', color: '#1a1a1a', margin: '0 0 6px', lineHeight: 1.2 },
   subtitle: { fontSize: '15px', color: '#666', margin: 0, fontFamily: 'system-ui,sans-serif', lineHeight: 1.5 },
