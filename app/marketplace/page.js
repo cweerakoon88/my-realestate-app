@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../lib/supabase'
 import NavBar from '@/components/NavBar'
+import AuthModal from '@/components/AuthModal'
 
 // ── IMAGE UPLOADER ─────────────────────────────────────────────────────
 function ImageUploader({ images, onChange }) {
@@ -130,7 +131,6 @@ function SellerPostForm({ onSuccess, onCancel }) {
     setLoading(true)
 
     try {
-      // 1. Insert listing
       const { data: listing, error: listingError } = await supabase
         .from('listings')
         .insert([{
@@ -154,7 +154,6 @@ function SellerPostForm({ onSuccess, onCancel }) {
 
       if (listingError) throw listingError
 
-      // 2. Upload images
       let imageUrls = []
       if (images.length > 0) {
         setUploadProgress(`Uploading ${images.length} photo${images.length > 1 ? 's' : ''}...`)
@@ -170,12 +169,10 @@ function SellerPostForm({ onSuccess, onCancel }) {
         }
       }
 
-      // 3. Upload documents
       setUploadProgress('Uploading documents...')
       const councilUrl = await uploadDoc(councilDoc, 'council', listing.id)
       const titleUrl = await uploadDoc(titleDoc, 'title', listing.id)
 
-      // 4. Update listing with all URLs
       await supabase.from('listings').update({
         images: imageUrls,
         council_doc_url: councilUrl,
@@ -200,8 +197,6 @@ function SellerPostForm({ onSuccess, onCancel }) {
           <button style={fs.closeBtn} onClick={onCancel}>✕</button>
         </div>
         <form onSubmit={handleSubmit} noValidate style={fs.form}>
-
-          {/* SELLER DETAILS */}
           <div style={fs.sectionTitle}>Your details</div>
           <div style={fs.row}>
             <FormField label="Full legal name" error={errors.seller_name}>
@@ -215,7 +210,6 @@ function SellerPostForm({ onSuccess, onCancel }) {
             <input style={fld()} name="seller_phone" placeholder="e.g. 0412 345 678" value={form.seller_phone} onChange={handleChange} />
           </FormField>
 
-          {/* OWNERSHIP */}
           <div style={{ ...fs.sectionTitle, marginTop: '1.25rem' }}>Ownership details</div>
           <FormField label="Your relationship to this property" error={errors.ownership_type}>
             <select style={fld(errors.ownership_type)} name="ownership_type" value={form.ownership_type} onChange={handleChange}>
@@ -226,8 +220,8 @@ function SellerPostForm({ onSuccess, onCancel }) {
               <option value="deceased_estate">Deceased estate executor</option>
             </select>
           </FormField>
-          <FormField label="Section 32 (Vendor's Statement)" error={errors.section32_ready}>
-            <select style={fld(errors.section32_ready)} name="section32_ready" value={form.section32_ready} onChange={handleChange}>
+          <FormField label="Section 32 (Vendor's Statement)">
+            <select style={fld()} name="section32_ready" value={form.section32_ready} onChange={handleChange}>
               <option value="">Select...</option>
               <option value="yes">Yes — Section 32 is prepared</option>
               <option value="in_progress">In progress — being prepared by solicitor</option>
@@ -236,10 +230,9 @@ function SellerPostForm({ onSuccess, onCancel }) {
             </select>
           </FormField>
           <div style={{ fontSize: '11px', color: '#aaa', fontFamily: 'system-ui,sans-serif', marginBottom: '1rem', lineHeight: 1.5 }}>
-            💡 A Section 32 is required in Victoria before a buyer can sign a contract of sale. Buyers will ask for this before proceeding.
+            💡 A Section 32 is required in Victoria before a buyer can sign a contract of sale.
           </div>
 
-          {/* PROPERTY DETAILS */}
           <div style={{ ...fs.sectionTitle, marginTop: '0.5rem' }}>Property details</div>
           <FormField label="Listing title" error={errors.title}>
             <input style={fld(errors.title)} name="title" placeholder="e.g. Charming 3-bed home with north-facing garden" value={form.title} onChange={handleChange} />
@@ -276,40 +269,27 @@ function SellerPostForm({ onSuccess, onCancel }) {
             <input style={fld(errors.asking_price)} name="asking_price" type="number" placeholder="e.g. 850000" value={form.asking_price} onChange={handleChange} />
           </FormField>
           <FormField label="Description" error={errors.description}>
-            <textarea style={{ ...fld(errors.description), height: '90px', resize: 'vertical' }} name="description" placeholder="Describe the property — features, condition, what makes it special..." value={form.description} onChange={handleChange} />
+            <textarea style={{ ...fld(errors.description), height: '90px', resize: 'vertical' }} name="description" placeholder="Describe the property..." value={form.description} onChange={handleChange} />
           </FormField>
 
-          {/* PHOTOS */}
           <div style={{ ...fs.sectionTitle, marginTop: '1.25rem' }}>
             Property photos <span style={{ color: '#bbb', fontSize: '10px', fontFamily: 'system-ui,sans-serif', textTransform: 'none', letterSpacing: 0 }}>(optional · up to 5)</span>
           </div>
           <ImageUploader images={images} onChange={setImages} />
 
-          {/* DOCUMENTS */}
           <div style={{ ...fs.sectionTitle, marginTop: '1.5rem' }}>Ownership documents <span style={{ color: '#bbb', fontSize: '10px', fontFamily: 'system-ui,sans-serif', textTransform: 'none', letterSpacing: 0 }}>(optional but recommended)</span></div>
           <div style={{ background: '#fffdf7', border: '1px solid #f0e8d0', borderRadius: '8px', padding: '1rem', marginBottom: '1rem', fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#7a6a4a', lineHeight: 1.6 }}>
-            📋 Uploading a council rates notice or title document helps our team verify your listing faster and builds trust with buyers. Documents are reviewed by our team only and are not shown publicly.
+            📋 Documents are reviewed by our team only and are not shown publicly.
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '1rem' }}>
             <FormField label="Council rates notice (PDF or image)">
-              <DocUploader
-                label="council rates notice"
-                file={councilDoc}
-                onChange={setCouncilDoc}
-                hint="Shows property address and owner name — strongest proof of ownership"
-              />
+              <DocUploader label="council rates notice" file={councilDoc} onChange={setCouncilDoc} hint="Shows property address and owner name" />
             </FormField>
-            <FormField label="Certificate of title or title search (optional)">
-              <DocUploader
-                label="title document"
-                file={titleDoc}
-                onChange={setTitleDoc}
-                hint="Most reliable ownership proof — obtain from your solicitor or Land Registry"
-              />
+            <FormField label="Certificate of title (optional)">
+              <DocUploader label="title document" file={titleDoc} onChange={setTitleDoc} hint="Most reliable ownership proof" />
             </FormField>
           </div>
 
-          {/* DECLARATION */}
           <div style={{ ...fs.sectionTitle, marginTop: '1.25rem' }}>Declaration</div>
           <div
             style={{ background: errors.declaration ? '#fff8f8' : '#f8f8f8', border: `1px solid ${errors.declaration ? '#e74c3c' : '#e8e0d0'}`, borderRadius: '8px', padding: '1rem', marginBottom: '1rem', cursor: 'pointer' }}
@@ -320,7 +300,7 @@ function SellerPostForm({ onSuccess, onCancel }) {
                 {declaration && <span style={{ color: '#fff', fontSize: '12px', fontWeight: '700' }}>✓</span>}
               </div>
               <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#555', lineHeight: 1.6, margin: 0 }}>
-                <strong style={{ color: '#1a1a1a' }}>I confirm that I am the legal owner of this property, or am duly authorised to sell it on behalf of the owner.</strong> I understand that submitting a fraudulent listing is a criminal offence under Australian law and that PropOffer reserves the right to remove any listing and report fraudulent activity to the relevant authorities.
+                <strong style={{ color: '#1a1a1a' }}>I confirm that I am the legal owner of this property, or am duly authorised to sell it on behalf of the owner.</strong> I understand that submitting a fraudulent listing is a criminal offence under Australian law.
               </p>
             </div>
             {errors.declaration && <p style={{ color: '#c0392b', fontSize: '11px', fontFamily: 'system-ui,sans-serif', marginTop: '8px', marginLeft: '32px' }}>⚠ {errors.declaration}</p>}
@@ -328,9 +308,8 @@ function SellerPostForm({ onSuccess, onCancel }) {
 
           {errors.form && <p style={fs.errorMsg}>{errors.form}</p>}
 
-          {/* REVIEW NOTICE */}
           <div style={{ background: '#f0f7ff', border: '1px solid #c8dff7', borderRadius: '8px', padding: '10px 14px', marginBottom: '1rem', fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#3a6ea8', lineHeight: 1.6 }}>
-            🔍 <strong>Listings are reviewed before going live.</strong> Our team will verify your submission within 24 hours and contact you to confirm.
+            🔍 <strong>Listings are reviewed before going live.</strong> Our team will verify within 24 hours.
           </div>
 
           <div style={fs.modalFooter}>
@@ -359,8 +338,24 @@ function fld(err) {
   return { padding: '8px 12px', border: `1px solid ${err ? '#e74c3c' : '#ddd'}`, borderRadius: '7px', fontSize: '14px', fontFamily: 'system-ui,sans-serif', color: '#1a1a1a', background: err ? '#fff8f8' : '#fafafa', outline: 'none', width: '100%', boxSizing: 'border-box' }
 }
 
+// ── LOGIN GATE ─────────────────────────────────────────────────────────
+function LoginGate({ onSignIn }) {
+  return (
+    <div style={{ marginTop: '1rem', background: '#f8f7f4', border: '1px solid #e8e0d0', borderRadius: '8px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+      <span style={{ fontSize: '1.2rem' }}>🔒</span>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontFamily: 'system-ui,sans-serif', fontSize: '13px', fontWeight: '500', color: '#1a1a1a', marginBottom: '2px' }}>Sign in to view contact details</div>
+        <div style={{ fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#888' }}>Create a free account or sign in to contact buyers and sellers directly.</div>
+      </div>
+      <button onClick={onSignIn} style={{ background: '#1a1714', color: '#faf8f3', border: 'none', borderRadius: '6px', padding: '8px 18px', fontFamily: 'system-ui,sans-serif', fontSize: '13px', fontWeight: '500', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+        Sign in free
+      </button>
+    </div>
+  )
+}
+
 // ── BUYER CARD ─────────────────────────────────────────────────────────
-function BuyerCard({ req }) {
+function BuyerCard({ req, user, onSignIn }) {
   const [expanded, setExpanded] = useState(false)
   return (
     <div style={c.card}>
@@ -382,9 +377,16 @@ function BuyerCard({ req }) {
       </div>
       {expanded && (
         <div style={c.expanded}>
-          <div style={c.expandRow}><span style={c.expandLabel}>Buyer</span><span style={c.expandVal}>{req.buyer_name || `${req.first_name || ''} ${req.last_name || ''}`.trim()}</span></div>
+          <div style={c.expandRow}>
+            <span style={c.expandLabel}>Buyer</span>
+            <span style={c.expandVal}>{req.buyer_name || `${req.first_name || ''} ${req.last_name || ''}`.trim()}</span>
+          </div>
           {req.notes && <div style={c.expandRow}><span style={c.expandLabel}>Notes</span><span style={c.expandVal}>{req.notes}</span></div>}
-          <a href={`mailto:${req.buyer_email}?subject=Property offer for your requirement in ${req.location}`} style={c.contactBtn}>✉ Contact this buyer</a>
+          {user ? (
+            <a href={`mailto:${req.buyer_email}?subject=Property offer for your requirement in ${req.location}`} style={c.contactBtn}>✉ Contact this buyer</a>
+          ) : (
+            <LoginGate onSignIn={onSignIn} />
+          )}
         </div>
       )}
       <button style={c.expandBtn} onClick={() => setExpanded(e => !e)}>{expanded ? 'Show less ↑' : 'View details & contact ↓'}</button>
@@ -393,7 +395,7 @@ function BuyerCard({ req }) {
 }
 
 // ── LISTING CARD ───────────────────────────────────────────────────────
-function ListingCard({ listing }) {
+function ListingCard({ listing, user, onSignIn }) {
   const [expanded, setExpanded] = useState(false)
   const [activeImg, setActiveImg] = useState(0)
   const [reporting, setReporting] = useState(false)
@@ -464,15 +466,19 @@ function ListingCard({ listing }) {
               <span style={c.expandVal}>{{ sole_owner: 'Sole owner', co_owner: 'Co-owner', authorised_agent: 'Authorised agent', deceased_estate: 'Deceased estate' }[listing.ownership_type] || listing.ownership_type}</span>
             </div>
           )}
-          <a href={`mailto:${listing.seller_email}?subject=Enquiry about ${listing.title}`} style={{ ...c.contactBtn, background: '#1a6fa8' }}>✉ Contact seller</a>
 
-          {/* BUYER WARNING */}
-          <div style={{ marginTop: '1rem', background: '#fffbea', border: '1px solid #f0d060', borderRadius: '8px', padding: '10px 14px', fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#7a5c00', lineHeight: 1.6 }}>
-            ⚠️ <strong>Important:</strong> Never pay a deposit or transfer funds directly to a seller. All deposits should be handled through a licensed conveyancer or solicitor. PropOffer does not verify property ownership — always conduct independent due diligence.
-          </div>
+          {user ? (
+            <>
+              <a href={`mailto:${listing.seller_email}?subject=Enquiry about ${listing.title}`} style={{ ...c.contactBtn, background: '#1a6fa8' }}>✉ Contact seller</a>
+              <div style={{ marginTop: '1rem', background: '#fffbea', border: '1px solid #f0d060', borderRadius: '8px', padding: '10px 14px', fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#7a5c00', lineHeight: 1.6 }}>
+                ⚠️ <strong>Important:</strong> Never pay a deposit directly to a seller. Use a licensed conveyancer.
+              </div>
+            </>
+          ) : (
+            <LoginGate onSignIn={onSignIn} />
+          )}
 
-          {/* REPORT LISTING */}
-          {!reportSent ? (
+          {user && !reportSent && (
             !reporting ? (
               <button onClick={() => setReporting(true)} style={{ marginTop: '10px', background: 'none', border: 'none', color: '#ccc', fontSize: '12px', fontFamily: 'system-ui,sans-serif', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
                 🚩 Report this listing
@@ -482,7 +488,7 @@ function ListingCard({ listing }) {
                 <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Why are you reporting this listing?</p>
                 {['Not the actual owner', 'Fraudulent or scam listing', 'Property does not exist', 'Misleading information', 'Other'].map(reason => (
                   <button key={reason} onClick={async () => {
-                    await fetch('/api/enquiry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Report System', email: 'report@propoffer.com.au', service: `LISTING REPORT: ${listing.title} (ID: ${listing.id})`, message: `Reason: ${reason}\nListing: ${listing.title}\nSeller: ${listing.seller_name} (${listing.seller_email})\nLocation: ${listing.location}` }) })
+                    await fetch('/api/enquiry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Report System', email: 'hello@propoffer.com.au', service: `LISTING REPORT: ${listing.title}`, message: `Reason: ${reason}\nListing: ${listing.title}\nSeller: ${listing.seller_name} (${listing.seller_email})` }) })
                     setReportSent(true); setReporting(false)
                   }} style={{ display: 'block', width: '100%', textAlign: 'left', background: '#fff', border: '1px solid #ddd', borderRadius: '6px', padding: '8px 12px', marginBottom: '6px', fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#555', cursor: 'pointer' }}>
                     {reason}
@@ -491,9 +497,8 @@ function ListingCard({ listing }) {
                 <button onClick={() => setReporting(false)} style={{ background: 'none', border: 'none', color: '#bbb', fontSize: '12px', cursor: 'pointer', fontFamily: 'system-ui,sans-serif' }}>Cancel</button>
               </div>
             )
-          ) : (
-            <p style={{ marginTop: '10px', fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#2d6a4f' }}>✅ Report submitted. Our team will review this listing within 24 hours.</p>
           )}
+          {reportSent && <p style={{ marginTop: '10px', fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#2d6a4f' }}>✅ Report submitted. Our team will review within 24 hours.</p>}
         </div>
       )}
       <button style={c.expandBtn} onClick={() => setExpanded(e => !e)}>{expanded ? 'Show less ↑' : 'View details & contact ↓'}</button>
@@ -512,8 +517,19 @@ export default function Marketplace() {
   const [filterLocation, setFilterLocation] = useState('')
   const [filterType, setFilterType] = useState('')
   const [filterBeds, setFilterBeds] = useState('')
+  const [user, setUser] = useState(null)
+  const [showAuth, setShowAuth] = useState(false)
 
-  useEffect(() => { fetchAll() }, [])
+  useEffect(() => {
+    fetchAll()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null)
+    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   async function fetchAll() {
     setLoading(true)
@@ -543,16 +559,32 @@ export default function Marketplace() {
 
   return (
     <div style={p.page}>
+      {showAuth && (
+        <AuthModal
+          onClose={() => setShowAuth(false)}
+          onSuccess={() => setShowAuth(false)}
+          defaultMode="signin"
+        />
+      )}
+
       <NavBar />
+
       <div style={p.container}>
         <div style={p.header}>
           <h1 style={p.title}>Property Marketplace</h1>
           <p style={p.subtitle}>Browse buyer requirements or listed properties across Australia.</p>
         </div>
 
-        {/* TRUST NOTICE */}
+        {/* LOGIN PROMPT for logged out users */}
+        {!user && (
+          <div style={{ background: '#f5ecd8', border: '1px solid #e8d0a0', borderRadius: '8px', padding: '12px 16px', marginBottom: '1.5rem', fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#7a5c00', lineHeight: 1.6, display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <span>🔒 <strong>Sign in to contact buyers and sellers directly.</strong> Browsing is free — no account needed to see listings.</span>
+            <button onClick={() => setShowAuth(true)} style={{ background: '#b8924a', color: '#fff', border: 'none', borderRadius: '6px', padding: '7px 16px', fontFamily: 'system-ui,sans-serif', fontSize: '12px', fontWeight: '500', cursor: 'pointer', whiteSpace: 'nowrap' }}>Sign in free</button>
+          </div>
+        )}
+
         <div style={{ background: '#fffbea', border: '1px solid #f0d060', borderRadius: '8px', padding: '12px 16px', marginBottom: '1.5rem', fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#7a5c00', lineHeight: 1.6 }}>
-          ⚠️ <strong>Buyer reminder:</strong> PropOffer does not verify property ownership. Always conduct independent due diligence and <strong>never transfer funds without a formal contract and licensed conveyancer.</strong>
+          ⚠️ <strong>Buyer reminder:</strong> Always conduct independent due diligence and <strong>never transfer funds without a formal contract and licensed conveyancer.</strong>
         </div>
 
         <div style={p.tabBar}>
@@ -584,12 +616,12 @@ export default function Marketplace() {
             {tab === 'buyers' && (
               filteredReqs.length === 0
                 ? <div style={p.empty}><div style={p.emptyIcon}>🏠</div><p style={p.emptyText}>No buyer requirements found.</p><Link href="/post" style={p.actionBtn}>Be the first to post</Link></div>
-                : <div style={p.grid}>{filteredReqs.map(r => <BuyerCard key={r.id} req={r} />)}</div>
+                : <div style={p.grid}>{filteredReqs.map(r => <BuyerCard key={r.id} req={r} user={user} onSignIn={() => setShowAuth(true)} />)}</div>
             )}
             {tab === 'sellers' && (
               filteredListings.length === 0
                 ? <div style={p.empty}><div style={p.emptyIcon}>🏷️</div><p style={p.emptyText}>No properties listed yet.</p><button style={p.actionBtn} onClick={() => setShowSellerForm(true)}>List the first property</button></div>
-                : <div style={p.grid}>{filteredListings.map(l => <ListingCard key={l.id} listing={l} />)}</div>
+                : <div style={p.grid}>{filteredListings.map(l => <ListingCard key={l.id} listing={l} user={user} onSignIn={() => setShowAuth(true)} />)}</div>
             )}
           </>
         )}
@@ -604,8 +636,8 @@ export default function Marketplace() {
           <div style={{ ...fs.modal, maxWidth: '420px', textAlign: 'center', padding: '2.5rem 2rem' }}>
             <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>✓</div>
             <h2 style={{ fontFamily: 'Georgia,serif', fontSize: '1.5rem', color: '#1a1a1a', marginBottom: '0.75rem' }}>Listing submitted!</h2>
-            <p style={{ fontSize: '14px', color: '#666', fontFamily: 'system-ui,sans-serif', lineHeight: 1.6, marginBottom: '1.5rem' }}>Your listing is under review. Our team will verify it within 24 hours and contact you to confirm it's live.</p>
-            <div style={fs.teamNote}><span>👋</span><p style={{ fontSize: '13px', color: '#555', fontFamily: 'system-ui,sans-serif', margin: 0, lineHeight: 1.5 }}><strong>Melina & Mikayla</strong> will be in touch shortly to confirm your listing.</p></div>
+            <p style={{ fontSize: '14px', color: '#666', fontFamily: 'system-ui,sans-serif', lineHeight: 1.6, marginBottom: '1.5rem' }}>Your listing is under review. Our team will verify it within 24 hours.</p>
+            <div style={fs.teamNote}><span>👋</span><p style={{ fontSize: '13px', color: '#555', fontFamily: 'system-ui,sans-serif', margin: 0, lineHeight: 1.5 }}><strong>Melina & Mikayla</strong> will be in touch shortly.</p></div>
             <button style={fs.submitBtn} onClick={() => { setSellerSuccess(false); setShowSellerForm(false) }}>Back to marketplace</button>
           </div>
         </div>
@@ -674,8 +706,6 @@ const c = {
   expandLabel: { color: '#bbb', minWidth: '80px', flexShrink: 0 }, expandVal: { color: '#555' },
   contactBtn: { display: 'inline-block', marginTop: '1rem', padding: '9px 18px', background: '#1a1a1a', color: '#fff', borderRadius: '8px', fontSize: '13px', fontFamily: 'system-ui,sans-serif', fontWeight: '500', textDecoration: 'none' },
   expandBtn: { marginTop: '1rem', padding: '6px 0', background: 'none', border: 'none', color: '#9c7c4a', fontSize: '13px', fontFamily: 'system-ui,sans-serif', cursor: 'pointer' },
-  chips: { display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' },
-  chip: { fontSize: '11px', fontFamily: 'system-ui,sans-serif', background: '#f5f5f5', color: '#777', padding: '3px 9px', borderRadius: '20px', border: '1px solid #eee' },
 }
 const fs = {
   overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' },
