@@ -534,8 +534,8 @@ export default function Marketplace() {
   async function fetchAll() {
     setLoading(true)
     const [reqRes, listRes] = await Promise.all([
-      supabase.from('requirements').select('*').order('created_at', { ascending: false }),
-      supabase.from('listings').select('*').order('created_at', { ascending: false }),
+      supabase.from('requirements').select('*').eq('req_status', 'active').order('created_at', { ascending: false }),
+      supabase.from('listings').select('*').eq('status', 'active').order('created_at', { ascending: false }),
     ])
     if (reqRes.data) setRequirements(reqRes.data)
     if (listRes.data) setListings(listRes.data)
