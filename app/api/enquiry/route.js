@@ -13,7 +13,7 @@ export async function POST(request) {
     }
 
     const { error } = await resend.emails.send({
-      from: 'PropOffer <onboarding@resend.dev>',
+      from: 'PropOffer <hello@propoffer.com.au>',
       to: 'callum.weerakoon@gmail.com',
       replyTo: email,
       subject: `New enquiry: ${service} — ${name}`,
@@ -50,7 +50,7 @@ export async function POST(request) {
           </div>
 
           <p style="font-family: sans-serif; font-size: 11px; color: #bbb; margin-top: 2rem; text-align: center;">
-            PropOffer · Australia's buyer-first property platform
+            PropOffer · Australia's buyer-first property platform · propoffer.com.au
           </p>
         </div>
       `,

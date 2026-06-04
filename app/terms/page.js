@@ -246,7 +246,7 @@ export default function Terms() {
           <Link href="/contact" className="footer-link">Contact</Link>
           <Link href="/terms" className="footer-link">Terms</Link>
         </div>
-        <div>© 2025 PropOffer · Australia's buyer-first property platform</div>
+        <div>© 2026 PropOffer · Australia's buyer-first property platform</div>
       </footer>
     </>
   )

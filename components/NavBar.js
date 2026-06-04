@@ -26,8 +26,6 @@ export default function NavBar({ onPostClick }) {
           --gold: #b8924a; --gold-pale: #f5ecd8; --border: #e8e0d0;
           --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'DM Sans', sans-serif;
         }
-
-        /* DESKTOP NAV */
         .navbar {
           position: fixed; top: 0; left: 0; right: 0; z-index: 100;
           display: flex; align-items: center; justify-content: space-between;
@@ -42,8 +40,6 @@ export default function NavBar({ onPostClick }) {
         .navbar-link:hover { color: var(--gold); }
         .navbar-cta { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); text-decoration: none; border: 1px solid var(--ink); padding: 8px 20px; border-radius: 2px; transition: all 0.2s; cursor: pointer; background: none; }
         .navbar-cta:hover { background: var(--ink); color: var(--cream); }
-
-        /* MOBILE NAV */
         .mob-nav {
           position: fixed; top: 0; left: 0; right: 0; z-index: 200;
           display: none;
@@ -61,7 +57,6 @@ export default function NavBar({ onPostClick }) {
         .mob-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
         .mob-hamburger.open span:nth-child(2) { opacity: 0; }
         .mob-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-
         .mob-drawer {
           position: fixed; top: 57px; left: 0; right: 0; bottom: 0;
           background: var(--cream); z-index: 190;
@@ -77,7 +72,6 @@ export default function NavBar({ onPostClick }) {
         .mob-menu-cta { margin-top: 2rem; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: var(--ink); color: var(--cream); border: none; padding: 14px 24px; border-radius: 2px; cursor: pointer; text-align: center; width: 100%; text-decoration: none; display: block; }
         .mob-menu-account { margin-top: 0.75rem; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); background: var(--gold-pale); border: 1px solid var(--gold); padding: 14px 24px; border-radius: 2px; cursor: pointer; text-align: center; width: 100%; text-decoration: none; display: block; }
         .mob-signout { margin-top: 0.75rem; font-family: var(--sans); font-size: 13px; color: var(--ink-light); background: none; border: 1px solid var(--border); padding: 14px 24px; border-radius: 2px; cursor: pointer; text-align: center; width: 100%; }
-
         @media (max-width: 768px) {
           .navbar { display: none; }
           .mob-nav { display: flex; }
@@ -86,14 +80,15 @@ export default function NavBar({ onPostClick }) {
 
       {/* DESKTOP */}
       <nav className="navbar">
-        <a href="/" className="navbar-logo" style={{ display:'flex', alignItems:'center', gap:'10px', textDecoration:'none' }}>
-        <svg width="32" height="32" viewBox="0 0 110 110">
-        <circle cx="55" cy="55" r="50" fill="none" stroke="#b8924a" strokeWidth="3"/>
-        <circle cx="55" cy="55" r="42" fill="#b8924a" fillOpacity="0.12"/>
-        <text x="55" y="73" fontFamily="Georgia,serif" fontSize="52" fontWeight="400" fill="#b8924a" textAnchor="middle">P</text>
-        </svg>
-  <span style={{ fontFamily:'Georgia,serif', fontSize:'1.4rem', fontWeight:600, color:'#1a1714' }}>Prop<span style={{ color:'#b8924a' }}>Offer</span></span>
-</a>
+        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+          <svg width="30" height="30" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="50" fill="none" stroke="#b8924a" strokeWidth="3"/>
+            <circle cx="55" cy="55" r="42" fill="#b8924a" fillOpacity="0.12"/>
+          </svg>
+          <span style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.4rem', fontWeight: 600, color: '#1a1714' }}>
+            Prop<span style={{ color: '#b8924a' }}>Offer</span>
+          </span>
+        </a>
         <div className="navbar-links">
           {navLinks.map(link => (
             <Link key={link.href} href={link.href} className="navbar-link">{link.label}</Link>
@@ -108,14 +103,15 @@ export default function NavBar({ onPostClick }) {
 
       {/* MOBILE */}
       <nav className="mob-nav">
-        <a href="/" className="navbar-logo" style={{ display:'flex', alignItems:'center', gap:'10px', textDecoration:'none' }}>
-        <svg width="32" height="32" viewBox="0 0 110 110">
-        <circle cx="55" cy="55" r="50" fill="none" stroke="#b8924a" strokeWidth="3"/>
-        <circle cx="55" cy="55" r="42" fill="#b8924a" fillOpacity="0.12"/>
-        <text x="55" y="73" fontFamily="Georgia,serif" fontSize="52" fontWeight="400" fill="#b8924a" textAnchor="middle">P</text>
-        </svg>
-  <span style={{ fontFamily:'Georgia,serif', fontSize:'1.4rem', fontWeight:600, color:'#1a1714' }}>Prop<span style={{ color:'#b8924a' }}>Offer</span></span>
-</a>
+        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+          <svg width="28" height="28" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="50" fill="none" stroke="#b8924a" strokeWidth="3"/>
+            <circle cx="55" cy="55" r="42" fill="#b8924a" fillOpacity="0.12"/>
+          </svg>
+          <span style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.3rem', fontWeight: 600, color: '#1a1714' }}>
+            Prop<span style={{ color: '#b8924a' }}>Offer</span>
+          </span>
+        </a>
         <div className="mob-right">
           {user ? (
             <Link href="/account" className="mob-post-btn">Account</Link>

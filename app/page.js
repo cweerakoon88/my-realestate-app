@@ -245,7 +245,7 @@ export default function Home() {
           <Link href="/about" className="footer-link">About</Link>
           <Link href="/contact" className="footer-link">Contact</Link>
         </div>
-        <div>© 2025 PropOffer · Australia's buyer-first property platform</div>
+        <div>© 2026 PropOffer · Australia's buyer-first property platform</div>
       </footer>
     </>
   )

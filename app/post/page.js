@@ -49,14 +49,12 @@ export default function PostRequirement() {
   const [errors, setErrors] = useState({})
   const [priceGuide, setPriceGuide] = useState(null)
 
-  // Check auth on mount
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         router.push('/?auth=1')
       } else {
         setUser(session.user)
-        // Pre-fill email and name from auth
         const meta = session.user.user_metadata || {}
         setFormData(prev => ({
           ...prev,
@@ -69,7 +67,6 @@ export default function PostRequirement() {
     })
   }, [])
 
-  // Price guide: recalculate when suburb/type/bedrooms change
   useEffect(() => {
     const { location, property_type, bedrooms } = formData
     if (!location || location.length < 3 || !property_type) {
@@ -133,6 +130,8 @@ export default function PostRequirement() {
     }
 
     setLoading(true)
+
+    // 1. Save to Supabase
     const { error } = await supabase.from('requirements').insert([{
       user_id: user.id,
       buyer_name: `${formData.first_name.trim()} ${formData.last_name.trim()}`,
@@ -154,12 +153,58 @@ export default function PostRequirement() {
       notes: formData.notes
     }])
 
-    setLoading(false)
     if (error) {
+      setLoading(false)
       setErrors({ form: 'Something went wrong. Please try again.' })
-    } else {
-      setSuccess(true)
+      return
     }
+
+    // 2. Send notification email to hello@propoffer.com.au
+    try {
+      await fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${formData.first_name.trim()} ${formData.last_name.trim()}`,
+          email: 'hello@propoffer.com.au',
+          phone: formData.mobile_number.trim(),
+          service: '🏠 New Buyer Requirement Posted',
+          message: `A new buyer requirement has been posted on PropOffer.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BUYER DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Name:          ${formData.first_name.trim()} ${formData.last_name.trim()}
+Email:         ${formData.buyer_email.trim().toLowerCase()}
+Mobile:        ${formData.mobile_number.trim()}
+${formData.phone_number ? `Phone:         ${formData.phone_number.trim()}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROPERTY REQUIREMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Location:      ${formData.location}
+Type:          ${formData.property_type}
+Bedrooms:      ${formData.bedrooms || 'Any'}
+Bathrooms:     ${formData.bathrooms || 'Any'}
+Toilets:       ${formData.toilets || 'Any'}
+Land size:     ${formData.land_size_min ? `${formData.land_size_min}m²` : 'Any'} – ${formData.land_size_max ? `${formData.land_size_max}m²` : 'Any'}
+Budget:        $${formData.budget_min ? parseInt(formData.budget_min).toLocaleString() : '0'} – $${parseInt(formData.budget_max).toLocaleString()}
+Proximity:     ${proximity.length > 0 ? proximity.join(', ') : 'None specified'}
+Notes:         ${formData.notes || 'None'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Review in Supabase: https://supabase.com
+View on site: https://propoffer.com.au/marketplace
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+        })
+      })
+    } catch (emailErr) {
+      // Don't block the user if email fails — requirement is already saved
+      console.error('Notification email failed:', emailErr)
+    }
+
+    setLoading(false)
+    setSuccess(true)
   }
 
   function formatPrice(n) {
@@ -179,7 +224,6 @@ export default function PostRequirement() {
   const trendBg    = { rising: '#f0faf4', stable: '#fffdf7', falling: '#fdf0f0' }
   const trendIcon  = { rising: '↑', stable: '→', falling: '↓' }
 
-  // Show loading while checking auth
   if (authLoading) {
     return (
       <main style={s.page}>
@@ -190,7 +234,6 @@ export default function PostRequirement() {
     )
   }
 
-  // SUCCESS
   if (success) {
     return (
       <main style={s.page}>
@@ -215,7 +258,6 @@ export default function PostRequirement() {
     )
   }
 
-  // FORM
   return (
     <main style={s.page}>
       <div style={s.container}>
@@ -228,7 +270,6 @@ export default function PostRequirement() {
 
         <form onSubmit={handleSubmit} noValidate style={s.form}>
 
-          {/* YOUR DETAILS */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Your details</h2>
             <div style={s.row}>
@@ -265,7 +306,6 @@ export default function PostRequirement() {
             </div>
           </div>
 
-          {/* PROPERTY DETAILS */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Property details</h2>
             <Field label="Preferred suburb / location" error={errors.location}>
@@ -320,7 +360,6 @@ export default function PostRequirement() {
             </div>
           </div>
 
-          {/* LAND SIZE */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Land size <span style={s.optional}>(optional)</span></h2>
             <p style={s.sectionHint}>Leave blank if land size isn't important to you.</p>
@@ -336,7 +375,6 @@ export default function PostRequirement() {
             </div>
           </div>
 
-          {/* PRICE GUIDE */}
           {priceGuide && (
             <div style={{ ...s.priceGuideBox, borderColor: trendColor[priceGuide.trend] + '55', background: trendBg[priceGuide.trend] }}>
               <div style={s.priceGuideHeader}>
@@ -378,7 +416,6 @@ export default function PostRequirement() {
             </div>
           )}
 
-          {/* BUDGET */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Your budget</h2>
             {priceGuide && (
@@ -402,7 +439,6 @@ export default function PostRequirement() {
             </div>
           </div>
 
-          {/* PROXIMITY */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Proximity preferences <span style={s.optional}>(optional)</span></h2>
             <p style={s.sectionHint}>Select everything that matters to you.</p>
@@ -416,7 +452,6 @@ export default function PostRequirement() {
             </div>
           </div>
 
-          {/* NOTES */}
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Additional notes <span style={s.optional}>(optional)</span></h2>
             <textarea

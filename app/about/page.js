@@ -196,7 +196,7 @@ export default function About() {
           <Link href="/pricing" className="footer-link">Pricing</Link>
           <Link href="/marketplace" className="footer-link">Marketplace</Link>
         </div>
-        <div>© 2025 PropOffer · Australia's buyer-first property platform</div>
+        <div>© 2026 PropOffer · Australia's buyer-first property platform</div>
       </footer>
     </>
   )

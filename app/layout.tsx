@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "PropOffer — Australia's buyer-first property platform",
-  description: "Post your property requirement and let sellers come to you.",
+  description: "Buyers post what they want. Sellers respond. No auctions, no agent fees, no commissions. Australia's buyer-first property marketplace.",
 };
 
 export default function RootLayout({

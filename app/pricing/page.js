@@ -358,7 +358,7 @@ export default function Pricing() {
           <Link href="/contact" className="footer-link">Contact</Link>
           <Link href="/terms" className="footer-link">Terms</Link>
         </div>
-        <div>© 2025 PropOffer · Transparent pricing, always</div>
+        <div>© 2026 PropOffer · Transparent pricing, always</div>
       </footer>
     </>
   )
