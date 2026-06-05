@@ -1,12 +1,226 @@
 'use client'
-
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { supabase } from '../../lib/supabase'
 import NavBar from '@/components/NavBar'
-import EnquiryModal from '@/components/EnquiryModal'
+
+const CATEGORIES = [
+  { id: 'all', label: 'All services' },
+  { id: 'mortgage_broker', label: '🏦 Mortgage brokers' },
+  { id: 'building_inspector', label: '🔍 Building inspectors' },
+  { id: 'conveyancer', label: '📜 Conveyancers' },
+  { id: 'landscaper', label: '🌿 Landscapers' },
+  { id: 'handyman', label: '🔧 Handyman' },
+]
+
+const CATEGORY_META = {
+  mortgage_broker: {
+    icon: '🏦',
+    label: 'Mortgage Broker',
+    color: '#1a6fa8',
+    bg: '#e8f4fd',
+    badge: 'Free for buyers',
+    badgeColor: '#2d6a4f',
+    badgeBg: '#f0faf4',
+  },
+  building_inspector: {
+    icon: '🔍',
+    label: 'Building Inspector',
+    color: '#7a5c00',
+    bg: '#fffbea',
+    badge: 'Book in 24hrs',
+    badgeColor: '#7a5c00',
+    badgeBg: '#fffbea',
+  },
+  conveyancer: {
+    icon: '📜',
+    label: 'Conveyancer',
+    color: '#6a1a6a',
+    bg: '#fdf0fd',
+    badge: 'Fixed fee',
+    badgeColor: '#6a1a6a',
+    badgeBg: '#fdf0fd',
+  },
+  landscaper: {
+    icon: '🌿',
+    label: 'Landscaper',
+    color: '#2d6a4f',
+    bg: '#f0faf4',
+    badge: 'Free consult',
+    badgeColor: '#2d6a4f',
+    badgeBg: '#f0faf4',
+  },
+  handyman: {
+    icon: '🔧',
+    label: 'Handyman',
+    color: '#9c7c4a',
+    bg: '#f5ecd8',
+    badge: 'Same week',
+    badgeColor: '#9c7c4a',
+    badgeBg: '#f5ecd8',
+  },
+}
+
+function ProviderCard({ provider }) {
+  const [showContact, setShowContact] = useState(false)
+  const meta = CATEGORY_META[provider.category] || CATEGORY_META.handyman
+
+  return (
+    <div style={{
+      background: '#fff',
+      border: '1px solid #e8e0d0',
+      borderRadius: '12px',
+      overflow: 'hidden',
+      transition: 'box-shadow 0.2s',
+    }}
+      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)'}
+      onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+    >
+      {/* Top colour bar */}
+      <div style={{ height: '4px', background: meta.color }} />
+
+      <div style={{ padding: '1.5rem' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+            {/* Avatar */}
+            <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: meta.bg, border: `2px solid ${meta.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0 }}>
+              {provider.photo_url ? (
+                <img src={provider.photo_url} alt={provider.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+              ) : (
+                <span>{meta.icon}</span>
+              )}
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '2px' }}>
+                <h3 style={{ fontFamily: 'Georgia,serif', fontSize: '1.1rem', fontWeight: '400', color: '#1a1714', margin: 0 }}>{provider.name}</h3>
+                {provider.featured && (
+                  <span style={{ fontSize: '10px', fontFamily: 'system-ui,sans-serif', background: '#b8924a', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: '600', letterSpacing: '0.06em' }}>⭐ FEATURED</span>
+                )}
+              </div>
+              {provider.business_name && (
+                <div style={{ fontSize: '13px', color: '#888', fontFamily: 'system-ui,sans-serif' }}>{provider.business_name}</div>
+              )}
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
+            <span style={{ fontSize: '11px', fontFamily: 'system-ui,sans-serif', background: meta.bg, color: meta.color, padding: '3px 10px', borderRadius: '20px', fontWeight: '500' }}>
+              {meta.label}
+            </span>
+            <span style={{ fontSize: '11px', fontFamily: 'system-ui,sans-serif', background: meta.badgeBg, color: meta.badgeColor, padding: '3px 10px', borderRadius: '20px', fontWeight: '500' }}>
+              {meta.badge}
+            </span>
+          </div>
+        </div>
+
+        {/* Bio */}
+        <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: '14px', color: '#555', lineHeight: 1.7, marginBottom: '1rem', fontWeight: '300' }}>
+          {provider.bio}
+        </p>
+
+        {/* Specialties */}
+        {provider.specialties && provider.specialties.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '1rem' }}>
+            {provider.specialties.map(s => (
+              <span key={s} style={{ fontSize: '11px', fontFamily: 'system-ui,sans-serif', background: '#f5f5f5', color: '#666', padding: '3px 10px', borderRadius: '20px', border: '1px solid #eee' }}>
+                {s}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Meta info */}
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+          {provider.suburb && (
+            <span style={{ fontSize: '12px', color: '#888', fontFamily: 'system-ui,sans-serif' }}>
+              📍 {provider.suburb}, {provider.state}
+            </span>
+          )}
+          {provider.years_experience && (
+            <span style={{ fontSize: '12px', color: '#888', fontFamily: 'system-ui,sans-serif' }}>
+              ⏱ {provider.years_experience} years experience
+            </span>
+          )}
+          {provider.services_areas && provider.services_areas.length > 0 && (
+            <span style={{ fontSize: '12px', color: '#888', fontFamily: 'system-ui,sans-serif' }}>
+              🗺 {provider.services_areas.slice(0, 2).join(', ')}{provider.services_areas.length > 2 ? ` +${provider.services_areas.length - 2} more` : ''}
+            </span>
+          )}
+        </div>
+
+        {/* Contact */}
+        {!showContact ? (
+          <button
+            onClick={async () => {
+              setShowContact(true)
+              // increment enquiry count
+              await supabase.from('service_providers')
+                .update({ enquiry_count: (provider.enquiry_count || 0) + 1 })
+                .eq('id', provider.id)
+            }}
+            style={{ width: '100%', padding: '11px', background: '#1a1714', color: '#faf8f3', border: 'none', borderRadius: '8px', fontFamily: 'system-ui,sans-serif', fontSize: '13px', fontWeight: '500', cursor: 'pointer', transition: 'background 0.2s' }}
+            onMouseEnter={e => e.target.style.background = '#b8924a'}
+            onMouseLeave={e => e.target.style.background = '#1a1714'}
+          >
+            View contact details →
+          </button>
+        ) : (
+          <div style={{ background: '#f8f7f4', border: '1px solid #e8e0d0', borderRadius: '8px', padding: '1rem' }}>
+            <div style={{ fontSize: '11px', fontFamily: 'system-ui,sans-serif', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#b8924a', marginBottom: '10px', fontWeight: '500' }}>Contact {provider.name.split(' ')[0]}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <a href={`mailto:${provider.email}?subject=Enquiry via PropOffer`} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'system-ui,sans-serif', fontSize: '14px', color: '#1a1714', textDecoration: 'none' }}>
+                ✉ {provider.email}
+              </a>
+              {provider.phone && (
+                <a href={`tel:${provider.phone.replace(/\s/g, '')}`} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'system-ui,sans-serif', fontSize: '14px', color: '#1a1714', textDecoration: 'none' }}>
+                  📱 {provider.phone}
+                </a>
+              )}
+              {provider.website && (
+                <a href={provider.website} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'system-ui,sans-serif', fontSize: '14px', color: '#b8924a', textDecoration: 'none' }}>
+                  🌐 Visit website ↗
+                </a>
+              )}
+            </div>
+            <div style={{ marginTop: '10px', fontSize: '11px', color: '#bbb', fontFamily: 'system-ui,sans-serif', lineHeight: 1.5 }}>
+              💡 Mention PropOffer when you get in touch
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function Services() {
-  const [activeEnquiry, setActiveEnquiry] = useState(null)
+  const [providers, setProviders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [activeCategory, setActiveCategory] = useState('all')
+  const [activeState, setActiveState] = useState('all')
+
+  useEffect(() => {
+    fetchProviders()
+  }, [])
+
+  async function fetchProviders() {
+    setLoading(true)
+    const { data } = await supabase
+      .from('service_providers')
+      .select('*')
+      .eq('status', 'active')
+      .order('featured', { ascending: false })
+      .order('created_at', { ascending: true })
+    setProviders(data || [])
+    setLoading(false)
+  }
+
+  const filtered = providers.filter(p => {
+    if (activeCategory !== 'all' && p.category !== activeCategory) return false
+    if (activeState !== 'all' && p.state !== activeState) return false
+    return true
+  })
+
+  const states = ['all', ...new Set(providers.map(p => p.state).filter(Boolean))]
 
   return (
     <>
@@ -20,282 +234,129 @@ export default function Services() {
           --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'DM Sans', sans-serif;
         }
         body { background: var(--cream); color: var(--ink); font-family: var(--sans); }
-        .page-header { padding: 10rem 3rem 5rem; max-width: 1300px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end; }
-        .header-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
-        .header-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
-        .header-title { font-family: var(--serif); font-size: clamp(2.5rem, 4vw, 4rem); font-weight: 300; line-height: 1.05; color: var(--ink); }
-        .header-title em { font-style: italic; color: var(--gold); }
-        .header-desc { font-family: var(--sans); font-size: 15px; font-weight: 300; color: var(--ink-light); line-height: 1.8; max-width: 420px; align-self: end; }
-        .divider { display: flex; align-items: center; gap: 1.5rem; max-width: 1300px; margin: 0 auto; padding: 0 3rem; }
-        .divider-line { flex: 1; height: 1px; background: var(--border); }
-        .service-card { background: var(--warm-white); display: grid; grid-template-columns: 1fr 1.4fr; overflow: hidden; }
-        .service-left { padding: 3rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
-        .service-bg-num { position: absolute; bottom: -1rem; right: -0.5rem; font-family: var(--serif); font-size: 8rem; font-weight: 300; color: var(--gold-pale); line-height: 1; pointer-events: none; user-select: none; }
-        .service-icon-wrap { width: 52px; height: 52px; background: var(--gold-pale); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 1.5rem; }
-        .service-name { font-family: var(--serif); font-size: 1.8rem; font-weight: 300; color: var(--ink); line-height: 1.2; margin-bottom: 0.75rem; }
-        .service-name em { font-style: italic; color: var(--gold); }
-        .service-tagline { font-family: var(--sans); font-size: 13px; font-weight: 300; color: var(--ink-light); line-height: 1.6; margin-bottom: 2rem; }
-        .service-badge { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); background: var(--gold-pale); padding: 5px 12px; border-radius: 2px; display: inline-block; }
-        .service-right { padding: 3rem; display: flex; flex-direction: column; gap: 2rem; }
-        .service-desc { font-family: var(--sans); font-size: 14px; font-weight: 300; color: var(--ink-light); line-height: 1.8; }
-        .features-title { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #bbb; margin-bottom: 0.75rem; }
-        .features-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-        .features-list li { font-family: var(--sans); font-size: 14px; color: var(--ink-light); font-weight: 300; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
-        .features-list li::before { content: '✦'; color: var(--gold); font-size: 9px; margin-top: 4px; flex-shrink: 0; }
-        .service-footer { margin-top: auto; padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-        .service-note { font-family: var(--sans); font-size: 12px; color: #bbb; font-weight: 300; }
-        .service-cta { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: var(--ink); color: var(--cream); padding: 10px 24px; border-radius: 2px; text-decoration: none; transition: all 0.2s; border: 1px solid var(--ink); cursor: pointer; }
-        .service-cta:hover { background: var(--gold); border-color: var(--gold); }
-        .bundle { background: var(--ink); padding: 6rem 0; }
-        .bundle-inner { max-width: 1300px; margin: 0 auto; padding: 0 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-        .bundle-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; }
-        .bundle-title { font-family: var(--serif); font-size: clamp(2rem, 3vw, 3rem); font-weight: 300; color: var(--cream); line-height: 1.1; margin-bottom: 1.25rem; }
-        .bundle-title em { font-style: italic; color: var(--gold); }
-        .bundle-desc { font-family: var(--sans); font-size: 14px; color: rgba(250,248,243,0.6); font-weight: 300; line-height: 1.8; margin-bottom: 2rem; }
-        .bundle-cta { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: var(--gold); color: var(--cream); padding: 14px 32px; border-radius: 2px; border: none; cursor: pointer; transition: all 0.2s; display: inline-block; }
-        .bundle-cta:hover { background: var(--gold-light); }
-        .bundle-checklist { display: flex; flex-direction: column; gap: 1px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); }
-        .bundle-item { background: rgba(255,255,255,0.03); padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
-        .bundle-item-icon { font-size: 20px; flex-shrink: 0; }
-        .bundle-item-name { font-family: var(--serif); font-size: 1.1rem; color: var(--cream); margin-bottom: 2px; }
-        .bundle-item-desc { font-family: var(--sans); font-size: 12px; color: rgba(250,248,243,0.45); font-weight: 300; }
-        .bundle-tick { margin-left: auto; color: var(--gold); font-size: 16px; flex-shrink: 0; }
-        .footer { padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); font-family: var(--sans); font-size: 12px; color: #bbb; flex-wrap: wrap; gap: 1rem; }
+        .footer { padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); font-family: var(--sans); font-size: 12px; color: #bbb; flex-wrap: wrap; gap: 1rem; margin-top: 4rem; }
         .footer-logo { font-family: var(--serif); font-size: 1.1rem; color: var(--ink-light); }
         .footer-logo span { color: var(--gold); }
         .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
         .footer-link { color: #bbb; text-decoration: none; }
         .footer-link:hover { color: var(--gold); }
-        @media (max-width: 900px) {
-          .page-header { grid-template-columns: 1fr; padding: 8rem 1.5rem 3rem; gap: 1.5rem; }
-          .service-card { grid-template-columns: 1fr; }
-          .service-left { border-right: none; border-bottom: 1px solid var(--border); }
-          .bundle-inner { grid-template-columns: 1fr; padding: 0 1.5rem; gap: 2rem; }
+        @media (max-width: 768px) {
           .footer { padding: 1.5rem; flex-direction: column; text-align: center; }
-          .divider { padding: 0 1.5rem; }
         }
       `}</style>
 
-      {activeEnquiry && (
-        <EnquiryModal service={activeEnquiry} onClose={() => setActiveEnquiry(null)} />
-      )}
-
       <NavBar />
 
-      <div className="page-header">
-        <div>
-          <div className="header-eyebrow">Full service property support</div>
-          <h1 className="header-title">Everything you need,<br /><em>all in one place.</em></h1>
-        </div>
-        <p className="header-desc">
-          Finding the property is just the beginning. We've partnered with trusted professionals
-          to guide you through every step — finance, inspections, settlement, landscaping and maintenance.
-        </p>
-      </div>
-
-      <div className="divider"><div className="divider-line" /></div>
-
-      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '4rem 3rem 6rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', background: 'var(--border)', border: '1px solid var(--border)' }}>
-
-          {/* MORTGAGE */}
-          <div className="service-card">
-            <div className="service-left">
-              <div>
-                <div className="service-icon-wrap">🏦</div>
-                <h2 className="service-name">Mortgage<br /><em>Broking</em></h2>
-                <p className="service-tagline">Get the right loan, not just any loan.</p>
-              </div>
-              <span className="service-badge">Free for buyers</span>
-              <div className="service-bg-num">01</div>
-            </div>
-            <div className="service-right">
-              <p className="service-desc">Our accredited mortgage brokers compare hundreds of loan products across major banks and non-bank lenders to find you the most competitive rate and structure. Whether you're a first home buyer, upgrading, or investing — we match you with a broker who specialises in your situation.</p>
-              <div>
-                <div className="features-title">What's included</div>
-                <ul className="features-list">
-                  <li>Free borrowing capacity assessment before you post your requirement</li>
-                  <li>Access to 40+ lenders including major banks, credit unions & non-banks</li>
-                  <li>Pre-approval support so you can make offers with confidence</li>
-                  <li>Guidance on first home buyer grants & stamp duty concessions</li>
-                  <li>Ongoing support through to settlement and beyond</li>
-                </ul>
-              </div>
-              <div className="service-footer">
-                <span className="service-note">No cost to you — brokers are paid by the lender</span>
-                <button className="service-cta" onClick={() => setActiveEnquiry('Mortgage Broking')}>Get in touch →</button>
-              </div>
-            </div>
+      {/* HERO */}
+      <div style={{ background: '#1a1714', padding: '8rem 2rem 4rem' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <div style={{ fontFamily: 'system-ui,sans-serif', fontSize: '11px', fontWeight: '500', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#b8924a', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ display: 'block', width: '28px', height: '1px', background: '#b8924a' }} />
+            Trusted service providers
           </div>
-
-          {/* BUILDING & PEST */}
-          <div className="service-card">
-            <div className="service-left">
-              <div>
-                <div className="service-icon-wrap">🔍</div>
-                <h2 className="service-name">Building & Pest<br /><em>Inspections</em></h2>
-                <p className="service-tagline">Know exactly what you're buying.</p>
-              </div>
-              <span className="service-badge">Book in 24 hrs</span>
-              <div className="service-bg-num">02</div>
-            </div>
-            <div className="service-right">
-              <p className="service-desc">Before you commit to any property, our licensed inspectors give you a thorough, plain-English report on the structural condition of the building and any pest activity. We cover all Australian states and can typically complete an inspection within 24–48 hours of your request.</p>
-              <div>
-                <div className="features-title">What's included</div>
-                <ul className="features-list">
-                  <li>Full structural building inspection by a licensed builder</li>
-                  <li>Timber pest & termite inspection to Australian Standard AS 4349</li>
-                  <li>Roof, subfloor, and drainage assessment</li>
-                  <li>Same-day report with photos and priority findings highlighted</li>
-                  <li>Inspector debrief call to walk you through the findings</li>
-                </ul>
-              </div>
-              <div className="service-footer">
-                <span className="service-note">Combined reports from $450 · Results same day</span>
-                <button className="service-cta" onClick={() => setActiveEnquiry('Building & Pest Inspections')}>Book inspection →</button>
-              </div>
-            </div>
+          <h1 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: '300', color: '#faf8f3', lineHeight: 1.1, marginBottom: '1rem' }}>
+            Everything you need,<br /><em style={{ fontStyle: 'italic', color: '#b8924a' }}>all in one place.</em>
+          </h1>
+          <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: '15px', fontWeight: '300', color: 'rgba(250,248,243,0.6)', lineHeight: 1.7, maxWidth: '560px', marginBottom: '2rem' }}>
+            Verified professionals across mortgage broking, building inspections, conveyancing, landscaping and more. Contact them directly — no middlemen.
+          </p>
+          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: 'rgba(250,248,243,0.45)' }}>
+            <span>✓ {providers.length} verified providers</span>
+            <span>✓ Direct contact — no referral fees</span>
+            <span>✓ Mention PropOffer for priority service</span>
           </div>
-
-          {/* CONVEYANCING */}
-          <div className="service-card">
-            <div className="service-left">
-              <div>
-                <div className="service-icon-wrap">📜</div>
-                <h2 className="service-name">Conveyancing<br /><em>& Settlement</em></h2>
-                <p className="service-tagline">Expert hands on your paperwork.</p>
-              </div>
-              <span className="service-badge">All states covered</span>
-              <div className="service-bg-num">03</div>
-            </div>
-            <div className="service-right">
-              <p className="service-desc">Buying property involves a mountain of legal documentation. Our licensed conveyancers and property solicitors handle every step of the legal transfer — from reviewing the contract of sale and conducting title searches, right through to settlement day.</p>
-              <div>
-                <div className="features-title">What's included</div>
-                <ul className="features-list">
-                  <li>Contract of sale review and plain-English summary before you sign</li>
-                  <li>Title search, certificate of title & encumbrance checks</li>
-                  <li>Council, water, and land tax certificate searches</li>
-                  <li>Liaison with your lender's solicitors and the seller's conveyancer</li>
-                  <li>Settlement day coordination and key handover confirmation</li>
-                </ul>
-              </div>
-              <div className="service-footer">
-                <span className="service-note">Fixed fee from $990 · No hidden charges</span>
-                <button className="service-cta" onClick={() => setActiveEnquiry('Conveyancing & Settlement')}>Get a quote →</button>
-              </div>
-            </div>
-          </div>
-
-          {/* LANDSCAPING */}
-          <div className="service-card">
-            <div className="service-left">
-              <div>
-                <div className="service-icon-wrap">🌿</div>
-                <h2 className="service-name">Landscaping<br /><em>& Gardens</em></h2>
-                <p className="service-tagline">Transform your outdoor space from day one.</p>
-              </div>
-              <span className="service-badge">Free consultation</span>
-              <div className="service-bg-num">04</div>
-            </div>
-            <div className="service-right">
-              <p className="service-desc">First impressions start outside. Whether you're preparing a property for sale, settling into a new home, or simply want to bring your garden to life, our network of professional landscapers delivers beautiful, low-maintenance outdoor spaces tailored to your budget.</p>
-              <div>
-                <div className="features-title">What's included</div>
-                <ul className="features-list">
-                  <li>Free on-site consultation and design concept</li>
-                  <li>Garden design, planting, and lawn installation</li>
-                  <li>Irrigation systems and water-wise landscaping</li>
-                  <li>Paving, decking, retaining walls, and outdoor structures</li>
-                  <li>Ongoing maintenance plans available</li>
-                </ul>
-              </div>
-              <div className="service-footer">
-                <span className="service-note">Quotes from $500 · All metro areas covered</span>
-                <button className="service-cta" onClick={() => setActiveEnquiry('Landscaping & Gardens')}>Get a quote →</button>
-              </div>
-            </div>
-          </div>
-
-          {/* HANDYMAN */}
-          <div className="service-card">
-            <div className="service-left">
-              <div>
-                <div className="service-icon-wrap">🔧</div>
-                <h2 className="service-name">Handyman<br /><em>Services</em></h2>
-                <p className="service-tagline">Every property needs a little TLC.</p>
-              </div>
-              <span className="service-badge">Same week booking</span>
-              <div className="service-bg-num">05</div>
-            </div>
-            <div className="service-right">
-              <p className="service-desc">Moving into a new property always reveals a to-do list. Our trusted handyman network handles everything from minor repairs and painting to flat-pack assembly and general maintenance — so your new home is move-in ready without the stress.</p>
-              <div>
-                <div className="features-title">What's included</div>
-                <ul className="features-list">
-                  <li>General repairs — doors, windows, locks, tiling, grouting</li>
-                  <li>Interior and exterior painting & touch-ups</li>
-                  <li>Flat-pack furniture assembly (IKEA, Bunnings & more)</li>
-                  <li>Picture hanging, shelving, and TV wall mounting</li>
-                  <li>Pre-sale property preparation and minor renovations</li>
-                </ul>
-              </div>
-              <div className="service-footer">
-                <span className="service-note">From $95/hr · No call-out fee for PropOffer clients</span>
-                <button className="service-cta" onClick={() => setActiveEnquiry('Handyman Services')}>Book now →</button>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
 
-      {/* BUNDLE */}
-      <section className="bundle">
-        <div className="bundle-inner">
-          <div>
-            <div className="bundle-eyebrow">The complete package</div>
-            <h2 className="bundle-title">Use all five.<br /><em>Save thousands.</em></h2>
-            <p className="bundle-desc">When you bundle our services together, our team coordinates everything on your behalf. One point of contact from offer to keys — and beyond.</p>
-            <button className="bundle-cta" onClick={() => setActiveEnquiry('Full Service Bundle')}>Enquire about the bundle</button>
+      {/* CATEGORY FILTERS */}
+      <div style={{ background: '#fff', borderBottom: '1px solid #e8e0d0', padding: '0 2rem', position: 'sticky', top: '62px', zIndex: 50, overflowX: 'auto' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', gap: '0', minWidth: 'max-content' }}>
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              style={{
+                padding: '1rem 1.25rem', border: 'none', background: 'none', cursor: 'pointer',
+                fontFamily: 'system-ui,sans-serif', fontSize: '13px', whiteSpace: 'nowrap',
+                color: activeCategory === cat.id ? '#1a1714' : '#888',
+                borderBottom: `2px solid ${activeCategory === cat.id ? '#b8924a' : 'transparent'}`,
+                fontWeight: activeCategory === cat.id ? '500' : '400',
+                transition: 'all 0.15s',
+              }}
+            >
+              {cat.label}
+              {cat.id !== 'all' && (
+                <span style={{ marginLeft: '6px', fontSize: '11px', color: '#bbb' }}>
+                  ({providers.filter(p => p.category === cat.id).length})
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* MAIN CONTENT */}
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '2.5rem 2rem 4rem' }}>
+
+        {/* State filter + count */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ fontFamily: 'system-ui,sans-serif', fontSize: '14px', color: '#888' }}>
+            Showing <strong style={{ color: '#1a1714' }}>{filtered.length}</strong> provider{filtered.length !== 1 ? 's' : ''}
+            {activeCategory !== 'all' ? ` · ${CATEGORIES.find(c => c.id === activeCategory)?.label}` : ''}
           </div>
-          <div className="bundle-checklist">
-            {[
-              { icon: '🏦', name: 'Mortgage Broking', desc: 'Best rate from 40+ lenders · Free for buyers' },
-              { icon: '🔍', name: 'Building & Pest Inspection', desc: 'Licensed inspectors · Same-day report' },
-              { icon: '📜', name: 'Conveyancing & Settlement', desc: 'Fixed fee · All states covered' },
-              { icon: '🌿', name: 'Landscaping & Gardens', desc: 'Free consultation · All metro areas' },
-              { icon: '🔧', name: 'Handyman Services', desc: 'Same week · No call-out fee' },
-            ].map((item, i) => (
-              <div className="bundle-item" key={i}>
-                <span className="bundle-item-icon">{item.icon}</span>
-                <div>
-                  <div className="bundle-item-name">{item.name}</div>
-                  <div className="bundle-item-desc">{item.desc}</div>
-                </div>
-                <span className="bundle-tick">✦</span>
-              </div>
+          {states.length > 2 && (
+            <div style={{ display: 'flex', gap: '6px' }}>
+              {states.map(s => (
+                <button key={s} onClick={() => setActiveState(s)} style={{ padding: '5px 12px', border: `1px solid ${activeState === s ? '#1a1714' : '#ddd'}`, borderRadius: '20px', fontSize: '12px', cursor: 'pointer', background: activeState === s ? '#1a1714' : '#fff', color: activeState === s ? '#fff' : '#666', fontFamily: 'system-ui,sans-serif' }}>
+                  {s === 'all' ? 'All states' : s}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa', fontFamily: 'system-ui,sans-serif' }}>Loading providers...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '4rem', background: '#fff', borderRadius: '12px', border: '1px solid #e8e0d0' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🔍</div>
+            <div style={{ fontFamily: 'Georgia,serif', fontSize: '1.2rem', color: '#1a1714', marginBottom: '0.5rem' }}>No providers found</div>
+            <div style={{ fontFamily: 'system-ui,sans-serif', fontSize: '14px', color: '#888' }}>Try a different category or state filter</div>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '16px' }}>
+            {filtered.map(provider => (
+              <ProviderCard key={provider.id} provider={provider} />
             ))}
-            <div className="bundle-item" style={{ background: 'rgba(184,146,74,0.08)', borderTop: '1px solid rgba(184,146,74,0.2)' }}>
-              <span className="bundle-item-icon">👋</span>
-              <div>
-                <div className="bundle-item-name">Dedicated coordinator</div>
-                <div className="bundle-item-desc">Melina & Mikayla manage your entire journey</div>
-              </div>
-              <span className="bundle-tick">✦</span>
+          </div>
+        )}
+
+        {/* CTA for providers */}
+        <div style={{ marginTop: '4rem', background: '#1a1714', borderRadius: '12px', padding: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
+          <div>
+            <div style={{ fontFamily: 'Georgia,serif', fontSize: '1.4rem', fontWeight: '300', color: '#faf8f3', marginBottom: '0.5rem' }}>
+              Are you a service provider?
+            </div>
+            <div style={{ fontFamily: 'system-ui,sans-serif', fontSize: '14px', color: 'rgba(250,248,243,0.55)', fontWeight: '300', lineHeight: 1.6 }}>
+              List your services on PropOffer and connect with serious property buyers.<br />
+              From $99/month. No referral fees — direct contact only.
             </div>
           </div>
+          <a
+            href="mailto:hello@propoffer.com.au?subject=List my services on PropOffer"
+            style={{ padding: '12px 28px', background: '#b8924a', color: '#1a1714', border: 'none', borderRadius: '8px', fontFamily: 'system-ui,sans-serif', fontSize: '13px', fontWeight: '600', textDecoration: 'none', whiteSpace: 'nowrap', letterSpacing: '0.04em' }}
+          >
+            Apply to list →
+          </a>
         </div>
-      </section>
+      </div>
 
       <footer className="footer">
         <div className="footer-logo">Prop<span>Offer</span></div>
         <div className="footer-links">
-          <Link href="/marketplace" className="footer-link">Marketplace</Link>
-          <Link href="/pricing" className="footer-link">Pricing</Link>
-          <Link href="/about" className="footer-link">About</Link>
-          <Link href="/contact" className="footer-link">Contact</Link>
+          {[['/', 'Home'], ['/marketplace', 'Marketplace'], ['/pricing', 'Pricing'], ['/about', 'About'], ['/contact', 'Contact'], ['/terms', 'Terms']].map(([href, label]) => (
+            <Link key={href} href={href} className="footer-link">{label}</Link>
+          ))}
         </div>
         <div>© 2026 PropOffer · Australia's buyer-first property platform</div>
       </footer>
