@@ -7,6 +7,178 @@ import { useAuth } from '@/components/AuthProvider'
 
 const TABS = ['Requirements', 'Offers', 'Saved', 'Settings']
 
+const PROXIMITY_OPTIONS = [
+  { id: 'school', label: '🏫 Near schools' },
+  { id: 'shops', label: '🛒 Near shops' },
+  { id: 'train', label: '🚂 Near train station' },
+  { id: 'bus', label: '🚌 Near bus stop' },
+  { id: 'park', label: '🌳 Near parks' },
+  { id: 'beach', label: '🏖️ Near beach' },
+  { id: 'hospital', label: '🏥 Near hospital' },
+  { id: 'cafe', label: '☕ Near cafes & restaurants' },
+  { id: 'highway', label: '🛣️ Easy highway access' },
+  { id: 'cbd', label: '🏙️ Close to CBD' },
+]
+
+// ── EDIT REQUIREMENT MODAL ─────────────────────────────────────────────
+function EditRequirementModal({ req, onSave, onClose, supabase }) {
+  const [form, setForm] = useState({
+    location: req.location || '',
+    property_type: req.property_type || '',
+    bedrooms: req.bedrooms ? String(req.bedrooms) : '',
+    bathrooms: req.bathrooms ? String(req.bathrooms) : '',
+    budget_min: req.budget_min ? String(req.budget_min) : '',
+    budget_max: req.budget_max ? String(req.budget_max) : '',
+    mobile_number: req.mobile_number || '',
+    notes: req.notes || '',
+  })
+  const [proximity, setProximity] = useState(req.proximity_preferences || [])
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  function handleChange(e) {
+    const { name, value } = e.target
+    setForm(p => ({ ...p, [name]: value }))
+    setError('')
+  }
+
+  function toggleProximity(id) {
+    setProximity(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id])
+  }
+
+  async function handleSave(e) {
+    e.preventDefault()
+    if (!form.location.trim()) { setError('Suburb is required'); return }
+    if (!form.property_type) { setError('Property type is required'); return }
+    if (!form.budget_max) { setError('Maximum budget is required'); return }
+
+    setSaving(true)
+    const { error: updateError } = await supabase
+      .from('requirements')
+      .update({
+        location: form.location.trim(),
+        property_type: form.property_type,
+        bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
+        bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
+        budget_min: form.budget_min ? parseInt(form.budget_min) : null,
+        budget_max: parseInt(form.budget_max),
+        mobile_number: form.mobile_number.trim() || null,
+        notes: form.notes.trim() || null,
+        proximity_preferences: proximity,
+        req_status: 'pending',
+      })
+      .eq('id', req.id)
+
+    setSaving(false)
+    if (updateError) {
+      setError('Failed to save. Please try again.')
+    } else {
+      onSave()
+    }
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ background: '#fff', borderRadius: '12px', width: '100%', maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 1.5rem 0' }}>
+          <h2 style={{ fontFamily: 'Georgia,serif', fontSize: '1.4rem', color: '#1a1714', fontWeight: '400' }}>Edit requirement</h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '18px', color: '#aaa', cursor: 'pointer', padding: '4px 8px' }}>✕</button>
+        </div>
+
+        <div style={{ padding: '0.75rem 1.5rem', background: '#fff8f0', margin: '1rem 1.5rem 0', borderRadius: '8px', border: '1px solid #e8d0a0', fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#7a5c00' }}>
+          ℹ️ Editing your requirement will reset it to <strong>pending review</strong>. Our team will re-approve it shortly.
+        </div>
+
+        <form onSubmit={handleSave} style={{ padding: '1.25rem 1.5rem 1.5rem' }}>
+
+          <div style={mfs.sectionTitle}>Property details</div>
+
+          <div style={mfs.field}>
+            <label style={mfs.label}>Suburb / location *</label>
+            <input style={mfs.input} name="location" value={form.location} onChange={handleChange} placeholder="e.g. Richmond, Melbourne" />
+          </div>
+
+          <div style={mfs.row}>
+            <div style={mfs.field}>
+              <label style={mfs.label}>Property type *</label>
+              <select style={mfs.input} name="property_type" value={form.property_type} onChange={handleChange}>
+                <option value="">Select...</option>
+                <option>House</option><option>Apartment</option><option>Townhouse</option><option>Land</option><option>Commercial</option>
+              </select>
+            </div>
+            <div style={mfs.field}>
+              <label style={mfs.label}>Bedrooms</label>
+              <select style={mfs.input} name="bedrooms" value={form.bedrooms} onChange={handleChange}>
+                <option value="">Any</option>
+                {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}{n===5?'+':''}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div style={mfs.row}>
+            <div style={mfs.field}>
+              <label style={mfs.label}>Bathrooms</label>
+              <select style={mfs.input} name="bathrooms" value={form.bathrooms} onChange={handleChange}>
+                <option value="">Any</option>
+                {[1,2,3,4].map(n => <option key={n} value={n}>{n}{n===4?'+':''}</option>)}
+              </select>
+            </div>
+            <div style={mfs.field}>
+              <label style={mfs.label}>Mobile number</label>
+              <input style={mfs.input} name="mobile_number" value={form.mobile_number} onChange={handleChange} placeholder="e.g. 0412 345 678" />
+            </div>
+          </div>
+
+          <div style={{ ...mfs.sectionTitle, marginTop: '1rem' }}>Budget</div>
+          <div style={mfs.row}>
+            <div style={mfs.field}>
+              <label style={mfs.label}>Minimum ($)</label>
+              <input style={mfs.input} name="budget_min" type="number" value={form.budget_min} onChange={handleChange} placeholder="e.g. 500000" />
+            </div>
+            <div style={mfs.field}>
+              <label style={mfs.label}>Maximum ($) *</label>
+              <input style={mfs.input} name="budget_max" type="number" value={form.budget_max} onChange={handleChange} placeholder="e.g. 800000" />
+            </div>
+          </div>
+
+          <div style={{ ...mfs.sectionTitle, marginTop: '1rem' }}>Proximity preferences</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '1rem' }}>
+            {PROXIMITY_OPTIONS.map(opt => (
+              <button key={opt.id} type="button" onClick={() => toggleProximity(opt.id)}
+                style={{ fontFamily: 'system-ui,sans-serif', fontSize: '12px', padding: '6px 12px', borderRadius: '20px', border: `1px solid ${proximity.includes(opt.id) ? '#1a1714' : '#ddd'}`, background: proximity.includes(opt.id) ? '#1a1714' : '#fafafa', color: proximity.includes(opt.id) ? '#fff' : '#555', cursor: 'pointer', transition: 'all 0.15s' }}>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          <div style={mfs.field}>
+            <label style={mfs.label}>Additional notes</label>
+            <textarea style={{ ...mfs.input, height: '80px', resize: 'vertical' }} name="notes" value={form.notes} onChange={handleChange} placeholder="Anything else sellers should know..." />
+          </div>
+
+          {error && <div style={{ color: '#c0392b', fontSize: '13px', fontFamily: 'system-ui,sans-serif', background: '#fdf0f0', padding: '8px 12px', borderRadius: '6px', marginBottom: '1rem' }}>⚠ {error}</div>}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '0.5rem' }}>
+            <button type="button" onClick={onClose} style={{ padding: '10px 20px', background: '#fff', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', fontFamily: 'system-ui,sans-serif', cursor: 'pointer', color: '#666' }}>Cancel</button>
+            <button type="submit" disabled={saving} style={{ padding: '10px 24px', background: '#1a1a1a', border: 'none', borderRadius: '8px', fontSize: '14px', fontFamily: 'system-ui,sans-serif', fontWeight: '500', color: '#fff', cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
+              {saving ? 'Saving...' : 'Save changes →'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+const mfs = {
+  sectionTitle: { fontSize: '11px', fontFamily: 'monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#bbb', marginBottom: '10px', fontWeight: '400' },
+  field: { marginBottom: '10px', flex: 1 },
+  label: { display: 'block', fontSize: '12px', fontWeight: '500', color: '#555', fontFamily: 'system-ui,sans-serif', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' },
+  input: { padding: '9px 12px', border: '1px solid #ddd', borderRadius: '7px', fontSize: '14px', fontFamily: 'system-ui,sans-serif', color: '#1a1a1a', background: '#fafafa', outline: 'none', width: '100%', boxSizing: 'border-box' },
+  row: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' },
+}
+
+// ── MAIN ACCOUNT PAGE ──────────────────────────────────────────────────
 export default function AccountPage() {
   const { user, loading, signOut, supabase } = useAuth()
   const router = useRouter()
@@ -19,6 +191,8 @@ export default function AccountPage() {
   const [profileForm, setProfileForm] = useState({ full_name: '', phone: '' })
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
+  const [editingReq, setEditingReq] = useState(null)
+  const [editSuccess, setEditSuccess] = useState(null)
 
   useEffect(() => {
     if (!loading && !user) router.push('/')
@@ -71,6 +245,27 @@ export default function AccountPage() {
     setSavedProperties(prev => prev.filter(s => s.id !== id))
   }
 
+  function handleEditSaved(reqId) {
+    fetchAllData()
+    setEditingReq(null)
+    setEditSuccess(reqId)
+    setTimeout(() => setEditSuccess(null), 3000)
+  }
+
+  function statusBadge(status) {
+    const styles = {
+      active: { background: '#f0faf4', color: '#2d6a4f', border: '1px solid #b7e4c7', label: '✅ Active' },
+      pending: { background: '#fff8f0', color: '#b8924a', border: '1px solid #e8d0a0', label: '⏳ Pending review' },
+      rejected: { background: '#fdf0f0', color: '#c0392b', border: '1px solid #f5c6c2', label: '❌ Not approved' },
+    }
+    const s = styles[status] || styles.pending
+    return (
+      <span style={{ fontSize: '11px', fontFamily: 'system-ui,sans-serif', background: s.background, color: s.color, border: s.border, borderRadius: '20px', padding: '2px 10px', fontWeight: '500' }}>
+        {s.label}
+      </span>
+    )
+  }
+
   if (loading) return <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', fontFamily:'DM Sans, sans-serif', color:'#4a4540' }}>Loading…</div>
   if (!user) return null
 
@@ -80,6 +275,15 @@ export default function AccountPage() {
   return (
     <>
       <style>{pageStyles}</style>
+
+      {editingReq && (
+        <EditRequirementModal
+          req={editingReq}
+          supabase={supabase}
+          onClose={() => setEditingReq(null)}
+          onSave={() => handleEditSaved(editingReq.id)}
+        />
+      )}
 
       <nav className="acc-nav">
         <Link href="/" className="acc-logo">Prop<span>Offer</span></Link>
@@ -134,21 +338,45 @@ export default function AccountPage() {
                     <div className="req-list">
                       {requirements.map(req => (
                         <div key={req.id} className="req-card">
+                          {editSuccess === req.id && (
+                            <div style={{ background: '#f0faf4', border: '1px solid #b7e4c7', borderRadius: '6px', padding: '8px 12px', marginBottom: '10px', fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#2d6a4f' }}>
+                              ✅ Requirement updated — pending review
+                            </div>
+                          )}
                           <div className="req-card-top">
-                            <div>
-                              <div className="req-tag">{req.property_type || 'Property'}</div>
-                              <div className="req-title">{req.title || `${req.bedrooms || '?'}-bed in ${req.location || req.suburb || 'Unknown'}`}</div>
-                              <div className="req-location">◎ {req.location || req.suburb || '—'}</div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                <div className="req-tag">{req.property_type || 'Property'}</div>
+                                {statusBadge(req.req_status)}
+                              </div>
+                              <div className="req-title">{req.title || `${req.bedrooms || '?'}-bed ${req.property_type || 'property'} in ${req.location || '—'}`}</div>
+                              <div className="req-location">◎ {req.location || '—'}</div>
                             </div>
                             <div className="req-budget">{req.budget_min && req.budget_max ? `$${(req.budget_min/1e6).toFixed(1)}M–$${(req.budget_max/1e6).toFixed(1)}M` : req.budget || '—'}</div>
                           </div>
                           <div className="req-specs">
                             {req.bedrooms && <span className="req-spec">{req.bedrooms} bed</span>}
                             {req.bathrooms && <span className="req-spec">{req.bathrooms} bath</span>}
+                            {req.proximity_preferences?.length > 0 && req.proximity_preferences.slice(0, 3).map(p => (
+                              <span key={p} className="req-spec">{p}</span>
+                            ))}
                           </div>
+                          {req.notes && (
+                            <div style={{ fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#888', marginBottom: '0.75rem', lineHeight: 1.5, fontStyle: 'italic' }}>
+                              "{req.notes.length > 100 ? req.notes.substring(0, 100) + '...' : req.notes}"
+                            </div>
+                          )}
                           <div className="req-card-foot">
                             <span className="req-date">{new Date(req.created_at).toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' })}</span>
-                            <button className="req-delete" onClick={() => handleDeleteRequirement(req.id)}>Remove</button>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                              <button
+                                className="req-edit"
+                                onClick={() => setEditingReq(req)}
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button className="req-delete" onClick={() => handleDeleteRequirement(req.id)}>Remove</button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -317,6 +545,8 @@ const pageStyles = `
   .req-spec { font-family: var(--sans); font-size: 11px; color: var(--ink-light); background: var(--cream); border: 1px solid var(--border); padding: 2px 8px; border-radius: 2px; }
   .req-card-foot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 0.75rem; }
   .req-date { font-family: var(--sans); font-size: 12px; color: #bbb; }
+  .req-edit { font-family: var(--sans); font-size: 12px; color: var(--ink); background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; padding: 4px 10px; transition: all 0.15s; }
+  .req-edit:hover { border-color: var(--gold); color: var(--gold); }
   .req-delete { font-family: var(--sans); font-size: 12px; color: #c0392b; background: none; border: none; cursor: pointer; padding: 0; }
   .offer-status { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 2px; }
   .offer-status--new { background: #e3f2fd; color: #1565c0; }
@@ -341,7 +571,6 @@ const pageStyles = `
   .empty-desc { font-family: var(--sans); font-size: 14px; color: var(--ink-light); font-weight: 300; line-height: 1.6; margin-bottom: 1.75rem; }
   .empty-cta { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cream); background: var(--ink); border: 1px solid var(--ink); border-radius: 2px; padding: 12px 24px; text-decoration: none; cursor: pointer; display: inline-block; transition: all 0.2s; }
   .empty-cta:hover { background: var(--gold); border-color: var(--gold); }
-
   @media (max-width: 768px) {
     .acc-nav { padding: 1rem 1.25rem; }
     .acc-signout { display: none; }
