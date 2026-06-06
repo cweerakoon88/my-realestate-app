@@ -25,23 +25,13 @@ export default function PostRequirement() {
   const router = useRouter()
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    buyer_email: '',
-    location: '',
-    property_type: '',
-    bedrooms: '',
-    bathrooms: '',
-    toilets: '',
-    land_size_min: '',
-    land_size_max: '',
-    budget_min: '',
-    budget_max: '',
-    mobile_number: '',
-    phone_number: '',
-    notes: ''
+    first_name: '', last_name: '', buyer_email: '', location: '',
+    property_type: '', bedrooms: '', bathrooms: '', toilets: '',
+    land_size_min: '', land_size_max: '', budget_min: '', budget_max: '',
+    mobile_number: '', phone_number: '', notes: ''
   })
   const [proximity, setProximity] = useState([])
   const [loading, setLoading] = useState(false)
@@ -51,9 +41,8 @@ export default function PostRequirement() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        router.push('/?auth=1')
-      } else {
+      if (!session) { router.push('/?auth=1') }
+      else {
         setUser(session.user)
         const meta = session.user.user_metadata || {}
         setFormData(prev => ({
@@ -69,10 +58,7 @@ export default function PostRequirement() {
 
   useEffect(() => {
     const { location, property_type, bedrooms } = formData
-    if (!location || location.length < 3 || !property_type) {
-      setPriceGuide(null)
-      return
-    }
+    if (!location || location.length < 3 || !property_type) { setPriceGuide(null); return }
     setPriceGuide(getPriceGuide(location, property_type, bedrooms))
   }, [formData.location, formData.property_type, formData.bedrooms])
 
@@ -83,39 +69,24 @@ export default function PostRequirement() {
   }
 
   function toggleProximity(id) {
-    setProximity(prev =>
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
-    )
+    setProximity(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id])
   }
 
   function validate() {
     const e = {}
     if (!formData.first_name.trim()) e.first_name = 'First name is required'
     if (!formData.last_name.trim()) e.last_name = 'Last name is required'
-    if (!formData.buyer_email.trim()) {
-      e.buyer_email = 'Email is required'
-    } else if (!validateEmail(formData.buyer_email)) {
-      e.buyer_email = 'Please enter a valid email address (e.g. name@example.com)'
-    }
+    if (!formData.buyer_email.trim()) e.buyer_email = 'Email is required'
+    else if (!validateEmail(formData.buyer_email)) e.buyer_email = 'Please enter a valid email address'
     if (!formData.location.trim()) e.location = 'Suburb is required'
     if (!formData.property_type) e.property_type = 'Please select a property type'
-    if (!formData.mobile_number.trim()) {
-      e.mobile_number = 'Mobile number is required'
-    } else if (!/^[\d\s\+\-\(\)]{8,15}$/.test(formData.mobile_number.trim())) {
-      e.mobile_number = 'Please enter a valid mobile number'
-    }
-    if (formData.phone_number && !/^[\d\s\+\-\(\)]{8,15}$/.test(formData.phone_number.trim())) {
-      e.phone_number = 'Please enter a valid phone number'
-    }
+    if (!formData.mobile_number.trim()) e.mobile_number = 'Mobile number is required'
+    else if (!/^[\d\s\+\-\(\)]{8,15}$/.test(formData.mobile_number.trim())) e.mobile_number = 'Please enter a valid mobile number'
+    if (formData.phone_number && !/^[\d\s\+\-\(\)]{8,15}$/.test(formData.phone_number.trim())) e.phone_number = 'Please enter a valid phone number'
     if (!formData.budget_max) e.budget_max = 'Please enter a maximum budget'
-    if (formData.budget_min && formData.budget_max &&
-        parseInt(formData.budget_min) >= parseInt(formData.budget_max)) {
-      e.budget_max = 'Maximum must be greater than minimum'
-    }
-    if (formData.land_size_min && formData.land_size_max &&
-        parseInt(formData.land_size_min) >= parseInt(formData.land_size_max)) {
-      e.land_size_max = 'Maximum must be greater than minimum'
-    }
+    if (formData.budget_min && formData.budget_max && parseInt(formData.budget_min) >= parseInt(formData.budget_max)) e.budget_max = 'Maximum must be greater than minimum'
+    if (formData.land_size_min && formData.land_size_max && parseInt(formData.land_size_min) >= parseInt(formData.land_size_max)) e.land_size_max = 'Maximum must be greater than minimum'
+    if (!termsAccepted) e.terms = 'Please agree to the Terms & Conditions to post your requirement'
     return e
   }
 
@@ -128,10 +99,7 @@ export default function PostRequirement() {
       if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' })
       return
     }
-
     setLoading(true)
-
-    // 1. Save to Supabase
     const { error } = await supabase.from('requirements').insert([{
       user_id: user.id,
       buyer_name: `${formData.first_name.trim()} ${formData.last_name.trim()}`,
@@ -150,16 +118,13 @@ export default function PostRequirement() {
       budget_min: formData.budget_min ? parseInt(formData.budget_min) : null,
       budget_max: parseInt(formData.budget_max),
       proximity_preferences: proximity,
-      notes: formData.notes
+      notes: formData.notes,
+      req_status: 'pending',
     }])
 
-    if (error) {
-      setLoading(false)
-      setErrors({ form: 'Something went wrong. Please try again.' })
-      return
-    }
+    if (error) { setLoading(false); setErrors({ form: 'Something went wrong. Please try again.' }); return }
 
-    // 2. Send notification email to hello@propoffer.com.au
+    // Notification email
     try {
       await fetch('/api/enquiry', {
         method: 'POST',
@@ -169,70 +134,28 @@ export default function PostRequirement() {
           email: 'hello@propoffer.com.au',
           phone: formData.mobile_number.trim(),
           service: '🏠 New Buyer Requirement Posted',
-          message: `A new buyer requirement has been posted on PropOffer.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-BUYER DETAILS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Name:          ${formData.first_name.trim()} ${formData.last_name.trim()}
-Email:         ${formData.buyer_email.trim().toLowerCase()}
-Mobile:        ${formData.mobile_number.trim()}
-${formData.phone_number ? `Phone:         ${formData.phone_number.trim()}` : ''}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PROPERTY REQUIREMENT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Location:      ${formData.location}
-Type:          ${formData.property_type}
-Bedrooms:      ${formData.bedrooms || 'Any'}
-Bathrooms:     ${formData.bathrooms || 'Any'}
-Toilets:       ${formData.toilets || 'Any'}
-Land size:     ${formData.land_size_min ? `${formData.land_size_min}m²` : 'Any'} – ${formData.land_size_max ? `${formData.land_size_max}m²` : 'Any'}
-Budget:        $${formData.budget_min ? parseInt(formData.budget_min).toLocaleString() : '0'} – $${parseInt(formData.budget_max).toLocaleString()}
-Proximity:     ${proximity.length > 0 ? proximity.join(', ') : 'None specified'}
-Notes:         ${formData.notes || 'None'}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Review in Supabase: https://supabase.com
-View on site: https://propoffer.com.au/marketplace
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+          message: `New requirement posted on PropOffer.\n\nBuyer: ${formData.first_name.trim()} ${formData.last_name.trim()}\nEmail: ${formData.buyer_email}\nMobile: ${formData.mobile_number}\nLocation: ${formData.location}\nType: ${formData.property_type}\nBedrooms: ${formData.bedrooms || 'Any'}\nBudget: $${formData.budget_min ? parseInt(formData.budget_min).toLocaleString() : '0'} – $${parseInt(formData.budget_max).toLocaleString()}\nNotes: ${formData.notes || 'None'}\n\nReview: https://propoffer.com.au/admin`
         })
       })
-    } catch (emailErr) {
-      // Don't block the user if email fails — requirement is already saved
-      console.error('Notification email failed:', emailErr)
-    }
+    } catch (err) { console.error('Notification email failed:', err) }
 
     setLoading(false)
     setSuccess(true)
   }
 
-  function formatPrice(n) {
-    if (!n && n !== 0) return '—'
-    return '$' + n.toLocaleString('en-AU')
-  }
+  function formatPrice(n) { if (!n && n !== 0) return '—'; return '$' + n.toLocaleString('en-AU') }
 
   function resetForm() {
     setSuccess(false)
     setFormData({ first_name: '', last_name: '', buyer_email: user?.email || '', location: '', property_type: '', bedrooms: '', bathrooms: '', toilets: '', land_size_min: '', land_size_max: '', budget_min: '', budget_max: '', mobile_number: '', phone_number: '', notes: '' })
-    setProximity([])
-    setErrors({})
-    setPriceGuide(null)
+    setProximity([]); setErrors({}); setPriceGuide(null); setTermsAccepted(false)
   }
 
   const trendColor = { rising: '#2d6a4f', stable: '#9c7c4a', falling: '#c0392b' }
-  const trendBg    = { rising: '#f0faf4', stable: '#fffdf7', falling: '#fdf0f0' }
-  const trendIcon  = { rising: '↑', stable: '→', falling: '↓' }
+  const trendBg = { rising: '#f0faf4', stable: '#fffdf7', falling: '#fdf0f0' }
+  const trendIcon = { rising: '↑', stable: '→', falling: '↓' }
 
-  if (authLoading) {
-    return (
-      <main style={s.page}>
-        <div style={{ textAlign: 'center', padding: '4rem', fontFamily: 'system-ui, sans-serif', color: '#999' }}>
-          Loading...
-        </div>
-      </main>
-    )
-  }
+  if (authLoading) return <main style={s.page}><div style={{ textAlign: 'center', padding: '4rem', fontFamily: 'system-ui, sans-serif', color: '#999' }}>Loading...</div></main>
 
   if (success) {
     return (
@@ -240,14 +163,10 @@ View on site: https://propoffer.com.au/marketplace
         <div style={s.successBox}>
           <div style={s.successIcon}>✓</div>
           <h2 style={s.successTitle}>Requirement posted!</h2>
-          <p style={s.successText}>
-            Sellers in your area will see your requirement and reach out to you directly.
-          </p>
+          <p style={s.successText}>Sellers in your area will see your requirement and reach out to you directly.</p>
           <div style={s.teamNote}>
             <span style={s.teamNoteIcon}>👋</span>
-            <p style={s.teamNoteText}>
-              <strong>Melina & Mikayla</strong> are working on your request and will contact you shortly.
-            </p>
+            <p style={s.teamNoteText}><strong>Melina & Mikayla</strong> are working on your request and will contact you shortly.</p>
           </div>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button style={s.btnPrimary} onClick={resetForm}>Post another</button>
@@ -274,34 +193,22 @@ View on site: https://propoffer.com.au/marketplace
             <h2 style={s.sectionTitle}>Your details</h2>
             <div style={s.row}>
               <Field label="First name" error={errors.first_name}>
-                <input style={inputStyle(errors.first_name)} type="text" name="first_name"
-                  placeholder="Jane" value={formData.first_name} onChange={handleChange}
-                  data-error={!!errors.first_name} />
+                <input style={inputStyle(errors.first_name)} type="text" name="first_name" placeholder="Jane" value={formData.first_name} onChange={handleChange} data-error={!!errors.first_name} />
               </Field>
               <Field label="Last name" error={errors.last_name}>
-                <input style={inputStyle(errors.last_name)} type="text" name="last_name"
-                  placeholder="Smith" value={formData.last_name} onChange={handleChange}
-                  data-error={!!errors.last_name} />
+                <input style={inputStyle(errors.last_name)} type="text" name="last_name" placeholder="Smith" value={formData.last_name} onChange={handleChange} data-error={!!errors.last_name} />
               </Field>
             </div>
             <Field label="Email address" error={errors.buyer_email} hint="We'll never share your email with anyone.">
-              <input style={inputStyle(errors.buyer_email)} type="email" name="buyer_email"
-                placeholder="jane@example.com" value={formData.buyer_email} onChange={handleChange}
-                data-error={!!errors.buyer_email} />
-              {formData.buyer_email && !errors.buyer_email && validateEmail(formData.buyer_email) && (
-                <span style={s.validTick}>✓ Valid email</span>
-              )}
+              <input style={inputStyle(errors.buyer_email)} type="email" name="buyer_email" placeholder="jane@example.com" value={formData.buyer_email} onChange={handleChange} data-error={!!errors.buyer_email} />
+              {formData.buyer_email && !errors.buyer_email && validateEmail(formData.buyer_email) && <span style={s.validTick}>✓ Valid email</span>}
             </Field>
             <div style={s.row}>
               <Field label="Mobile number" error={errors.mobile_number}>
-                <input style={inputStyle(errors.mobile_number)} type="tel" name="mobile_number"
-                  placeholder="e.g. 0412 345 678" value={formData.mobile_number} onChange={handleChange}
-                  data-error={!!errors.mobile_number} />
+                <input style={inputStyle(errors.mobile_number)} type="tel" name="mobile_number" placeholder="e.g. 0412 345 678" value={formData.mobile_number} onChange={handleChange} data-error={!!errors.mobile_number} />
               </Field>
               <Field label="Phone number" error={errors.phone_number} hint="Optional">
-                <input style={inputStyle(errors.phone_number)} type="tel" name="phone_number"
-                  placeholder="e.g. 03 9123 4567" value={formData.phone_number} onChange={handleChange}
-                  data-error={!!errors.phone_number} />
+                <input style={inputStyle(errors.phone_number)} type="tel" name="phone_number" placeholder="e.g. 03 9123 4567" value={formData.phone_number} onChange={handleChange} data-error={!!errors.phone_number} />
               </Field>
             </div>
           </div>
@@ -309,16 +216,11 @@ View on site: https://propoffer.com.au/marketplace
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Property details</h2>
             <Field label="Preferred suburb / location" error={errors.location}>
-              <input style={inputStyle(errors.location)} type="text" name="location"
-                placeholder="e.g. Richmond, Toorak, Bondi"
-                value={formData.location} onChange={handleChange}
-                data-error={!!errors.location} />
+              <input style={inputStyle(errors.location)} type="text" name="location" placeholder="e.g. Richmond, Toorak, Bondi" value={formData.location} onChange={handleChange} data-error={!!errors.location} />
             </Field>
             <div style={s.row}>
               <Field label="Property type" error={errors.property_type}>
-                <select style={inputStyle(errors.property_type)} name="property_type"
-                  value={formData.property_type} onChange={handleChange}
-                  data-error={!!errors.property_type}>
+                <select style={inputStyle(errors.property_type)} name="property_type" value={formData.property_type} onChange={handleChange} data-error={!!errors.property_type}>
                   <option value="">Select type...</option>
                   <option value="House">House</option>
                   <option value="Apartment">Apartment</option>
@@ -330,11 +232,7 @@ View on site: https://propoffer.com.au/marketplace
               <Field label="Bedrooms">
                 <select style={s.input} name="bedrooms" value={formData.bedrooms} onChange={handleChange}>
                   <option value="">Any</option>
-                  <option value="1">1 bedroom</option>
-                  <option value="2">2 bedrooms</option>
-                  <option value="3">3 bedrooms</option>
-                  <option value="4">4 bedrooms</option>
-                  <option value="5">5+ bedrooms</option>
+                  {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}{n===5?'+':''} bedroom{n===1?'':'s'}</option>)}
                 </select>
               </Field>
             </div>
@@ -342,19 +240,13 @@ View on site: https://propoffer.com.au/marketplace
               <Field label="Bathrooms">
                 <select style={s.input} name="bathrooms" value={formData.bathrooms} onChange={handleChange}>
                   <option value="">Any</option>
-                  <option value="1">1 bathroom</option>
-                  <option value="2">2 bathrooms</option>
-                  <option value="3">3 bathrooms</option>
-                  <option value="4">4+ bathrooms</option>
+                  {[1,2,3,4].map(n => <option key={n} value={n}>{n}{n===4?'+':''} bathroom{n===1?'':'s'}</option>)}
                 </select>
               </Field>
               <Field label="Toilets">
                 <select style={s.input} name="toilets" value={formData.toilets} onChange={handleChange}>
                   <option value="">Any</option>
-                  <option value="1">1 toilet</option>
-                  <option value="2">2 toilets</option>
-                  <option value="3">3 toilets</option>
-                  <option value="4">4+ toilets</option>
+                  {[1,2,3,4].map(n => <option key={n} value={n}>{n}{n===4?'+':''} toilet{n===1?'':'s'}</option>)}
                 </select>
               </Field>
             </div>
@@ -365,12 +257,10 @@ View on site: https://propoffer.com.au/marketplace
             <p style={s.sectionHint}>Leave blank if land size isn't important to you.</p>
             <div style={s.row}>
               <Field label="Minimum (m²)" error={errors.land_size_min}>
-                <input style={inputStyle(errors.land_size_min)} type="number" name="land_size_min"
-                  placeholder="e.g. 300" value={formData.land_size_min} onChange={handleChange} />
+                <input style={inputStyle(errors.land_size_min)} type="number" name="land_size_min" placeholder="e.g. 300" value={formData.land_size_min} onChange={handleChange} />
               </Field>
               <Field label="Maximum (m²)" error={errors.land_size_max}>
-                <input style={inputStyle(errors.land_size_max)} type="number" name="land_size_max"
-                  placeholder="e.g. 800" value={formData.land_size_max} onChange={handleChange} />
+                <input style={inputStyle(errors.land_size_max)} type="number" name="land_size_max" placeholder="e.g. 800" value={formData.land_size_max} onChange={handleChange} />
               </Field>
             </div>
           </div>
@@ -381,36 +271,20 @@ View on site: https://propoffer.com.au/marketplace
                 <span style={s.priceGuideEyebrow}>✦ Price Guide</span>
                 <span style={{ ...s.trendBadge, background: trendColor[priceGuide.trend] + '20', color: trendColor[priceGuide.trend] }}>
                   {trendIcon[priceGuide.trend]} Market {priceGuide.trend}
-                  {priceGuide.annualGrowth !== undefined && (
-                    <span> · {priceGuide.annualGrowth > 0 ? '+' : ''}{priceGuide.annualGrowth}% p.a.</span>
-                  )}
+                  {priceGuide.annualGrowth !== undefined && <span> · {priceGuide.annualGrowth > 0 ? '+' : ''}{priceGuide.annualGrowth}% p.a.</span>}
                 </span>
               </div>
               <div style={s.priceRow}>
-                <div style={s.medianBlock}>
-                  <div style={s.medianLabel}>Median price</div>
-                  <div style={s.medianValue}>{formatPrice(priceGuide.median)}</div>
-                </div>
+                <div style={s.medianBlock}><div style={s.medianLabel}>Median price</div><div style={s.medianValue}>{formatPrice(priceGuide.median)}</div></div>
                 <div style={s.rangeBlock}>
-                  <div style={s.rangeItem}>
-                    <span style={s.rangeLabel}>Low end</span>
-                    <span style={s.rangeValue}>{formatPrice(priceGuide.low)}</span>
-                  </div>
+                  <div style={s.rangeItem}><span style={s.rangeLabel}>Low end</span><span style={s.rangeValue}>{formatPrice(priceGuide.low)}</span></div>
                   <div style={s.rangeDivider} />
-                  <div style={s.rangeItem}>
-                    <span style={s.rangeLabel}>High end</span>
-                    <span style={s.rangeValue}>{formatPrice(priceGuide.high)}</span>
-                  </div>
+                  <div style={s.rangeItem}><span style={s.rangeLabel}>High end</span><span style={s.rangeValue}>{formatPrice(priceGuide.high)}</span></div>
                 </div>
               </div>
               <div style={s.barWrap}>
-                <div style={s.barTrack}>
-                  <div style={{ ...s.barFill, background: trendColor[priceGuide.trend], width: `${Math.min(100, Math.max(10, ((priceGuide.median - priceGuide.low) / (priceGuide.high - priceGuide.low)) * 100))}%` }} />
-                </div>
-                <div style={s.barLabels}>
-                  <span>{formatPrice(priceGuide.low)}</span>
-                  <span>{formatPrice(priceGuide.high)}</span>
-                </div>
+                <div style={s.barTrack}><div style={{ ...s.barFill, background: trendColor[priceGuide.trend], width: `${Math.min(100, Math.max(10, ((priceGuide.median - priceGuide.low) / (priceGuide.high - priceGuide.low)) * 100))}%` }} /></div>
+                <div style={s.barLabels}><span>{formatPrice(priceGuide.low)}</span><span>{formatPrice(priceGuide.high)}</span></div>
               </div>
               <p style={s.sourceNote}>📊 {priceGuide.source} · Based on 2024–25 sales data{priceGuide.isFallback && ' · Enter a specific suburb for a more precise estimate'}</p>
             </div>
@@ -418,23 +292,13 @@ View on site: https://propoffer.com.au/marketplace
 
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Your budget</h2>
-            {priceGuide && (
-              <div style={s.budgetHint}>
-                💡 Based on the price guide, a realistic budget is around <strong>{formatPrice(priceGuide.low)}</strong> – <strong>{formatPrice(priceGuide.high)}</strong>
-              </div>
-            )}
+            {priceGuide && <div style={s.budgetHint}>💡 Based on the price guide, a realistic budget is around <strong>{formatPrice(priceGuide.low)}</strong> – <strong>{formatPrice(priceGuide.high)}</strong></div>}
             <div style={s.row}>
               <Field label="Minimum ($)" error={errors.budget_min}>
-                <input style={inputStyle(errors.budget_min)} type="number" name="budget_min"
-                  placeholder={priceGuide ? String(priceGuide.low) : 'e.g. 500000'}
-                  value={formData.budget_min} onChange={handleChange}
-                  data-error={!!errors.budget_min} />
+                <input style={inputStyle(errors.budget_min)} type="number" name="budget_min" placeholder={priceGuide ? String(priceGuide.low) : 'e.g. 500000'} value={formData.budget_min} onChange={handleChange} data-error={!!errors.budget_min} />
               </Field>
               <Field label="Maximum ($)" error={errors.budget_max}>
-                <input style={inputStyle(errors.budget_max)} type="number" name="budget_max"
-                  placeholder={priceGuide ? String(priceGuide.high) : 'e.g. 800000'}
-                  value={formData.budget_max} onChange={handleChange}
-                  data-error={!!errors.budget_max} />
+                <input style={inputStyle(errors.budget_max)} type="number" name="budget_max" placeholder={priceGuide ? String(priceGuide.high) : 'e.g. 800000'} value={formData.budget_max} onChange={handleChange} data-error={!!errors.budget_max} />
               </Field>
             </div>
           </div>
@@ -444,8 +308,7 @@ View on site: https://propoffer.com.au/marketplace
             <p style={s.sectionHint}>Select everything that matters to you.</p>
             <div style={s.proximityGrid}>
               {PROXIMITY_OPTIONS.map(opt => (
-                <button key={opt.id} type="button" onClick={() => toggleProximity(opt.id)}
-                  style={{ ...s.proximityBtn, ...(proximity.includes(opt.id) ? s.proximityBtnActive : {}) }}>
+                <button key={opt.id} type="button" onClick={() => toggleProximity(opt.id)} style={{ ...s.proximityBtn, ...(proximity.includes(opt.id) ? s.proximityBtnActive : {}) }}>
                   {opt.label}
                 </button>
               ))}
@@ -454,12 +317,27 @@ View on site: https://propoffer.com.au/marketplace
 
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Additional notes <span style={s.optional}>(optional)</span></h2>
-            <textarea
-              style={{ ...s.input, height: '100px', resize: 'vertical' }}
-              name="notes"
-              placeholder="Anything else? e.g. need a double garage, north-facing, granny flat, pool..."
-              value={formData.notes} onChange={handleChange}
-            />
+            <textarea style={{ ...s.input, height: '100px', resize: 'vertical' }} name="notes" placeholder="Anything else? e.g. need a double garage, north-facing, granny flat, pool..." value={formData.notes} onChange={handleChange} />
+          </div>
+
+          {/* TERMS & CONDITIONS */}
+          <div style={{ background: '#fff', border: `1px solid ${errors.terms ? '#e74c3c' : '#e8e0d0'}`, borderRadius: '12px', padding: '1.25rem 1.5rem', marginBottom: '1rem' }}>
+            <div
+              style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', cursor: 'pointer' }}
+              onClick={() => { setTermsAccepted(!termsAccepted); setErrors(p => ({ ...p, terms: null })) }}
+            >
+              <div style={{ width: '20px', height: '20px', border: `2px solid ${termsAccepted ? '#b8924a' : '#ccc'}`, borderRadius: '4px', background: termsAccepted ? '#b8924a' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px', transition: 'all 0.2s' }}>
+                {termsAccepted && <span style={{ color: '#fff', fontSize: '12px', fontWeight: '700' }}>✓</span>}
+              </div>
+              <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#555', lineHeight: 1.6, margin: 0 }}>
+                I agree to PropOffer's{' '}
+                <a href="/terms" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#b8924a', textDecoration: 'none' }}>Terms & Conditions</a>
+                {' '}and{' '}
+                <a href="/privacy" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#b8924a', textDecoration: 'none' }}>Privacy Policy</a>
+                . I understand that PropOffer is a connection platform only and does not provide legal, financial, or property advice. I am responsible for conducting my own due diligence before entering any property transaction.
+              </p>
+            </div>
+            {errors.terms && <p style={{ color: '#c0392b', fontSize: '12px', fontFamily: 'system-ui,sans-serif', marginTop: '8px', marginLeft: '32px' }}>⚠ {errors.terms}</p>}
           </div>
 
           {errors.form && <p style={s.errorMsg}>{errors.form}</p>}
@@ -486,12 +364,7 @@ function Field({ label, error, hint, children }) {
 }
 
 function inputStyle(hasError) {
-  return {
-    padding: '10px 14px', border: `1px solid ${hasError ? '#e74c3c' : '#ddd'}`,
-    borderRadius: '8px', fontSize: '15px', fontFamily: 'system-ui, sans-serif',
-    color: '#1a1a1a', background: hasError ? '#fff8f8' : '#fafafa',
-    outline: 'none', width: '100%', boxSizing: 'border-box',
-  }
+  return { padding: '10px 14px', border: `1px solid ${hasError ? '#e74c3c' : '#ddd'}`, borderRadius: '8px', fontSize: '15px', fontFamily: 'system-ui, sans-serif', color: '#1a1a1a', background: hasError ? '#fff8f8' : '#fafafa', outline: 'none', width: '100%', boxSizing: 'border-box' }
 }
 
 const s = {

@@ -11,10 +11,17 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   const handleEmailAuth = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (mode === 'signup' && !termsAccepted) {
+      setError('Please agree to the Terms & Conditions to create an account.')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -51,6 +58,10 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
   }
 
   const handleGoogle = async () => {
+    if (mode === 'signup' && !termsAccepted) {
+      setError('Please agree to the Terms & Conditions before signing up.')
+      return
+    }
     setError('')
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -86,7 +97,9 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
           <div className="modal-eyebrow">PropOffer</div>
           <h2 className="modal-title">{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h2>
           <p className="modal-subtitle">
-            {mode === 'signin' ? 'Sign in to manage your requirements and offers.' : 'Join thousands of buyers finding property their way.'}
+            {mode === 'signin'
+              ? 'Sign in to manage your requirements and offers.'
+              : 'Join buyers and sellers finding property their way.'}
           </p>
 
           <button className="btn-google" onClick={handleGoogle} disabled={loading}>
@@ -96,7 +109,7 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
               <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
               <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
             </svg>
-            Continue with Google
+            {mode === 'signin' ? 'Continue with Google' : 'Sign up with Google'}
           </button>
 
           <div className="modal-divider"><span>or</span></div>
@@ -117,6 +130,25 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
               <input className="field-input" type="password" placeholder={mode === 'signup' ? 'Min. 8 characters' : '••••••••'} value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
             </div>
 
+            {/* TERMS & CONDITIONS — signup only */}
+            {mode === 'signup' && (
+              <div
+                className="terms-check-wrap"
+                onClick={() => setTermsAccepted(!termsAccepted)}
+              >
+                <div className={`terms-checkbox ${termsAccepted ? 'checked' : ''}`}>
+                  {termsAccepted && <span>✓</span>}
+                </div>
+                <p className="terms-text">
+                  I agree to PropOffer's{' '}
+                  <a href="/terms" target="_blank" onClick={e => e.stopPropagation()} className="terms-link">Terms & Conditions</a>
+                  {' '}and{' '}
+                  <a href="/privacy" target="_blank" onClick={e => e.stopPropagation()} className="terms-link">Privacy Policy</a>
+                  . I understand that PropOffer is a connection platform only and does not verify property ownership or provide legal or financial advice.
+                </p>
+              </div>
+            )}
+
             {error && <div className="modal-error">{error}</div>}
 
             <button className="btn-primary-modal" type="submit" disabled={loading}>
@@ -126,7 +158,7 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
 
           <p className="modal-switch">
             {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
-            <button className="modal-switch-btn" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError('') }}>
+            <button className="modal-switch-btn" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); setTermsAccepted(false) }}>
               {mode === 'signin' ? 'Sign up free' : 'Sign in'}
             </button>
           </p>
@@ -164,6 +196,13 @@ const modalStyles = `
   .field-input { width: 100%; font-family: var(--sans); font-size: 14px; color: var(--ink); background: var(--cream); border: 1px solid var(--border); border-radius: 2px; padding: 10px 14px; outline: none; transition: border-color 0.15s; }
   .field-input:focus { border-color: var(--gold); background: var(--warm-white); }
   .field-input::placeholder { color: #bbb; }
+  .terms-check-wrap { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 1rem; cursor: pointer; padding: 12px; background: var(--cream); border: 1px solid var(--border); border-radius: 4px; transition: border-color 0.15s; }
+  .terms-check-wrap:hover { border-color: var(--gold); }
+  .terms-checkbox { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 3px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; font-size: 11px; font-weight: 700; color: #fff; }
+  .terms-checkbox.checked { background: var(--gold); border-color: var(--gold); }
+  .terms-text { font-family: var(--sans); font-size: 12px; color: var(--ink-light); line-height: 1.6; margin: 0; font-weight: 300; }
+  .terms-link { color: var(--gold); text-decoration: none; font-weight: 500; }
+  .terms-link:hover { text-decoration: underline; }
   .modal-error { font-family: var(--sans); font-size: 13px; color: #c0392b; background: #fdf0ef; border: 1px solid #f5c6c2; border-radius: 2px; padding: 10px 14px; margin-bottom: 1rem; }
   .btn-primary-modal { width: 100%; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cream); background: var(--ink); border: 1px solid var(--ink); border-radius: 2px; padding: 13px 20px; cursor: pointer; margin-top: 0.25rem; transition: background 0.2s, border-color 0.2s; }
   .btn-primary-modal:hover { background: var(--gold); border-color: var(--gold); }

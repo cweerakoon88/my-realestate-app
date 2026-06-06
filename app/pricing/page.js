@@ -1,9 +1,11 @@
 'use client'
-import Link from 'next/link'
 import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import NavBar from '@/components/NavBar'
 
 export default function Pricing() {
+  const router = useRouter()
   const [loading, setLoading] = useState(null)
 
   async function handleCheckout(plan) {
@@ -15,13 +17,9 @@ export default function Pricing() {
         body: JSON.stringify({ plan }),
       })
       const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
-      } else {
-        alert('Something went wrong. Please try again.')
-      }
+      if (data.url) window.location.href = data.url
     } catch (err) {
-      alert('Something went wrong. Please try again.')
+      console.error(err)
     } finally {
       setLoading(null)
     }
@@ -32,333 +30,305 @@ export default function Pricing() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { overflow-x: hidden; }
         :root {
           --cream: #faf8f3; --warm-white: #fffefb; --ink: #1a1714; --ink-light: #4a4540;
-          --gold: #b8924a; --gold-light: #d4aa6a; --gold-pale: #f5ecd8; --border: #e8e0d0;
-          --green: #2d6a4f; --green-bg: #f0faf4; --green-border: #b7e4c7;
+          --gold: #b8924a; --gold-pale: #f5ecd8; --border: #e8e0d0;
           --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'DM Sans', sans-serif;
         }
         body { background: var(--cream); color: var(--ink); font-family: var(--sans); }
-        .page-header { max-width: 860px; margin: 0 auto; padding: 8rem 3rem 3rem; text-align: center; }
-        .header-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .header-eyebrow::before, .header-eyebrow::after { content: ''; display: block; width: 28px; height: 1px; background: var(--gold); }
-        .header-title { font-family: var(--serif); font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; line-height: 1.05; color: var(--ink); margin-bottom: 1.25rem; }
-        .header-title em { font-style: italic; color: var(--gold); }
-        .header-desc { font-family: var(--sans); font-size: 15px; font-weight: 300; color: var(--ink-light); line-height: 1.8; max-width: 560px; margin: 0 auto 2rem; }
-        .toggle-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 3rem; }
-        .toggle-label { font-family: var(--sans); font-size: 13px; color: var(--ink-light); }
-        .toggle-label.active { color: var(--ink); font-weight: 500; }
-        .toggle { position: relative; width: 48px; height: 26px; }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 26px; cursor: pointer; transition: 0.3s; }
-        .toggle-slider:before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; }
-        .toggle input:checked + .toggle-slider { background: var(--gold); }
-        .toggle input:checked + .toggle-slider:before { transform: translateX(22px); }
-        .save-badge { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); padding: 3px 10px; border-radius: 20px; }
-        .audience-tabs { display: flex; justify-content: center; gap: 4px; margin: 0 auto 2rem; background: var(--warm-white); border: 1px solid var(--border); padding: 4px; max-width: 320px; }
-        .aud-tab { flex: 1; padding: 10px; border: none; background: none; font-family: var(--sans); font-size: 13px; color: var(--ink-light); cursor: pointer; transition: all 0.2s; }
-        .aud-tab.active { background: var(--ink); color: var(--cream); font-weight: 500; }
-        .pricing-section { max-width: 1100px; margin: 0 auto; padding: 0 3rem 5rem; }
-        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-        .pricing-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-        .plan { background: var(--warm-white); padding: 2.5rem 2rem; display: flex; flex-direction: column; position: relative; }
-        .plan.featured { background: var(--ink); }
-        .plan-badge { font-family: var(--sans); font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; background: var(--gold-pale); color: var(--gold); padding: 4px 12px; display: inline-block; margin-bottom: 1.5rem; align-self: flex-start; }
-        .plan.featured .plan-badge { background: var(--gold); color: var(--ink); }
-        .plan-name { font-family: var(--serif); font-size: 1.6rem; font-weight: 300; color: var(--ink); margin-bottom: 0.5rem; }
-        .plan.featured .plan-name { color: var(--cream); }
-        .plan-tagline { font-family: var(--sans); font-size: 13px; font-weight: 300; color: var(--ink-light); margin-bottom: 1.75rem; line-height: 1.5; }
-        .plan.featured .plan-tagline { color: rgba(250,248,243,0.6); }
-        .plan-price-wrap { margin-bottom: 1.75rem; padding-bottom: 1.75rem; border-bottom: 1px solid var(--border); }
-        .plan.featured .plan-price-wrap { border-color: rgba(255,255,255,0.1); }
-        .plan-price { font-family: var(--serif); font-size: 3rem; font-weight: 300; color: var(--ink); line-height: 1; }
-        .plan.featured .plan-price { color: var(--gold); }
-        .plan-price sup { font-size: 1.2rem; vertical-align: top; margin-top: 0.5rem; }
-        .plan-period { font-family: var(--sans); font-size: 12px; color: var(--ink-light); margin-top: 6px; font-weight: 300; }
-        .plan.featured .plan-period { color: rgba(250,248,243,0.5); }
-        .plan-features { list-style: none; flex: 1; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 10px; }
-        .plan-features li { font-family: var(--sans); font-size: 13px; color: var(--ink-light); display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
-        .plan.featured .plan-features li { color: rgba(250,248,243,0.7); }
-        .feat-check { color: var(--gold); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-        .feat-x { color: #ccc; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-        .plan.featured .feat-x { color: rgba(255,255,255,0.2); }
-        .plan-cta { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 13px 24px; text-align: center; text-decoration: none; border: 1px solid var(--ink); color: var(--ink); transition: all 0.2s; display: block; background: none; cursor: pointer; width: 100%; }
-        .plan-cta:hover:not(:disabled) { background: var(--ink); color: var(--cream); }
-        .plan-cta:disabled { opacity: 0.6; cursor: not-allowed; }
-        .plan.featured .plan-cta { background: var(--gold); border-color: var(--gold); color: var(--ink); }
-        .plan.featured .plan-cta:hover:not(:disabled) { background: var(--gold-light); border-color: var(--gold-light); }
-        .stripe-note { font-family: var(--sans); font-size: 11px; color: #bbb; text-align: center; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .compare-section { max-width: 900px; margin: 0 auto; padding: 0 3rem 5rem; }
-        .section-title { font-family: var(--serif); font-size: 1.8rem; font-weight: 300; color: var(--ink); text-align: center; margin-bottom: 2rem; }
-        .section-title em { font-style: italic; color: var(--gold); }
-        table.compare { width: 100%; border-collapse: collapse; font-family: var(--sans); }
-        table.compare th { font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); padding: 12px 16px; text-align: left; border-bottom: 2px solid var(--border); }
-        table.compare th:not(:first-child) { text-align: center; }
-        table.compare td { font-size: 13px; color: var(--ink-light); padding: 12px 16px; border-bottom: 1px solid var(--border); line-height: 1.5; }
-        table.compare td:not(:first-child) { text-align: center; }
-        table.compare tr:hover td { background: #fffcf7; }
-        .compare-check { color: var(--green); font-size: 15px; }
-        .compare-dash { color: #ccc; font-size: 15px; }
-        .compare-section-row td { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); background: var(--gold-pale) !important; padding: 8px 16px; }
-        .faq-section { max-width: 720px; margin: 0 auto; padding: 0 3rem 5rem; }
-        .faq-item { border-bottom: 1px solid var(--border); }
-        .faq-q { font-family: var(--sans); font-size: 14px; font-weight: 500; color: var(--ink); padding: 1.25rem 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; list-style: none; }
-        .faq-q:hover { color: var(--gold); }
-        .faq-icon { font-size: 20px; color: var(--gold); flex-shrink: 0; transition: transform 0.3s; line-height: 1; }
-        .faq-a { font-family: var(--sans); font-size: 13px; color: var(--ink-light); line-height: 1.8; padding-bottom: 1.25rem; }
-        details[open] .faq-icon { transform: rotate(45deg); }
-        .cta-banner { background: var(--ink); padding: 5rem 3rem; text-align: center; }
-        .cta-title { font-family: var(--serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; color: var(--cream); margin-bottom: 1rem; }
-        .cta-title em { font-style: italic; color: var(--gold); }
-        .cta-sub { font-family: var(--sans); font-size: 14px; color: rgba(250,248,243,0.55); font-weight: 300; margin-bottom: 2.5rem; line-height: 1.7; }
-        .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .cta-btn-gold { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; background: var(--gold); color: var(--ink); padding: 14px 32px; text-decoration: none; transition: background 0.2s; }
-        .cta-btn-gold:hover { background: var(--gold-light); }
-        .cta-btn-ghost { font-family: var(--sans); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(250,248,243,0.6); text-decoration: none; border: 1px solid rgba(250,248,243,0.2); padding: 14px 32px; transition: all 0.2s; }
-        .cta-btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+        .pricing-hero { background: var(--ink); padding: 8rem 2rem 4rem; text-align: center; }
+        .pricing-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+        .pricing-title { font-family: var(--serif); font-size: clamp(2.2rem, 4vw, 3.5rem); font-weight: 300; color: var(--cream); line-height: 1.1; margin-bottom: 1rem; }
+        .pricing-subtitle { font-family: var(--sans); font-size: 15px; color: rgba(250,248,243,0.55); font-weight: 300; line-height: 1.7; max-width: 520px; margin: 0 auto; }
+        .pricing-main { max-width: 1000px; margin: 0 auto; padding: 4rem 2rem; }
+        .pricing-mission { background: var(--gold-pale); border: 1px solid #e8d0a0; border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 3rem; display: flex; gap: 1rem; align-items: flex-start; }
+        .pricing-mission-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .pricing-mission-text { font-family: var(--sans); font-size: 14px; color: #7a5c00; line-height: 1.7; font-weight: 300; }
+        .pricing-mission-text strong { font-weight: 500; color: #5a4000; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 4rem; }
+        .pricing-card { background: var(--warm-white); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; position: relative; }
+        .pricing-card.featured { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+        .pricing-card-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--ink); font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 14px; border-radius: 20px; white-space: nowrap; }
+        .pricing-card-label { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+        .pricing-card-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 400; color: var(--ink); margin-bottom: 0.5rem; }
+        .pricing-price { font-family: var(--serif); font-size: 3rem; font-weight: 300; color: var(--ink); line-height: 1; margin-bottom: 0.25rem; }
+        .pricing-price-note { font-family: var(--sans); font-size: 12px; color: #bbb; margin-bottom: 1.5rem; }
+        .pricing-features { list-style: none; margin-bottom: 2rem; }
+        .pricing-features li { font-family: var(--sans); font-size: 13px; color: var(--ink-light); font-weight: 300; padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+        .pricing-features li:last-child { border-bottom: none; }
+        .pricing-features .check { color: var(--gold); flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+        .pricing-cta { width: 100%; padding: 12px; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .pricing-cta-primary { background: var(--ink); color: var(--cream); border: 1px solid var(--ink); }
+        .pricing-cta-primary:hover { background: var(--gold); border-color: var(--gold); }
+        .pricing-cta-secondary { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+        .pricing-cta-secondary:hover { border-color: var(--ink); }
+        .pricing-cta:disabled { opacity: 0.6; cursor: not-allowed; }
+        .pricing-section-title { font-family: var(--serif); font-size: 1.8rem; font-weight: 300; color: var(--ink); margin-bottom: 0.5rem; }
+        .pricing-section-sub { font-family: var(--sans); font-size: 14px; color: var(--ink-light); font-weight: 300; margin-bottom: 2rem; }
+        .compare-table { width: 100%; border-collapse: collapse; margin-bottom: 4rem; }
+        .compare-table th { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--border); }
+        .compare-table td { font-family: var(--sans); font-size: 13px; color: var(--ink-light); font-weight: 300; padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); line-height: 1.5; vertical-align: top; }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .compare-table td:first-child { font-weight: 400; color: var(--ink); }
+
+        /* REFUND POLICY */
+        .refund-box { background: var(--warm-white); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin-bottom: 3rem; }
+        .refund-title { font-family: var(--serif); font-size: 1.3rem; font-weight: 400; color: var(--ink); margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+        .refund-item { display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        .refund-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .refund-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+        .refund-item-title { font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+        .refund-item-text { font-family: var(--sans); font-size: 13px; color: var(--ink-light); font-weight: 300; line-height: 1.6; }
+
+        .faq-section { margin-bottom: 4rem; }
+        .faq-item { border-bottom: 1px solid var(--border); padding: 1.25rem 0; }
+        .faq-q { font-family: var(--sans); font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; }
+        .faq-a { font-family: var(--sans); font-size: 13px; color: var(--ink-light); font-weight: 300; line-height: 1.7; }
         .footer { padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); font-family: var(--sans); font-size: 12px; color: #bbb; flex-wrap: wrap; gap: 1rem; }
         .footer-logo { font-family: var(--serif); font-size: 1.1rem; color: var(--ink-light); }
         .footer-logo span { color: var(--gold); }
-        .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-        .footer-link { color: #bbb; text-decoration: none; }
-        .footer-link:hover { color: var(--gold); }
-        @media (max-width: 860px) {
-          .page-header, .pricing-section, .compare-section, .faq-section { padding-left: 1.5rem; padding-right: 1.5rem; }
-          .pricing-grid, .pricing-grid-2 { grid-template-columns: 1fr; }
-          .cta-banner { padding: 4rem 1.5rem; }
+        @media (max-width: 768px) {
+          .pricing-main { padding: 2rem 1.25rem; }
+          .compare-table { font-size: 12px; }
+          .compare-table td, .compare-table th { padding: 0.6rem 0.5rem; }
           .footer { padding: 1.5rem; flex-direction: column; text-align: center; }
         }
       `}</style>
 
       <NavBar />
 
-      <div className="page-header">
-        <div className="header-eyebrow">Simple, transparent pricing</div>
-        <h1 className="header-title">Free for buyers.<br /><em>Affordable for sellers.</em></h1>
-        <p className="header-desc">Buyers always post for free. Sellers pay a simple flat fee — no commissions, no hidden costs. Pay securely via Stripe.</p>
+      {/* HERO */}
+      <div className="pricing-hero">
+        <p className="pricing-eyebrow">Transparent pricing</p>
+        <h1 className="pricing-title">Fair for buyers.<br />Affordable for sellers.</h1>
+        <p className="pricing-subtitle">PropOffer was built to do right by everyone in the property market. Our pricing reflects that.</p>
       </div>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 3rem' }}>
-        <div className="audience-tabs">
-          <button className="aud-tab active" id="tab-sellers" onClick={() => {
-            if (typeof window !== 'undefined') {
-              document.getElementById('seller-plans').style.display = 'block'
-              document.getElementById('buyer-plans').style.display = 'none'
-              document.getElementById('compare-table').style.display = 'block'
-              document.getElementById('tab-sellers').className = 'aud-tab active'
-              document.getElementById('tab-buyers').className = 'aud-tab'
-            }
-          }}>For sellers</button>
-          <button className="aud-tab" id="tab-buyers" onClick={() => {
-            if (typeof window !== 'undefined') {
-              document.getElementById('seller-plans').style.display = 'none'
-              document.getElementById('buyer-plans').style.display = 'block'
-              document.getElementById('compare-table').style.display = 'none'
-              document.getElementById('tab-sellers').className = 'aud-tab'
-              document.getElementById('tab-buyers').className = 'aud-tab active'
-            }
-          }}>For buyers</button>
+      <div className="pricing-main">
+
+        {/* MISSION STATEMENT */}
+        <div className="pricing-mission">
+          <span className="pricing-mission-icon">💛</span>
+          <p className="pricing-mission-text">
+            <strong>PropOffer is not built to maximise revenue — it's built to maximise fairness.</strong> Buyers always post free. Sellers pay a small flat fee — not a percentage of their sale. No commissions. No hidden costs. No pressure. If we do right by you, we believe the rest will follow.
+          </p>
         </div>
-      </div>
 
-      {/* SELLER PLANS */}
-      <div className="pricing-section" id="seller-plans">
+        {/* PRICING CARDS */}
         <div className="pricing-grid">
-          <div className="plan">
-            <span className="plan-badge">Starter</span>
-            <h2 className="plan-name">Basic listing</h2>
-            <p className="plan-tagline">List one property and connect with ready buyers in your suburb.</p>
-            <div className="plan-price-wrap">
-              <div className="plan-price"><sup>$</sup>49</div>
-              <div className="plan-period">one-time · 60 day listing</div>
-            </div>
-            <ul className="plan-features">
-              <li><span className="feat-check">✦</span>1 property listing for 60 days</li>
-              <li><span className="feat-check">✦</span>Visible to all buyers in the marketplace</li>
-              <li><span className="feat-check">✦</span>Up to 8 photos</li>
-              <li><span className="feat-check">✦</span>Direct buyer contact via email</li>
-              <li><span className="feat-check">✦</span>Suburb price guide included</li>
-              <li><span className="feat-x">—</span>Featured placement in search</li>
-              <li><span className="feat-x">—</span>Buyer match email alerts</li>
-              <li><span className="feat-x">—</span>Verified seller badge</li>
+
+          {/* BUYER — FREE */}
+          <div className="pricing-card">
+            <p className="pricing-card-label">For buyers</p>
+            <h2 className="pricing-card-title">Post a requirement</h2>
+            <div className="pricing-price">$0</div>
+            <p className="pricing-price-note">Free forever — no credit card needed</p>
+            <ul className="pricing-features">
+              <li><span className="check">✓</span> Post exactly what you're looking for</li>
+              <li><span className="check">✓</span> Sellers contact you directly</li>
+              <li><span className="check">✓</span> No auctions, no pressure</li>
+              <li><span className="check">✓</span> Edit or remove anytime</li>
+              <li><span className="check">✓</span> Access service provider directory</li>
+              <li><span className="check">✓</span> Always free — no exceptions</li>
+            </ul>
+            <Link href="/post" style={{ display: 'block' }}>
+              <button className="pricing-cta pricing-cta-secondary" style={{ width: '100%' }}>
+                Post a requirement →
+              </button>
+            </Link>
+          </div>
+
+          {/* SELLER BASIC */}
+          <div className="pricing-card">
+            <p className="pricing-card-label">For sellers</p>
+            <h2 className="pricing-card-title">Basic listing</h2>
+            <div className="pricing-price">$49</div>
+            <p className="pricing-price-note">One-time · 60-day listing</p>
+            <ul className="pricing-features">
+              <li><span className="check">✓</span> Listed in the marketplace</li>
+              <li><span className="check">✓</span> Up to 5 photos</li>
+              <li><span className="check">✓</span> Direct contact from buyers</li>
+              <li><span className="check">✓</span> Ownership document upload</li>
+              <li><span className="check">✓</span> Reviewed within 24 hours</li>
+              <li><span className="check">✓</span> No commissions ever</li>
             </ul>
             <button
-              className="plan-cta"
+              className="pricing-cta pricing-cta-primary"
               onClick={() => handleCheckout('basic')}
               disabled={loading === 'basic'}
             >
-              {loading === 'basic' ? 'Redirecting…' : 'Get started — $49'}
+              {loading === 'basic' ? 'Redirecting…' : 'List my property →'}
             </button>
-            <p className="stripe-note">🔒 Secure payment via Stripe</p>
           </div>
 
-          <div className="plan featured">
-            <span className="plan-badge">Most popular</span>
-            <h2 className="plan-name">Featured listing</h2>
-            <p className="plan-tagline">Stand out and get matched with buyers actively looking for your property type.</p>
-            <div className="plan-price-wrap">
-              <div className="plan-price"><sup>$</sup>99</div>
-              <div className="plan-period">one-time · 60 day listing</div>
-            </div>
-            <ul className="plan-features">
-              <li><span className="feat-check">✦</span>1 property listing for 60 days</li>
-              <li><span className="feat-check">✦</span>Pinned at top of marketplace for 30 days</li>
-              <li><span className="feat-check">✦</span>Up to 20 photos + floor plan upload</li>
-              <li><span className="feat-check">✦</span>AI-matched to relevant buyer requirements</li>
-              <li><span className="feat-check">✦</span>Email alert sent to matching buyers</li>
-              <li><span className="feat-check">✦</span>Verified seller badge displayed</li>
-              <li><span className="feat-check">✦</span>Priority support from our team</li>
-              <li><span className="feat-check">✦</span>50% off relist if not sold in 60 days</li>
+          {/* SELLER FEATURED */}
+          <div className="pricing-card featured">
+            <div className="pricing-card-badge">Most popular</div>
+            <p className="pricing-card-label">For sellers</p>
+            <h2 className="pricing-card-title">Featured listing</h2>
+            <div className="pricing-price">$99</div>
+            <p className="pricing-price-note">One-time · 60-day listing</p>
+            <ul className="pricing-features">
+              <li><span className="check">✓</span> Everything in Basic</li>
+              <li><span className="check">✓</span> Featured placement at top</li>
+              <li><span className="check">✓</span> ⭐ Featured badge</li>
+              <li><span className="check">✓</span> Priority review (same day)</li>
+              <li><span className="check">✓</span> Highlighted in search results</li>
+              <li><span className="check">✓</span> 2× more buyer visibility</li>
             </ul>
             <button
-              className="plan-cta"
+              className="pricing-cta pricing-cta-primary"
               onClick={() => handleCheckout('featured')}
               disabled={loading === 'featured'}
             >
-              {loading === 'featured' ? 'Redirecting…' : 'Get started — $99'}
+              {loading === 'featured' ? 'Redirecting…' : 'Get featured →'}
             </button>
-            <p className="stripe-note" style={{ color: 'rgba(250,248,243,0.4)' }}>🔒 Secure payment via Stripe</p>
           </div>
 
-          <div className="plan">
-            <span className="plan-badge">For agencies</span>
-            <h2 className="plan-name">Agent bundle</h2>
-            <p className="plan-tagline">For real estate agencies managing multiple properties with ongoing access.</p>
-            <div className="plan-price-wrap">
-              <div className="plan-price"><sup>$</sup>199</div>
-              <div className="plan-period">per month</div>
-            </div>
-            <ul className="plan-features">
-              <li><span className="feat-check">✦</span>Up to 10 active listings at a time</li>
-              <li><span className="feat-check">✦</span>All listings featured automatically</li>
-              <li><span className="feat-check">✦</span>Verified licensed agent badge</li>
-              <li><span className="feat-check">✦</span>Instant alerts for new matching requirements</li>
-              <li><span className="feat-check">✦</span>Unlimited photos per listing</li>
-              <li><span className="feat-check">✦</span>Monthly performance report</li>
-              <li><span className="feat-check">✦</span>Dedicated account manager</li>
-              <li><span className="feat-check">✦</span>Cancel anytime</li>
-            </ul>
-            <a href="mailto:hello@propoffer.com.au?subject=Agent Bundle Enquiry" className="plan-cta">Contact us</a>
-          </div>
         </div>
-      </div>
 
-      {/* BUYER PLANS */}
-      <div className="pricing-section" id="buyer-plans" style={{ display: 'none' }}>
-        <div className="pricing-grid-2">
-          <div className="plan">
-            <span className="plan-badge">Always free</span>
-            <h2 className="plan-name">Standard</h2>
-            <p className="plan-tagline">Post your requirement and let sellers come to you — completely free, forever.</p>
-            <div className="plan-price-wrap">
-              <div className="plan-price"><sup>$</sup>0</div>
-              <div className="plan-period">always free</div>
-            </div>
-            <ul className="plan-features">
-              <li><span className="feat-check">✦</span>Post unlimited buyer requirements</li>
-              <li><span className="feat-check">✦</span>Receive offers from sellers & agents</li>
-              <li><span className="feat-check">✦</span>Suburb price guide for any area</li>
-              <li><span className="feat-check">✦</span>Proximity preferences (schools, trains, shops)</li>
-              <li><span className="feat-check">✦</span>Browse all seller listings</li>
-              <li><span className="feat-x">—</span>Priority placement in seller browse</li>
-              <li><span className="feat-x">—</span>Email blast to matching agents</li>
-            </ul>
-            <Link href="/post" className="plan-cta">Post a requirement</Link>
-          </div>
-          <div className="plan featured">
-            <span className="plan-badge">Get noticed faster</span>
-            <h2 className="plan-name">Boosted requirement</h2>
-            <p className="plan-tagline">Rise to the top of the seller browse and get your requirement in front of the right agents instantly.</p>
-            <div className="plan-price-wrap">
-              <div className="plan-price"><sup>$</sup>29</div>
-              <div className="plan-period">per 30 days</div>
-            </div>
-            <ul className="plan-features">
-              <li><span className="feat-check">✦</span>Everything in Standard, plus:</li>
-              <li><span className="feat-check">✦</span>Pinned at top of seller browse</li>
-              <li><span className="feat-check">✦</span>Email blast to all agents in your suburb</li>
-              <li><span className="feat-check">✦</span>Highlighted "Priority buyer" badge</li>
-              <li><span className="feat-check">✦</span>Weekly digest of new matching listings</li>
-              <li><span className="feat-check">✦</span>Renew or cancel anytime</li>
-            </ul>
-            <a href="mailto:hello@propoffer.com.au?subject=Boost Enquiry" className="plan-cta">Enquire about boosting</a>
-          </div>
-        </div>
-      </div>
-
-      {/* COMPARE TABLE */}
-      <div className="compare-section" id="compare-table">
-        <h2 className="section-title">Compare seller <em>plans</em></h2>
-        <table className="compare">
+        {/* COMPARISON */}
+        <h2 className="pricing-section-title" style={{ marginBottom: '0.5rem' }}>How we compare</h2>
+        <p className="pricing-section-sub">Traditional real estate marketing costs thousands. PropOffer costs a flat fee.</p>
+        <table className="compare-table">
           <thead>
             <tr>
-              <th style={{ width: '40%' }}>Feature</th>
-              <th>Basic <br /><span style={{ fontFamily: 'var(--serif)', fontSize: '1rem', fontWeight: 300 }}>$49</span></th>
-              <th style={{ color: 'var(--gold)' }}>Featured <br /><span style={{ fontFamily: 'var(--serif)', fontSize: '1rem', fontWeight: 300 }}>$99</span></th>
-              <th>Agent <br /><span style={{ fontFamily: 'var(--serif)', fontSize: '1rem', fontWeight: 300 }}>$199/mo</span></th>
+              <th>Platform</th>
+              <th>Upfront cost</th>
+              <th>Commission</th>
+              <th>Board / public campaign</th>
+              <th>Buyer contact</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td colSpan={4} className="compare-section-row">Listing</td></tr>
-            <tr><td>Active listings</td><td>1</td><td>1</td><td>Up to 10</td></tr>
-            <tr><td>Listing duration</td><td>60 days</td><td>60 days</td><td>Ongoing</td></tr>
-            <tr><td>Photos per listing</td><td>8</td><td>20</td><td>Unlimited</td></tr>
-            <tr><td>Floor plan upload</td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td colSpan={4} className="compare-section-row">Visibility</td></tr>
-            <tr><td>Marketplace listing</td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td>Featured / pinned placement</td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td>Buyer match email alerts</td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td colSpan={4} className="compare-section-row">Trust & support</td></tr>
-            <tr><td>Verified seller badge</td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td>Priority support</td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td>Dedicated account manager</td><td><span className="compare-dash">—</span></td><td><span className="compare-dash">—</span></td><td><span className="compare-check">✓</span></td></tr>
-            <tr><td colSpan={4} className="compare-section-row">vs. competitors</td></tr>
-            <tr><td>realestate.com.au standard</td><td colSpan={3} style={{ textAlign: 'center', color: '#c0392b' }}>$200 – $4,000 per listing</td></tr>
-            <tr><td>Domain standard</td><td colSpan={3} style={{ textAlign: 'center', color: '#c0392b' }}>$150 – $3,500 per listing</td></tr>
-            <tr><td>PropOffer</td><td colSpan={3} style={{ textAlign: 'center', color: 'var(--green)', fontWeight: 500 }}>$49 – $99 · up to 80x cheaper</td></tr>
+            <tr style={{ background: '#fffdf7' }}>
+              <td>PropOffer <span style={{ color: '#b8924a', fontSize: '11px' }}>★</span></td>
+              <td>$49 – $99</td>
+              <td>$0 — none</td>
+              <td>No board, private listing</td>
+              <td>Direct from buyers</td>
+            </tr>
+            <tr>
+              <td>Traditional agent</td>
+              <td>$3,000 – $8,000+</td>
+              <td>1.5% – 3% of sale price</td>
+              <td>Board + public campaign</td>
+              <td>Via agent only</td>
+            </tr>
+            <tr>
+              <td>realestate.com.au</td>
+              <td>$1,500 – $5,000+</td>
+              <td>Via agent</td>
+              <td>Full public listing</td>
+              <td>Via agent</td>
+            </tr>
+            <tr>
+              <td>Domain</td>
+              <td>$800 – $3,000+</td>
+              <td>Via agent</td>
+              <td>Full public listing</td>
+              <td>Via agent</td>
+            </tr>
           </tbody>
         </table>
-      </div>
 
-      {/* FAQ */}
-      <div className="faq-section">
-        <h2 className="section-title">Common <em>questions</em></h2>
-        {[
-          ['Is it really free for buyers?', 'Yes — posting a buyer requirement is completely free and always will be. We charge sellers to list their properties, not buyers to find them.'],
-          ['How is PropOffer different from Domain or REA?', "On Domain and REA, sellers list and buyers search. On PropOffer it's reversed — buyers post exactly what they want and sellers come to them. Plus we're dramatically cheaper — REA charges up to $4,000 per listing. We charge $49–$99."],
-          ['Is my payment secure?', 'Yes — all payments are processed by Stripe, one of the world\'s most trusted payment platforms. PropOffer never stores your card details.'],
-          ['Can I list an off-market property?', 'Absolutely. Many sellers prefer PropOffer precisely because they can list quietly without a full public campaign.'],
-          ['What happens after I pay?', 'Your listing goes live in the marketplace immediately. Our team will contact you within 24 hours to confirm everything is set up correctly.'],
-          ["What if my property doesn't sell?", "Featured listing customers receive 50% off a relist if the property hasn't sold after 60 days."],
-          ['Do I need a real estate licence to list?', 'Private sellers (homeowners) can list without a licence. Licensed agents should use the Agent Bundle plan.'],
-        ].map(([q, a], i) => (
-          <details className="faq-item" key={i}>
-            <summary className="faq-q">{q}<span className="faq-icon">+</span></summary>
-            <div className="faq-a">{a}</div>
-          </details>
-        ))}
-      </div>
-
-      <section className="cta-banner">
-        <h2 className="cta-title">Ready to find your<br /><em>perfect match?</em></h2>
-        <p className="cta-sub">Buyers post free. Sellers reach motivated buyers from $49.<br />No lock-ins. No commissions. No surprises.</p>
-        <div className="cta-actions">
-          <Link href="/post" className="cta-btn-gold">Post a requirement — free</Link>
-          <Link href="/contact" className="cta-btn-ghost">Talk to our team</Link>
+        {/* REFUND POLICY */}
+        <div className="refund-box">
+          <h2 className="refund-title">Refund policy</h2>
+          <div className="refund-item">
+            <span className="refund-icon">✅</span>
+            <div>
+              <div className="refund-item-title">Listing rejected — full refund</div>
+              <div className="refund-item-text">If your listing is reviewed and rejected by our team, you will receive a full refund within 5 business days. No questions asked.</div>
+            </div>
+          </div>
+          <div className="refund-item">
+            <span className="refund-icon">⚠️</span>
+            <div>
+              <div className="refund-item-title">Listing approved and live — no refund</div>
+              <div className="refund-item-text">Once your listing has been approved and is live on the marketplace, the listing fee is non-refundable. This is because your listing has already been seen by buyers.</div>
+            </div>
+          </div>
+          <div className="refund-item">
+            <span className="refund-icon">🏦</span>
+            <div>
+              <div className="refund-item-title">Australian Consumer Law</div>
+              <div className="refund-item-text">Nothing in this policy limits your rights under the Australian Consumer Law. If you believe you have a valid consumer remedy, please contact us at <a href="mailto:hello@propoffer.com.au" style={{ color: '#b8924a' }}>hello@propoffer.com.au</a>.</div>
+            </div>
+          </div>
+          <div className="refund-item">
+            <span className="refund-icon">📧</span>
+            <div>
+              <div className="refund-item-title">How to request a refund</div>
+              <div className="refund-item-text">Email <a href="mailto:hello@propoffer.com.au" style={{ color: '#b8924a' }}>hello@propoffer.com.au</a> with your listing details and reason. We'll respond within 2 business days.</div>
+            </div>
+          </div>
         </div>
-      </section>
+
+        {/* FAQ */}
+        <div className="faq-section">
+          <h2 className="pricing-section-title" style={{ marginBottom: '1.5rem' }}>Frequently asked questions</h2>
+
+          {[
+            {
+              q: 'Is PropOffer really free for buyers?',
+              a: 'Yes, always. Buyers post requirements, browse listings, and contact sellers completely free. There is no trial period or hidden fee. PropOffer is free for buyers permanently — that\'s a core part of how the platform works.'
+            },
+            {
+              q: 'Do I need an agent to sell on PropOffer?',
+              a: 'No. PropOffer connects you directly with buyers. No agent required, no commission payable. You handle negotiations and settlement directly — typically with the help of a conveyancer, which we can connect you with through our services directory.'
+            },
+            {
+              q: 'How long does my listing stay live?',
+              a: 'Listings are live for 60 days from the date of approval. If your property hasn\'t sold, you can relist at the same price. We\'re working on automatic renewal options.'
+            },
+            {
+              q: 'What happens if my listing is rejected?',
+              a: 'Our team reviews every listing within 24 hours (same day for Featured). If we reject your listing — for example due to incomplete information or a concern about ownership — we will email you explaining why and issue a full refund.'
+            },
+            {
+              q: 'Can I edit my listing after it\'s live?',
+              a: 'Not directly yet — but email hello@propoffer.com.au and we\'ll update it for you within a few hours. We\'re building self-serve editing into the account page.'
+            },
+            {
+              q: 'What does "no commission" actually mean?',
+              a: 'When a buyer contacts you through PropOffer and you sell your property, PropOffer takes nothing from the sale. The $49 or $99 listing fee is the total you pay us. Everything else stays with you.'
+            },
+          ].map((item, i) => (
+            <div key={i} className="faq-item">
+              <p className="faq-q">{item.q}</p>
+              <p className="faq-a">{item.a}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* BOTTOM CTA */}
+        <div style={{ background: '#1a1714', borderRadius: '8px', padding: '2.5rem', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: 'Georgia,serif', fontSize: '1.8rem', fontWeight: '300', color: '#faf8f3', marginBottom: '0.75rem' }}>
+            Ready to find your property<br /><em style={{ fontStyle: 'italic', color: '#b8924a' }}>your way?</em>
+          </h2>
+          <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: '14px', color: 'rgba(250,248,243,0.5)', fontWeight: '300', marginBottom: '2rem' }}>
+            Join buyers and sellers across Australia who are doing property differently.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/post" style={{ padding: '12px 28px', background: '#b8924a', color: '#1a1714', borderRadius: '4px', fontFamily: 'system-ui,sans-serif', fontSize: '13px', fontWeight: '600', textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Post free as a buyer
+            </Link>
+            <Link href="/marketplace" style={{ padding: '12px 28px', background: 'transparent', color: '#faf8f3', border: '1px solid rgba(250,248,243,0.3)', borderRadius: '4px', fontFamily: 'system-ui,sans-serif', fontSize: '13px', fontWeight: '400', textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Browse marketplace
+            </Link>
+          </div>
+        </div>
+      </div>
 
       <footer className="footer">
         <div className="footer-logo">Prop<span>Offer</span></div>
-        <div className="footer-links">
-          <Link href="/marketplace" className="footer-link">Marketplace</Link>
-          <Link href="/services" className="footer-link">Services</Link>
-          <Link href="/about" className="footer-link">About</Link>
-          <Link href="/contact" className="footer-link">Contact</Link>
-          <Link href="/terms" className="footer-link">Terms</Link>
+        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+          {[['/', 'Home'], ['/marketplace', 'Marketplace'], ['/services', 'Services'], ['/about', 'About'], ['/terms', 'Terms'], ['/privacy', 'Privacy']].map(([href, label]) => (
+            <Link key={href} href={href} style={{ color: '#bbb', textDecoration: 'none', fontFamily: 'system-ui,sans-serif', fontSize: '12px' }}>{label}</Link>
+          ))}
         </div>
-        <div>© 2026 PropOffer · Transparent pricing, always</div>
+        <div>© 2026 PropOffer</div>
       </footer>
     </>
   )
