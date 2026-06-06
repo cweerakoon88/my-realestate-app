@@ -55,7 +55,7 @@ export default function Terms() {
       <div className="page">
         <div className="eyebrow">Legal</div>
         <h1 className="page-title">Terms &<br /><em>Conditions</em></h1>
-        <p className="updated">Last updated: 28 May 2025 · PropOffer (propoffer.com.au)</p>
+        <p className="updated">Last updated: 1 June 2026 · PropOffer (propoffer.com.au)</p>
 
         <div className="disclaimer-box">
           <p><strong>Important:</strong> PropOffer is a connection platform only. We do not represent, endorse, verify, or take responsibility for any buyer, seller, agent, or service provider using our platform. All transactions, negotiations, and agreements are made directly between users. Please read these terms carefully before using PropOffer.</p>
@@ -65,7 +65,7 @@ export default function Terms() {
           <div className="section-num">1.</div>
           <h2 className="section-title">About PropOffer</h2>
           <div className="section-body">
-            <p>PropOffer (ABN pending) operates the website located at propoffer.com.au ("the Platform"). The Platform provides a marketplace where property buyers can post requirements and property sellers, agents, and service providers can respond.</p>
+            <p>PropOffer (propoffer.com.au) is operated by Callum Weerakoon, trading as PropOffer, Melbourne, Victoria, Australia. The Platform provides a marketplace where property buyers can post requirements and property sellers and service providers can respond.</p>
             <p>By accessing or using PropOffer, you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree, please do not use the Platform.</p>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function Terms() {
           <div className="section-num">4.</div>
           <h2 className="section-title">Third-Party Service Providers</h2>
           <div className="section-body">
-            <p>PropOffer may refer users to or display content from third-party service providers including but not limited to mortgage brokers, building inspectors, conveyancers, landscapers, and handyman services ("Third-Party Providers").</p>
+            <p>PropOffer may display listings from third-party service providers including but not limited to mortgage brokers, building inspectors, conveyancers, landscapers, and handyman services ("Third-Party Providers").</p>
             <p><strong>PropOffer is not responsible for and expressly disclaims all liability for:</strong></p>
             <ul>
               <li>The acts, omissions, errors, or negligence of any Third-Party Provider</li>
@@ -115,7 +115,7 @@ export default function Terms() {
               <li>Any dispute between a user and a Third-Party Provider</li>
               <li>Whether a Third-Party Provider holds appropriate licences, insurance, or qualifications</li>
             </ul>
-            <p>Any engagement with a Third-Party Provider is solely between the user and that provider. PropOffer is not party to that engagement and receives no commission from service providers.</p>
+            <p>Any engagement with a Third-Party Provider is solely between the user and that provider. PropOffer is not party to that engagement and receives no commission from property transactions.</p>
           </div>
         </div>
 
@@ -173,9 +173,9 @@ export default function Terms() {
           <div className="section-num">8.</div>
           <h2 className="section-title">Fees and Payments</h2>
           <div className="section-body">
-            <p>Buyer requirements are posted free of charge. Seller listings and agent subscriptions are subject to fees as described on our Pricing page. All fees are in Australian dollars and inclusive of GST where applicable.</p>
-            <p>Fees are charged for access to the Platform and the ability to connect with users. PropOffer does not charge commissions on property transactions and has no financial interest in whether a transaction proceeds or at what price.</p>
-            <p>Fees are non-refundable except where required under the Australian Consumer Law.</p>
+            <p>Buyer requirements are posted free of charge. Seller listings are subject to fees as described on our <Link href="/pricing" style={{ color: 'var(--gold)', textDecoration: 'none' }}>Pricing page</Link>. All fees are in Australian dollars and inclusive of GST where applicable.</p>
+            <p>Fees are charged for access to the Platform and the ability to connect with other users. PropOffer does not charge commissions on property transactions and has no financial interest in whether a transaction proceeds or at what price.</p>
+            <p>Listing fees are non-refundable once a listing is approved and live on the Platform. If a listing is rejected by our team, a full refund will be issued within 5 business days. Nothing in this clause limits your rights under the Australian Consumer Law.</p>
           </div>
         </div>
 
@@ -185,7 +185,7 @@ export default function Terms() {
           <div className="section-num">9.</div>
           <h2 className="section-title">Privacy</h2>
           <div className="section-body">
-            <p>PropOffer collects and handles personal information in accordance with the Australian Privacy Act 1988. By using the Platform, you consent to the collection, use, and storage of your personal information as described in our Privacy Policy.</p>
+            <p>PropOffer collects and handles personal information in accordance with the Australian Privacy Act 1988. By using the Platform, you consent to the collection, use, and storage of your personal information as described in our <Link href="/privacy" style={{ color: 'var(--gold)', textDecoration: 'none' }}>Privacy Policy</Link>.</p>
             <p>User contact details shared through the Platform are provided for the purpose of connecting buyers and sellers. They must not be used for spam, unsolicited marketing, or any purpose other than the relevant property enquiry.</p>
           </div>
         </div>
@@ -245,6 +245,7 @@ export default function Terms() {
           <Link href="/about" className="footer-link">About</Link>
           <Link href="/contact" className="footer-link">Contact</Link>
           <Link href="/terms" className="footer-link">Terms</Link>
+          <Link href="/privacy" className="footer-link">Privacy</Link>
         </div>
         <div>© 2026 PropOffer · Australia's buyer-first property platform</div>
       </footer>
