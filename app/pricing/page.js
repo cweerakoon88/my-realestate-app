@@ -209,21 +209,21 @@ export default function Pricing() {
               <td>Direct from buyers</td>
             </tr>
             <tr>
-              <td>Traditional agent</td>
+              <td>Traditional agent *</td>
               <td>$3,000 – $8,000+</td>
               <td>1.5% – 3% of sale price</td>
               <td>Board + public campaign</td>
               <td>Via agent only</td>
             </tr>
             <tr>
-              <td>realestate.com.au</td>
+              <td>realestate.com.au *</td>
               <td>$1,500 – $5,000+</td>
               <td>Via agent</td>
               <td>Full public listing</td>
               <td>Via agent</td>
             </tr>
             <tr>
-              <td>Domain</td>
+              <td>Domain *</td>
               <td>$800 – $3,000+</td>
               <td>Via agent</td>
               <td>Full public listing</td>
@@ -231,6 +231,14 @@ export default function Pricing() {
             </tr>
           </tbody>
         </table>
+
+        {/* COMPETITOR DISCLAIMER */}
+        <div style={{ background: '#f8f7f4', border: '1px solid #e8e0d0', borderRadius: '6px', padding: '12px 16px', marginTop: '-3rem', marginBottom: '3rem', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+          <span style={{ fontSize: '14px', flexShrink: 0 }}>ℹ️</span>
+          <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#aaa', lineHeight: 1.7, margin: 0, fontWeight: '300' }}>
+            * Competitor pricing figures are estimates based on publicly available information as of 2026 and may vary by agent, campaign type, property value, and location. PropOffer is not affiliated with, endorsed by, or connected to realestate.com.au, Domain, or any real estate agency listed above. All trademarks belong to their respective owners.
+          </p>
+        </div>
 
         {/* REFUND POLICY */}
         <div className="refund-box">
