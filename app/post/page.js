@@ -166,7 +166,7 @@ export default function PostRequirement() {
           <p style={s.successText}>Sellers in your area will see your requirement and reach out to you directly.</p>
           <div style={s.teamNote}>
             <span style={s.teamNoteIcon}>👋</span>
-            <p style={s.teamNoteText}><strong>Melina & Mikayla</strong> are working on your request and will contact you shortly.</p>
+            <p style={s.teamNoteText}><strong>The PropOffer Team</strong> are working on your request and will contact you shortly.</p>
           </div>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button style={s.btnPrimary} onClick={resetForm}>Post another</button>

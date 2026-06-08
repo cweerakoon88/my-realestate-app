@@ -637,7 +637,7 @@ export default function Marketplace() {
             <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>✓</div>
             <h2 style={{ fontFamily: 'Georgia,serif', fontSize: '1.5rem', color: '#1a1a1a', marginBottom: '0.75rem' }}>Listing submitted!</h2>
             <p style={{ fontSize: '14px', color: '#666', fontFamily: 'system-ui,sans-serif', lineHeight: 1.6, marginBottom: '1.5rem' }}>Your listing is under review. Our team will verify it within 24 hours.</p>
-            <div style={fs.teamNote}><span>👋</span><p style={{ fontSize: '13px', color: '#555', fontFamily: 'system-ui,sans-serif', margin: 0, lineHeight: 1.5 }}><strong>Melina & Mikayla</strong> will be in touch shortly.</p></div>
+            <div style={fs.teamNote}><span>👋</span><p style={{ fontSize: '13px', color: '#555', fontFamily: 'system-ui,sans-serif', margin: 0, lineHeight: 1.5 }}><strong>The PropOffer Team</strong> will be in touch shortly.</p></div>
             <button style={fs.submitBtn} onClick={() => { setSellerSuccess(false); setShowSellerForm(false) }}>Back to marketplace</button>
           </div>
         </div>
