@@ -453,7 +453,7 @@ export default function AccountPage() {
                 </div>
               )}
 
-
+              {activeTab === 'Offers' && (
                 <div>
                   <div className="tab-header"><h2 className="tab-title">Offers Received</h2></div>
                   {offers.length === 0 ? (
