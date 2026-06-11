@@ -38,6 +38,7 @@ export default function Home() {
           --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'DM Sans', sans-serif;
         }
         body { background: var(--cream); color: var(--ink); font-family: var(--sans); }
+        .hero-section { background: linear-gradient(160deg, #fffefb 0%, #faf8f3 45%, #f5ede0 100%); }
         .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 8rem 3rem 4rem; gap: 4rem; max-width: 1300px; margin: 0 auto; }
         .hero-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 10px; margin-bottom: 1.75rem; }
         .hero-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
@@ -45,12 +46,12 @@ export default function Home() {
         .hero-title em { font-style: italic; color: var(--gold); }
         .hero-subtitle { font-family: var(--sans); font-size: 1rem; font-weight: 300; line-height: 1.75; color: var(--ink-light); max-width: 420px; margin-bottom: 2.5rem; }
         .hero-actions { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
-        .btn-primary { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: var(--ink); color: var(--cream); padding: 14px 32px; border-radius: 2px; text-decoration: none; transition: all 0.2s; border: 1px solid var(--ink); cursor: pointer; }
-        .btn-primary:hover { background: var(--gold); border-color: var(--gold); }
+        .btn-primary { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: var(--gold); color: #fff; padding: 14px 32px; border-radius: 2px; text-decoration: none; transition: all 0.25s; border: 1px solid var(--gold); cursor: pointer; }
+        .btn-primary:hover { background: var(--ink); border-color: var(--ink); color: var(--cream); }
         .btn-secondary { font-family: var(--sans); font-size: 13px; font-weight: 400; color: var(--ink-light); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color 0.2s; background: none; border: none; cursor: pointer; }
         .btn-secondary:hover { color: var(--gold); }
         .btn-secondary::after { content: '→'; }
-        .hero-card { background: var(--warm-white); border: 1px solid var(--border); border-radius: 4px; padding: 2rem; position: relative; }
+        .hero-card { background: var(--warm-white); border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 4px; padding: 2rem; position: relative; box-shadow: 0 8px 32px rgba(184,146,74,0.10), 0 2px 8px rgba(0,0,0,0.04); }
         .hero-card::before { content: ''; position: absolute; top: -12px; left: -12px; right: 12px; bottom: 12px; border: 1px solid var(--gold-pale); border-radius: 4px; z-index: -1; }
         .card-tag { font-family: var(--sans); font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); background: var(--gold-pale); padding: 4px 10px; border-radius: 2px; display: inline-block; margin-bottom: 1rem; }
         .card-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; color: var(--ink); margin-bottom: 0.5rem; line-height: 1.3; }
@@ -73,7 +74,8 @@ export default function Home() {
         .section-title { font-family: var(--serif); font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 300; color: var(--ink); line-height: 1.1; }
         .section-title em { font-style: italic; color: var(--gold); }
         .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border); border: 1px solid var(--border); }
-        .step { background: var(--warm-white); padding: 2.5rem 2rem; position: relative; }
+        .step { background: var(--warm-white); padding: 2.5rem 2rem; position: relative; border-left: 3px solid transparent; transition: border-color 0.2s, background 0.2s; }
+        .step:hover { border-left-color: var(--gold); background: #fffdf8; }
         .step-number { font-family: var(--serif); font-size: 4rem; font-weight: 300; color: var(--gold-pale); line-height: 1; position: absolute; top: 1.5rem; right: 1.5rem; }
         .step-icon { width: 40px; height: 40px; background: var(--gold-pale); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 1.25rem; }
         .step-title { font-family: var(--serif); font-size: 1.3rem; color: var(--ink); margin-bottom: 0.75rem; font-weight: 400; }
@@ -107,8 +109,8 @@ export default function Home() {
         .footer-link { color: #bbb; text-decoration: none; }
         .footer-link:hover { color: var(--gold); }
         @media (max-width: 768px) {
-          .hero { grid-template-columns: 1fr; padding: 5.5rem 1.25rem 2.5rem; gap: 2rem; min-height: auto; }
-          .hero-right { display: none; }
+          .hero { grid-template-columns: 1fr; padding: 5.5rem 1.25rem 3rem; gap: 2.5rem; min-height: auto; }
+          .hero-right { display: block; }
           .hero-title { font-size: 2.6rem; margin-bottom: 1rem; }
           .hero-subtitle { font-size: 0.95rem; margin-bottom: 2rem; max-width: 100%; }
           .hero-actions { flex-direction: column; align-items: stretch; gap: 0.75rem; }
@@ -129,7 +131,7 @@ export default function Home() {
 
       <NavBar onPostClick={handlePostClick} />
 
-      <section>
+      <section className="hero-section">
         <div className="hero">
           <div className="hero-left">
             <div className="hero-eyebrow">Australia's smarter property market</div>
