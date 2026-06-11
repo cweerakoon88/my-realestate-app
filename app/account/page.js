@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 
-const TABS = ['Requirements', 'Offers', 'Saved', 'Settings']
+const TABS = ['Requirements', 'Listings', 'Offers', 'Saved', 'Settings']
 
 const PROXIMITY_OPTIONS = [
   { id: 'school', label: '🏫 Near schools' },
@@ -73,6 +73,19 @@ function EditRequirementModal({ req, onSave, onClose, supabase }) {
     if (updateError) {
       setError('Failed to save. Please try again.')
     } else {
+      // Notify admin that a requirement needs re-review
+      try {
+        await fetch('/api/enquiry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'System',
+            email: 'hello@propoffer.com.au',
+            service: '🔄 Requirement edited — needs re-review',
+            message: `A buyer has edited their requirement and it has been reset to pending review.\n\nRequirement ID: ${req.id}\nLocation: ${form.location}\nProperty type: ${form.property_type}\nBudget: $${form.budget_min || '?'} – $${form.budget_max}\n\nPlease log in to the admin dashboard to approve or reject.`,
+          }),
+        })
+      } catch (_) { /* non-blocking */ }
       onSave()
     }
   }
@@ -184,6 +197,7 @@ export default function AccountPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('Requirements')
   const [requirements, setRequirements] = useState([])
+  const [myListings, setMyListings] = useState([])
   const [savedProperties, setSavedProperties] = useState([])
   const [offers, setOffers] = useState([])
   const [profile, setProfile] = useState(null)
@@ -205,15 +219,17 @@ export default function AccountPage() {
 
   async function fetchAllData() {
     setDataLoading(true)
-    const [reqRes, savedRes, offersRes, profileRes] = await Promise.all([
+    const [reqRes, savedRes, offersRes, profileRes, listingsRes] = await Promise.all([
       supabase.from('requirements').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('saved_properties').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('offers').select('*').eq('buyer_id', user.id).order('created_at', { ascending: false }),
       supabase.from('profiles').select('*').eq('id', user.id).single(),
+      supabase.from('listings').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
     ])
     setRequirements(reqRes.data || [])
     setSavedProperties(savedRes.data || [])
     setOffers(offersRes.data || [])
+    setMyListings(listingsRes.data || [])
     if (profileRes.data) {
       setProfile(profileRes.data)
       setProfileForm({ full_name: profileRes.data.full_name || '', phone: profileRes.data.phone || '' })
@@ -306,6 +322,7 @@ export default function AccountPage() {
             </div>
             <div className="acc-stats">
               <div className="acc-stat"><span className="acc-stat-val">{requirements.length}</span><span className="acc-stat-label">Requirements</span></div>
+              <div className="acc-stat"><span className="acc-stat-val">{myListings.length}</span><span className="acc-stat-label">Listings</span></div>
               <div className="acc-stat"><span className="acc-stat-val">{offers.length}</span><span className="acc-stat-label">Offers</span></div>
               <div className="acc-stat"><span className="acc-stat-val">{savedProperties.length}</span><span className="acc-stat-label">Saved</span></div>
             </div>
@@ -385,7 +402,58 @@ export default function AccountPage() {
                 </div>
               )}
 
-              {activeTab === 'Offers' && (
+              {activeTab === 'Listings' && (
+                <div>
+                  <div className="tab-header">
+                    <h2 className="tab-title">My Listings</h2>
+                    <a href="/marketplace" className="tab-action">+ New listing</a>
+                  </div>
+                  {myListings.length === 0 ? (
+                    <EmptyState icon="🏷️" title="No listings yet" desc="List a property on the marketplace and reach buyers directly." cta="List a property" href="/marketplace" />
+                  ) : (
+                    <div className="req-list">
+                      {myListings.map(listing => (
+                        <div key={listing.id} className="req-card">
+                          <div className="req-card-top">
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                <div className="req-tag" style={{ background: '#e8f4fd', color: '#1a6fa8' }}>{listing.property_type || 'Property'}</div>
+                                {statusBadge(listing.status === 'pending_review' ? 'pending' : listing.status)}
+                              </div>
+                              <div className="req-title">{listing.title}</div>
+                              <div className="req-location">◎ {listing.location || '—'}</div>
+                            </div>
+                            <div className="req-budget">
+                              {listing.asking_price ? `$${Number(listing.asking_price).toLocaleString('en-AU')}` : '—'}
+                            </div>
+                          </div>
+                          <div className="req-specs">
+                            {listing.bedrooms && <span className="req-spec">{listing.bedrooms} bed</span>}
+                            {listing.bathrooms && <span className="req-spec">{listing.bathrooms} bath</span>}
+                            {listing.land_size && <span className="req-spec">{listing.land_size.toLocaleString()}m²</span>}
+                            {listing.section32_ready && <span className="req-spec">Section 32 ready</span>}
+                          </div>
+                          {listing.admin_notes && (
+                            <div style={{ fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#888', marginBottom: '0.75rem', lineHeight: 1.5, fontStyle: 'italic' }}>
+                              Admin note: "{listing.admin_notes}"
+                            </div>
+                          )}
+                          <div className="req-card-foot">
+                            <span className="req-date">{new Date(listing.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                              {listing.images?.length > 0 && (
+                                <span style={{ fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#aaa' }}>📷 {listing.images.length} photo{listing.images.length !== 1 ? 's' : ''}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+
                 <div>
                   <div className="tab-header"><h2 className="tab-title">Offers Received</h2></div>
                   {offers.length === 0 ? (

@@ -78,7 +78,7 @@ function DocUploader({ label, file, onChange, accept = '.pdf,.jpg,.jpeg,.png', h
 }
 
 // ── SELLER POST FORM ───────────────────────────────────────────────────
-function SellerPostForm({ onSuccess, onCancel }) {
+function SellerPostForm({ onSuccess, onCancel, user }) {
   const [form, setForm] = useState({
     seller_name: '', seller_email: '', seller_phone: '',
     title: '', location: '', property_type: '', bedrooms: '',
@@ -149,6 +149,7 @@ function SellerPostForm({ onSuccess, onCancel }) {
           section32_ready: form.section32_ready === 'yes',
           images: [],
           status: 'pending_review',
+          user_id: user?.id || null,
         }])
         .select().single()
 
@@ -395,12 +396,19 @@ function BuyerCard({ req, user, onSignIn }) {
 }
 
 // ── LISTING CARD ───────────────────────────────────────────────────────
-function ListingCard({ listing, user, onSignIn }) {
+function ListingCard({ listing, user, onSignIn, isSaved, onSave }) {
   const [expanded, setExpanded] = useState(false)
   const [activeImg, setActiveImg] = useState(0)
   const [reporting, setReporting] = useState(false)
   const [reportSent, setReportSent] = useState(false)
+  const [saving, setSaving] = useState(false)
   const hasImages = listing.images && listing.images.length > 0
+
+  async function handleSave() {
+    setSaving(true)
+    await onSave()
+    setSaving(false)
+  }
 
   const section32Labels = {
     yes: { label: '✅ Section 32 ready', color: '#2d6a4f', bg: '#f0faf4' },
@@ -453,6 +461,14 @@ function ListingCard({ listing, user, onSignIn }) {
           <div style={c.budgetLabel}>Asking price</div>
           <div style={{ ...c.budget, color: '#1a6fa8' }}>{fmt(listing.asking_price)}</div>
           <div style={c.postedDate}>{timeSince(listing.created_at)}</div>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            title={isSaved ? 'Remove from saved' : 'Save property'}
+            style={{ marginTop: '8px', background: isSaved ? '#fff0f0' : '#f5f5f5', border: `1px solid ${isSaved ? '#f5c6c2' : '#ddd'}`, borderRadius: '20px', padding: '4px 12px', fontSize: '12px', fontFamily: 'system-ui,sans-serif', color: isSaved ? '#c0392b' : '#888', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', transition: 'all 0.15s' }}
+          >
+            {isSaved ? '♥ Saved' : '♡ Save'}
+          </button>
         </div>
       </div>
 
@@ -519,17 +535,46 @@ export default function Marketplace() {
   const [filterBeds, setFilterBeds] = useState('')
   const [user, setUser] = useState(null)
   const [showAuth, setShowAuth] = useState(false)
+  const [savedIds, setSavedIds] = useState(new Set())
 
   useEffect(() => {
     fetchAll()
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null)
+      const u = session?.user || null
+      setUser(u)
+      if (u) fetchSaved(u.id)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
+      const u = session?.user || null
+      setUser(u)
+      if (u) fetchSaved(u.id)
+      else setSavedIds(new Set())
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  async function fetchSaved(userId) {
+    const { data } = await supabase.from('saved_properties').select('id, property_title').eq('user_id', userId)
+    if (data) setSavedIds(new Set(data.map(s => s.property_title)))
+  }
+
+  async function handleSaveListing(listing) {
+    if (!user) { setShowAuth(true); return }
+    const isSaved = savedIds.has(listing.title)
+    if (isSaved) {
+      await supabase.from('saved_properties').delete().eq('user_id', user.id).eq('property_title', listing.title)
+      setSavedIds(prev => { const s = new Set(prev); s.delete(listing.title); return s })
+    } else {
+      await supabase.from('saved_properties').insert([{
+        user_id: user.id,
+        property_title: listing.title,
+        address: listing.location,
+        suburb: listing.location,
+        price: listing.asking_price,
+      }])
+      setSavedIds(prev => new Set(prev).add(listing.title))
+    }
+  }
 
   async function fetchAll() {
     setLoading(true)
@@ -621,14 +666,14 @@ export default function Marketplace() {
             {tab === 'sellers' && (
               filteredListings.length === 0
                 ? <div style={p.empty}><div style={p.emptyIcon}>🏷️</div><p style={p.emptyText}>No properties listed yet.</p><button style={p.actionBtn} onClick={() => setShowSellerForm(true)}>List the first property</button></div>
-                : <div style={p.grid}>{filteredListings.map(l => <ListingCard key={l.id} listing={l} user={user} onSignIn={() => setShowAuth(true)} />)}</div>
+                : <div style={p.grid}>{filteredListings.map(l => <ListingCard key={l.id} listing={l} user={user} onSignIn={() => setShowAuth(true)} isSaved={savedIds.has(l.title)} onSave={() => handleSaveListing(l)} />)}</div>
             )}
           </>
         )}
       </div>
 
       {showSellerForm && !sellerSuccess && (
-        <SellerPostForm onCancel={() => setShowSellerForm(false)} onSuccess={() => { setSellerSuccess(true); fetchAll() }} />
+        <SellerPostForm onCancel={() => setShowSellerForm(false)} onSuccess={() => { setSellerSuccess(true); fetchAll() }} user={user} />
       )}
 
       {sellerSuccess && (
