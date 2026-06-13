@@ -579,8 +579,8 @@ export default function Marketplace() {
   async function fetchAll() {
     setLoading(true)
     const [reqRes, listRes] = await Promise.all([
-      supabase.from('requirements').select('*').eq('req_status', 'active').order('created_at', { ascending: false }),
-      supabase.from('listings').select('*').eq('status', 'active').order('created_at', { ascending: false }),
+      supabase.from('requirements').select('id, created_at, location, property_type, bedrooms, bathrooms, toilets, land_size_min, land_size_max, budget_min, budget_max, notes, proximity_preferences, req_status, user_id').eq('req_status', 'active').order('created_at', { ascending: false }),
+      supabase.from('listings').select('id, created_at, title, location, property_type, bedrooms, bathrooms, land_size, asking_price, description, images, section32_ready, ownership_type, status, user_id').eq('status', 'active').order('created_at', { ascending: false }),
     ])
     if (reqRes.data) setRequirements(reqRes.data)
     if (listRes.data) setListings(listRes.data)
