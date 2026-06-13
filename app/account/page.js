@@ -643,11 +643,19 @@ const pageStyles = `
     .acc-nav { padding: 1rem 1.25rem; }
     .acc-signout { display: none; }
     .acc-header-inner { padding: 0 1.25rem; flex-direction: column; align-items: flex-start; gap: 1rem; }
-    .acc-stats { gap: 1.5rem; }
-    .acc-tabs { padding: 0 1.25rem; }
+    .acc-stats { gap: 1rem; }
+    .acc-stat-val { font-size: 1.4rem; }
+    .acc-tabs { padding: 0 0.75rem; gap: 0; }
+    .acc-tab { padding: 0.85rem 0.65rem; font-size: 12px; }
     .acc-content { padding: 1.5rem 1.25rem 4rem; }
     .req-card { padding: 1rem; }
-    .req-budget { font-size: 0.95rem; }
+    .req-card-top { flex-direction: column; gap: 0.5rem; }
+    .req-budget { text-align: left !important; font-size: 0.95rem; }
     .settings-card { padding: 1.25rem; }
+    .tab-header { flex-wrap: wrap; gap: 0.5rem; }
+  }
+  @media (max-width: 400px) {
+    .acc-tab { padding: 0.85rem 0.5rem; font-size: 11px; }
+    .acc-stats { gap: 0.75rem; flex-wrap: wrap; }
   }
 `

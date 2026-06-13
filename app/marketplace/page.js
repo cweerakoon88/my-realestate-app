@@ -39,7 +39,7 @@ function ImageUploader({ images, onChange }) {
         <input ref={inputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
       </div>
       {images.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }} className="mkt-img-grid">
           {images.map((img, i) => (
             <div key={i} style={{ position: 'relative', aspectRatio: '1', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e8e0d0' }}>
               <img src={img.preview || img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -192,14 +192,14 @@ function SellerPostForm({ onSuccess, onCancel, user }) {
 
   return (
     <div style={fs.overlay}>
-      <div style={fs.modal}>
-        <div style={fs.modalHeader}>
+      <div style={fs.modal} className="mkt-modal">
+        <div style={fs.modalHeader} className="mkt-modal-header">
           <h2 style={fs.modalTitle}>List your property</h2>
           <button style={fs.closeBtn} onClick={onCancel}>✕</button>
         </div>
-        <form onSubmit={handleSubmit} noValidate style={fs.form}>
+        <form onSubmit={handleSubmit} noValidate style={fs.form} className="mkt-modal-form">
           <div style={fs.sectionTitle}>Your details</div>
-          <div style={fs.row}>
+          <div style={fs.row} className="mkt-modal-row">
             <FormField label="Full legal name" error={errors.seller_name}>
               <input style={fld(errors.seller_name)} name="seller_name" placeholder="As it appears on title" value={form.seller_name} onChange={handleChange} />
             </FormField>
@@ -238,7 +238,7 @@ function SellerPostForm({ onSuccess, onCancel, user }) {
           <FormField label="Listing title" error={errors.title}>
             <input style={fld(errors.title)} name="title" placeholder="e.g. Charming 3-bed home with north-facing garden" value={form.title} onChange={handleChange} />
           </FormField>
-          <div style={fs.row}>
+          <div style={fs.row} className="mkt-modal-row">
             <FormField label="Suburb / location" error={errors.location}>
               <input style={fld(errors.location)} name="location" placeholder="e.g. Richmond, Melbourne" value={form.location} onChange={handleChange} />
             </FormField>
@@ -249,7 +249,7 @@ function SellerPostForm({ onSuccess, onCancel, user }) {
               </select>
             </FormField>
           </div>
-          <div style={fs.row3}>
+          <div style={fs.row3} className="mkt-modal-row">
             <FormField label="Bedrooms">
               <select style={fld()} name="bedrooms" value={form.bedrooms} onChange={handleChange}>
                 <option value="">Any</option>
@@ -604,6 +604,22 @@ export default function Marketplace() {
 
   return (
     <div style={p.page}>
+      <style>{`
+        @media (max-width: 600px) {
+          .mkt-modal-row { grid-template-columns: 1fr !important; }
+          .mkt-img-grid { grid-template-columns: repeat(3, 1fr) !important; }
+          .mkt-container { padding: 4rem 1rem 2rem !important; }
+          .mkt-action-row { flex-direction: column !important; align-items: stretch !important; }
+          .mkt-action-row .mkt-action-btn { width: 100% !important; text-align: center !important; justify-content: center !important; }
+          .mkt-modal { border-radius: 12px !important; max-height: 95vh !important; }
+          .mkt-modal-form { padding: 1rem 1rem 1.25rem !important; }
+          .mkt-modal-header { padding: 1rem 1rem 0 !important; }
+          .mkt-footer { flex-direction: column !important; gap: 0.5rem !important; text-align: center !important; }
+        }
+        @media (max-width: 400px) {
+          .mkt-img-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
       {showAuth && (
         <AuthModal
           onClose={() => setShowAuth(false)}
@@ -614,7 +630,7 @@ export default function Marketplace() {
 
       <NavBar />
 
-      <div style={p.container}>
+      <div style={p.container} className="mkt-container">
         <div style={p.header}>
           <h1 style={p.title}>Property Marketplace</h1>
           <p style={p.subtitle}>Browse buyer requirements or listed properties across Australia.</p>
@@ -637,7 +653,7 @@ export default function Marketplace() {
           <button style={tab === 'sellers' ? p.tabActive : p.tab} onClick={() => setTab('sellers')}>🏷️ Sellers <span style={p.tabCount}>{listings.length}</span></button>
         </div>
 
-        <div style={p.actionRow}>
+        <div style={p.actionRow} className="mkt-action-row">
           <div style={p.filters}>
             <input style={p.filterInput} placeholder="🔍 Filter by suburb..." value={filterLocation} onChange={e => setFilterLocation(e.target.value)} />
             <select style={p.filterSelect} value={filterType} onChange={e => setFilterType(e.target.value)}>
@@ -652,8 +668,8 @@ export default function Marketplace() {
               <button style={p.clearBtn} onClick={() => { setFilterLocation(''); setFilterType(''); setFilterBeds('') }}>Clear</button>
             )}
           </div>
-          {tab === 'buyers' && <Link href="/post" style={p.actionBtn}>+ Post requirement</Link>}
-          {tab === 'sellers' && <button style={p.actionBtn} onClick={() => { setShowSellerForm(true); setSellerSuccess(false) }}>+ List a property</button>}
+          {tab === 'buyers' && <Link href="/post" style={p.actionBtn} className="mkt-action-btn">+ Post requirement</Link>}
+          {tab === 'sellers' && <button style={p.actionBtn} className="mkt-action-btn" onClick={() => { setShowSellerForm(true); setSellerSuccess(false) }}>+ List a property</button>}
         </div>
 
         {loading ? <div style={p.loading}>Loading listings...</div> : (

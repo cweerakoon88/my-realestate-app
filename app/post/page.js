@@ -157,6 +157,8 @@ export default function PostRequirement() {
 
   if (authLoading) return <main style={s.page}><div style={{ textAlign: 'center', padding: '4rem', fontFamily: 'system-ui, sans-serif', color: '#999' }}>Loading...</div></main>
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600
+
   if (success) {
     return (
       <main style={s.page}>
@@ -179,7 +181,18 @@ export default function PostRequirement() {
 
   return (
     <main style={s.page}>
-      <div style={s.container}>
+      <style>{`
+        @media (max-width: 600px) {
+          .post-row { grid-template-columns: 1fr !important; }
+          .post-container { padding: 1.25rem 1rem !important; }
+          .post-section { padding: 1.25rem 1rem !important; }
+          .post-title { font-size: 1.6rem !important; }
+          .post-btn { width: 100% !important; padding: 15px 20px !important; }
+          .post-success { margin: 2rem auto !important; padding: 2rem 1.25rem !important; }
+          .post-success-actions { flex-direction: column !important; }
+        }
+      `}</style>
+      <div style={s.container} className="post-container">
         <div style={s.header}>
           <a href="/" style={s.backBtn}>← Back to home</a>
           <p style={s.eyebrow}>For buyers</p>
@@ -189,9 +202,9 @@ export default function PostRequirement() {
 
         <form onSubmit={handleSubmit} noValidate style={s.form}>
 
-          <div style={s.section}>
+          <div style={s.section} className="post-section">
             <h2 style={s.sectionTitle}>Your details</h2>
-            <div style={s.row}>
+            <div style={s.row} className="post-row">
               <Field label="First name" error={errors.first_name}>
                 <input style={inputStyle(errors.first_name)} type="text" name="first_name" placeholder="Jane" value={formData.first_name} onChange={handleChange} data-error={!!errors.first_name} />
               </Field>
@@ -203,7 +216,7 @@ export default function PostRequirement() {
               <input style={inputStyle(errors.buyer_email)} type="email" name="buyer_email" placeholder="jane@example.com" value={formData.buyer_email} onChange={handleChange} data-error={!!errors.buyer_email} />
               {formData.buyer_email && !errors.buyer_email && validateEmail(formData.buyer_email) && <span style={s.validTick}>✓ Valid email</span>}
             </Field>
-            <div style={s.row}>
+            <div style={s.row} className="post-row">
               <Field label="Mobile number" error={errors.mobile_number}>
                 <input style={inputStyle(errors.mobile_number)} type="tel" name="mobile_number" placeholder="e.g. 0412 345 678" value={formData.mobile_number} onChange={handleChange} data-error={!!errors.mobile_number} />
               </Field>
@@ -218,7 +231,7 @@ export default function PostRequirement() {
             <Field label="Preferred suburb / location" error={errors.location}>
               <input style={inputStyle(errors.location)} type="text" name="location" placeholder="e.g. Richmond, Toorak, Bondi" value={formData.location} onChange={handleChange} data-error={!!errors.location} />
             </Field>
-            <div style={s.row}>
+            <div style={s.row} className="post-row">
               <Field label="Property type" error={errors.property_type}>
                 <select style={inputStyle(errors.property_type)} name="property_type" value={formData.property_type} onChange={handleChange} data-error={!!errors.property_type}>
                   <option value="">Select type...</option>
@@ -236,7 +249,7 @@ export default function PostRequirement() {
                 </select>
               </Field>
             </div>
-            <div style={s.row}>
+            <div style={s.row} className="post-row">
               <Field label="Bathrooms">
                 <select style={s.input} name="bathrooms" value={formData.bathrooms} onChange={handleChange}>
                   <option value="">Any</option>
@@ -255,7 +268,7 @@ export default function PostRequirement() {
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Land size <span style={s.optional}>(optional)</span></h2>
             <p style={s.sectionHint}>Leave blank if land size isn't important to you.</p>
-            <div style={s.row}>
+            <div style={s.row} className="post-row">
               <Field label="Minimum (m²)" error={errors.land_size_min}>
                 <input style={inputStyle(errors.land_size_min)} type="number" name="land_size_min" placeholder="e.g. 300" value={formData.land_size_min} onChange={handleChange} />
               </Field>
@@ -293,7 +306,7 @@ export default function PostRequirement() {
           <div style={s.section}>
             <h2 style={s.sectionTitle}>Your budget</h2>
             {priceGuide && <div style={s.budgetHint}>💡 Based on the price guide, a realistic budget is around <strong>{formatPrice(priceGuide.low)}</strong> – <strong>{formatPrice(priceGuide.high)}</strong></div>}
-            <div style={s.row}>
+            <div style={s.row} className="post-row">
               <Field label="Minimum ($)" error={errors.budget_min}>
                 <input style={inputStyle(errors.budget_min)} type="number" name="budget_min" placeholder={priceGuide ? String(priceGuide.low) : 'e.g. 500000'} value={formData.budget_min} onChange={handleChange} data-error={!!errors.budget_min} />
               </Field>
