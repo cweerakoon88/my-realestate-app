@@ -8,6 +8,8 @@ import AuthModal from './AuthModal'
 const navLinks = [
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/services', label: 'Services' },
+  { href: '/calculator', label: 'Savings calculator' },
+  { href: '/hardship', label: 'Hardship support' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
