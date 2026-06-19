@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
+import { disclosureFieldLabel } from '../../lib/vendorDisclosure'
 
 const TABS = ['Requirements', 'Listings', 'Offers', 'Saved', 'Settings']
 
@@ -421,7 +422,7 @@ export default function AccountPage() {
                                 {statusBadge(listing.status === 'pending_review' ? 'pending' : listing.status)}
                               </div>
                               <div className="req-title">{listing.title}</div>
-                              <div className="req-location">◎ {listing.location || '—'}</div>
+                              <div className="req-location">◎ {listing.location || '—'}{listing.state ? `, ${listing.state}` : ''}</div>
                             </div>
                             <div className="req-budget">
                               {listing.asking_price ? `$${Number(listing.asking_price).toLocaleString('en-AU')}` : '—'}
@@ -431,7 +432,7 @@ export default function AccountPage() {
                             {listing.bedrooms && <span className="req-spec">{listing.bedrooms} bed</span>}
                             {listing.bathrooms && <span className="req-spec">{listing.bathrooms} bath</span>}
                             {listing.land_size && <span className="req-spec">{listing.land_size.toLocaleString()}m²</span>}
-                            {listing.section32_ready && <span className="req-spec">Section 32 ready</span>}
+                            {listing.vendor_disclosure_status === 'yes' && <span className="req-spec">{disclosureFieldLabel(listing.state)} ready</span>}
                           </div>
                           {listing.admin_notes && (
                             <div style={{ fontFamily: 'system-ui,sans-serif', fontSize: '13px', color: '#888', marginBottom: '0.75rem', lineHeight: 1.5, fontStyle: 'italic' }}>

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
+import { disclosureFieldLabel } from '../../lib/vendorDisclosure'
 
 const ADMIN_EMAIL = 'callum.weerakoon@gmail.com'
 
@@ -173,7 +174,7 @@ Great news — your property listing on PropOffer has been approved and is now l
 YOUR LISTING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Property:    ${listing.title}
-Location:    ${listing.location}
+Location:    ${listing.location}${listing.state ? `, ${listing.state}` : ''}
 Type:        ${listing.property_type}
 Asking:      $${parseInt(listing.asking_price).toLocaleString()}
 
@@ -433,14 +434,16 @@ propoffer.com.au`
                     </div>
                     <div style={{ fontFamily: 'Georgia,serif', fontSize: '1.1rem', color: '#1a1714', marginBottom: '4px' }}>{listing.title}</div>
                     <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>
-                      📍 {listing.location} · {listing.property_type} · Asking: <strong style={{ color: '#1a6fa8' }}>${parseInt(listing.asking_price || 0).toLocaleString()}</strong>
+                      📍 {listing.location}{listing.state ? `, ${listing.state}` : ''} · {listing.property_type} · Asking: <strong style={{ color: '#1a6fa8' }}>${parseInt(listing.asking_price || 0).toLocaleString()}</strong>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '4px 16px' }}>
                       <div style={{ fontSize: '13px', color: '#555' }}>👤 {listing.seller_name}</div>
                       <div style={{ fontSize: '13px', color: '#555' }}>✉ {listing.seller_email}</div>
                       <div style={{ fontSize: '13px', color: '#555' }}>📱 {listing.seller_phone || '—'}</div>
                       <div style={{ fontSize: '13px', color: '#555' }}>🏠 {listing.ownership_type?.replace('_', ' ') || '—'}</div>
-                      {listing.section32_ready !== undefined && <div style={{ fontSize: '13px', color: '#555' }}>📋 Section 32: {listing.section32_ready ? 'Ready' : 'Not ready'}</div>}
+                      {listing.vendor_disclosure_status && (
+                        <div style={{ fontSize: '13px', color: '#555' }}>📋 {disclosureFieldLabel(listing.state)}: {{ yes: 'Ready', in_progress: 'In progress', no: 'Not started', na: 'Not applicable' }[listing.vendor_disclosure_status] || listing.vendor_disclosure_status}</div>
+                      )}
                     </div>
                     {listing.description && (
                       <div style={{ marginTop: '8px', fontSize: '13px', color: '#777', lineHeight: 1.5 }}>{listing.description.substring(0, 200)}{listing.description.length > 200 ? '...' : ''}</div>

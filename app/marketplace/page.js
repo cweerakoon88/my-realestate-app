@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { supabase } from '../../lib/supabase'
 import NavBar from '@/components/NavBar'
 import AuthModal from '@/components/AuthModal'
+import { AU_STATES, disclosureFieldLabel, disclosureOptions, disclosureInfo, disclosureBadge } from '../../lib/vendorDisclosure'
 
 // ── IMAGE UPLOADER ─────────────────────────────────────────────────────
 function ImageUploader({ images, onChange }) {
@@ -81,9 +82,9 @@ function DocUploader({ label, file, onChange, accept = '.pdf,.jpg,.jpeg,.png', h
 function SellerPostForm({ onSuccess, onCancel, user }) {
   const [form, setForm] = useState({
     seller_name: '', seller_email: '', seller_phone: '',
-    title: '', location: '', property_type: '', bedrooms: '',
+    title: '', location: '', state: '', property_type: '', bedrooms: '',
     bathrooms: '', land_size: '', asking_price: '', description: '',
-    ownership_type: '', section32_ready: '',
+    ownership_type: '', vendor_disclosure_status: '',
   })
   const [images, setImages] = useState([])
   const [councilDoc, setCouncilDoc] = useState(null)
@@ -106,6 +107,7 @@ function SellerPostForm({ onSuccess, onCancel, user }) {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.seller_email)) e.seller_email = 'Invalid email'
     if (!form.title.trim()) e.title = 'Required'
     if (!form.location.trim()) e.location = 'Required'
+    if (!form.state) e.state = 'Required'
     if (!form.property_type) e.property_type = 'Required'
     if (!form.asking_price) e.asking_price = 'Required'
     if (!form.description.trim()) e.description = 'Required'
@@ -139,6 +141,7 @@ function SellerPostForm({ onSuccess, onCancel, user }) {
           seller_phone: form.seller_phone.trim() || null,
           title: form.title.trim(),
           location: form.location.trim(),
+          state: form.state,
           property_type: form.property_type,
           bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
           bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
@@ -146,7 +149,7 @@ function SellerPostForm({ onSuccess, onCancel, user }) {
           asking_price: parseInt(form.asking_price),
           description: form.description.trim(),
           ownership_type: form.ownership_type,
-          section32_ready: form.section32_ready === 'yes',
+          vendor_disclosure_status: form.vendor_disclosure_status || null,
           images: [],
           status: 'pending_review',
           user_id: user?.id || null,
@@ -221,17 +224,21 @@ function SellerPostForm({ onSuccess, onCancel, user }) {
               <option value="deceased_estate">Deceased estate executor</option>
             </select>
           </FormField>
-          <FormField label="Section 32 (Vendor's Statement)">
-            <select style={fld()} name="section32_ready" value={form.section32_ready} onChange={handleChange}>
+          <FormField label="State / territory" error={errors.state}>
+            <select style={fld(errors.state)} name="state" value={form.state} onChange={handleChange}>
               <option value="">Select...</option>
-              <option value="yes">Yes — Section 32 is prepared</option>
-              <option value="in_progress">In progress — being prepared by solicitor</option>
-              <option value="no">Not yet started</option>
-              <option value="na">Not applicable (outside Victoria)</option>
+              {AU_STATES.map(s => <option key={s.code} value={s.code}>{s.name}</option>)}
+            </select>
+          </FormField>
+          <FormField label={disclosureFieldLabel(form.state)}>
+            <select style={fld()} name="vendor_disclosure_status" value={form.vendor_disclosure_status} onChange={handleChange}>
+              {disclosureOptions(form.state).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </FormField>
           <div style={{ fontSize: '11px', color: '#aaa', fontFamily: 'system-ui,sans-serif', marginBottom: '1rem', lineHeight: 1.5 }}>
-            💡 A Section 32 is required in Victoria before a buyer can sign a contract of sale.
+            💡 {form.state
+              ? (disclosureInfo(form.state)?.note || 'Select your state above to see vendor disclosure requirements.')
+              : 'Select your state above to see which vendor disclosure document applies.'}
           </div>
 
           <div style={{ ...fs.sectionTitle, marginTop: '0.5rem' }}>Property details</div>
@@ -410,12 +417,7 @@ function ListingCard({ listing, user, onSignIn, isSaved, onSave }) {
     setSaving(false)
   }
 
-  const section32Labels = {
-    yes: { label: '✅ Section 32 ready', color: '#2d6a4f', bg: '#f0faf4' },
-    in_progress: { label: '🔄 Section 32 in progress', color: '#7a5c00', bg: '#fffbea' },
-    no: { label: '⏳ Section 32 not started', color: '#888', bg: '#f5f5f5' },
-    na: { label: 'ℹ Not applicable', color: '#888', bg: '#f5f5f5' },
-  }
+  const disclosure = disclosureBadge(listing.state, listing.vendor_disclosure_status)
 
   return (
     <div style={c.card}>
@@ -440,9 +442,9 @@ function ListingCard({ listing, user, onSignIn, isSaved, onSave }) {
         <div style={c.cardLeft}>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px', alignItems: 'center' }}>
             <span style={{ ...c.tag, background: '#e8f4fd', color: '#1a6fa8' }}>{listing.property_type || 'Property'}</span>
-            {listing.section32_ready && section32Labels[listing.section32_ready] && (
-              <span style={{ fontSize: '11px', fontFamily: 'system-ui,sans-serif', background: section32Labels[listing.section32_ready].bg, color: section32Labels[listing.section32_ready].color, padding: '3px 8px', borderRadius: '20px', fontWeight: '500' }}>
-                {section32Labels[listing.section32_ready].label}
+            {disclosure && (
+              <span style={{ fontSize: '11px', fontFamily: 'system-ui,sans-serif', background: disclosure.bg, color: disclosure.color, padding: '3px 8px', borderRadius: '20px', fontWeight: '500' }}>
+                {disclosure.text}
               </span>
             )}
             {listing.council_doc_url && (
@@ -451,7 +453,7 @@ function ListingCard({ listing, user, onSignIn, isSaved, onSave }) {
           </div>
           <h3 style={c.cardTitle}>{listing.title}</h3>
           <div style={c.cardMeta}>
-            <span style={c.metaItem}>📍 {listing.location}</span>
+            <span style={c.metaItem}>📍 {listing.location}{listing.state ? `, ${listing.state}` : ''}</span>
             {listing.bedrooms && <span style={c.metaItem}>🛏 {listing.bedrooms} bed</span>}
             {listing.bathrooms && <span style={c.metaItem}>🚿 {listing.bathrooms} bath</span>}
             {listing.land_size && <span style={c.metaItem}>📐 {listing.land_size.toLocaleString()}m²</span>}
@@ -580,7 +582,7 @@ export default function Marketplace() {
     setLoading(true)
     const [reqRes, listRes] = await Promise.all([
       supabase.from('requirements').select('id, created_at, location, property_type, bedrooms, bathrooms, toilets, land_size_min, land_size_max, budget_min, budget_max, notes, proximity_preferences, req_status, user_id').eq('req_status', 'active').order('created_at', { ascending: false }),
-      supabase.from('listings').select('id, created_at, title, location, property_type, bedrooms, bathrooms, land_size, asking_price, description, images, section32_ready, ownership_type, status, user_id').eq('status', 'active').order('created_at', { ascending: false }),
+      supabase.from('listings').select('id, created_at, title, location, state, property_type, bedrooms, bathrooms, land_size, asking_price, description, images, vendor_disclosure_status, ownership_type, status, user_id').eq('status', 'active').order('created_at', { ascending: false }),
     ])
     if (reqRes.data) setRequirements(reqRes.data)
     if (listRes.data) setListings(listRes.data)
