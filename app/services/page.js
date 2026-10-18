@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../lib/supabase'
 import NavBar from '@/components/NavBar'
+import Logo from '@/components/Logo'
 
 const CATEGORIES = [
   { id: 'all', label: 'All services' },
@@ -352,7 +353,7 @@ export default function Services() {
       </div>
 
       <footer className="footer">
-        <div className="footer-logo">Prop<span>Offer</span></div>
+        <div className="footer-logo"><Logo size={24} /></div>
         <div className="footer-links">
           {[['/', 'Home'], ['/marketplace', 'Marketplace'], ['/pricing', 'Pricing'], ['/about', 'About'], ['/contact', 'Contact'], ['/terms', 'Terms']].map(([href, label]) => (
             <Link key={href} href={href} className="footer-link">{label}</Link>

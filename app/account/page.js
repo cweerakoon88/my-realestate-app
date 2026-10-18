@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { disclosureFieldLabel } from '../../lib/vendorDisclosure'
+import Logo from '@/components/Logo'
 
 const TABS = ['Requirements', 'Listings', 'Offers', 'Saved', 'Settings']
 
@@ -303,7 +304,7 @@ export default function AccountPage() {
       )}
 
       <nav className="acc-nav">
-        <Link href="/" className="acc-logo">Prop<span>Offer</span></Link>
+        <Link href="/" className="acc-logo" aria-label="PropOffer home"><Logo size={28} /></Link>
         <div className="acc-nav-right">
           <Link href="/post" className="acc-nav-post">+ Post</Link>
           <div className="acc-avatar" title={displayName}>{initials}</div>

@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import NavBar from '@/components/NavBar'
 import AuthModal from '@/components/AuthModal'
+import Logo from '@/components/Logo'
 
 export default function Hardship() {
   const router = useRouter()
@@ -381,7 +382,7 @@ export default function Hardship() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <div className="footer-logo">Prop<span>Offer</span></div>
+        <div className="footer-logo"><Logo size={24} /></div>
         <div>© 2026 PropOffer · Australia's buyer-first property platform</div>
         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
           <Link href="/marketplace" style={{ color: '#bbb', textDecoration: 'none' }}>Marketplace</Link>

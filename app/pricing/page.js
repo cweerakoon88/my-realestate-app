@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import NavBar from '@/components/NavBar'
+import Logo from '@/components/Logo'
 
 export default function Pricing() {
   const router = useRouter()
@@ -330,7 +331,7 @@ export default function Pricing() {
       </div>
 
       <footer className="footer">
-        <div className="footer-logo">Prop<span>Offer</span></div>
+        <div className="footer-logo"><Logo size={24} /></div>
         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
           {[['/', 'Home'], ['/marketplace', 'Marketplace'], ['/services', 'Services'], ['/about', 'About'], ['/terms', 'Terms'], ['/privacy', 'Privacy']].map(([href, label]) => (
             <Link key={href} href={href} style={{ color: '#bbb', textDecoration: 'none', fontFamily: 'system-ui,sans-serif', fontSize: '12px' }}>{label}</Link>

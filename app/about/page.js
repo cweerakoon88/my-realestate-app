@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
+import Logo from '@/components/Logo'
 
 export default function About() {
   return (
@@ -189,7 +190,7 @@ export default function About() {
       </section>
 
       <footer className="footer">
-        <div className="footer-logo">Prop<span>Offer</span></div>
+        <div className="footer-logo"><Logo size={24} /></div>
         <div className="footer-links">
           <Link href="/about" className="footer-link">About</Link>
           <Link href="/contact" className="footer-link">Contact</Link>

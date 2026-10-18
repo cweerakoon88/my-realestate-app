@@ -66,14 +66,6 @@ export const metadata: Metadata = {
     title: "PropOffer — Australia's Buyer-First Property Marketplace",
     description:
       "Buyers post exactly what they want. Sellers respond directly. Free for buyers, from $49. No auctions, no commissions, no boards.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "PropOffer — Buyers post. Sellers respond.",
-      },
-    ],
   },
 
   // ── TWITTER / X ─────────────────────────────────────────────────────
@@ -82,13 +74,6 @@ export const metadata: Metadata = {
     title: "PropOffer — Australia's Buyer-First Property Marketplace",
     description:
       "Buyers post exactly what they want. Sellers respond directly. Free for buyers, from $49 for sellers.",
-    images: ["/og-image.png"],
-  },
-
-  // ── ICONS ───────────────────────────────────────────────────────────
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
   },
 };
 
@@ -135,7 +120,7 @@ export default function RootLayout({
               "@type": "Organization",
               name: "PropOffer",
               url: "https://propoffer.com.au",
-              logo: "https://propoffer.com.au/og-image.png",
+              logo: "https://propoffer.com.au/apple-icon",
               contactPoint: {
                 "@type": "ContactPoint",
                 email: "hello@propoffer.com.au",

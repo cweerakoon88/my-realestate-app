@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
+import Logo from '@/components/Logo'
 
 export default function Terms() {
   return (
@@ -238,7 +239,7 @@ export default function Terms() {
       </div>
 
       <footer className="footer">
-        <div className="footer-logo">Prop<span>Offer</span></div>
+        <div className="footer-logo"><Logo size={24} /></div>
         <div className="footer-links">
           <Link href="/marketplace" className="footer-link">Marketplace</Link>
           <Link href="/pricing" className="footer-link">Pricing</Link>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from './AuthProvider'
+import Logo from './Logo'
 
 export default function MobileNav({ onPostClick }) {
   const [open, setOpen] = useState(false)
@@ -95,7 +96,7 @@ export default function MobileNav({ onPostClick }) {
       `}</style>
 
       <nav className="mob-nav">
-        <a href="/" className="mob-logo">Prop<span>Offer</span></a>
+        <a href="/" className="mob-logo" aria-label="PropOffer home"><Logo size={26} /></a>
         <div className="mob-right">
           {user ? (
             <Link href="/account" className="mob-post-btn">Account</Link>

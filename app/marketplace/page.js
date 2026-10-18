@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import NavBar from '@/components/NavBar'
 import AuthModal from '@/components/AuthModal'
 import { AU_STATES, disclosureFieldLabel, disclosureOptions, disclosureInfo, disclosureBadge } from '../../lib/vendorDisclosure'
+import Logo from '@/components/Logo'
 
 // ── IMAGE UPLOADER ─────────────────────────────────────────────────────
 function ImageUploader({ images, onChange }) {
@@ -707,7 +708,7 @@ export default function Marketplace() {
       )}
 
       <footer style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e8e0d0', fontFamily: 'system-ui,sans-serif', fontSize: '12px', color: '#bbb', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ fontFamily: 'Georgia,serif', fontSize: '1.1rem', color: '#4a4540' }}>Prop<span style={{ color: '#b8924a' }}>Offer</span></div>
+        <Logo size={24} />
         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
           {[['/', 'Home'], ['/services', 'Services'], ['/pricing', 'Pricing'], ['/about', 'About'], ['/contact', 'Contact'], ['/terms', 'Terms']].map(([href, label]) => (
             <Link key={href} href={href} style={{ color: '#bbb', textDecoration: 'none' }}>{label}</Link>

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 import { disclosureFieldLabel } from '../../lib/vendorDisclosure'
+import Logo from '@/components/Logo'
 
 const ADMIN_EMAIL = 'callum.weerakoon@gmail.com'
 
@@ -292,7 +293,7 @@ propoffer.com.au`
       {/* HEADER */}
       <div style={{ background: '#1a1714', padding: '1.5rem 2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontFamily: 'Georgia,serif', fontSize: '1.3rem', color: '#faf8f3' }}>Prop<span style={{ color: '#b8924a' }}>Offer</span></span>
+          <Logo size={28} dark />
           <span style={{ color: 'rgba(250,248,243,0.3)', fontSize: '14px' }}>·</span>
           <span style={{ color: '#b8924a', fontSize: '12px', fontWeight: '500', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Admin</span>
         </div>

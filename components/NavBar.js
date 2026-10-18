@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useAuth } from './AuthProvider'
 import AuthModal from './AuthModal'
+import Logo from './Logo'
 
 const navLinks = [
   { href: '/marketplace', label: 'Marketplace' },
@@ -11,10 +12,10 @@ const navLinks = [
   { href: '/calculator', label: 'Savings calculator' },
   { href: '/hardship', label: 'Hardship support' },
   { href: '/pricing', label: 'Pricing' },
-  { href: '/about', label: 'About' },
+  { href: '/about', label: 'About', secondary: true },
   { href: '/contact', label: 'Contact' },
-  { href: '/terms', label: 'Terms' },
-  { href: '/privacy', label: 'Privacy' },
+  { href: '/terms', label: 'Terms', secondary: true },
+  { href: '/privacy', label: 'Privacy', secondary: true },
 ]
 
 export default function NavBar({ onPostClick }) {
@@ -100,6 +101,15 @@ export default function NavBar({ onPostClick }) {
         .mob-menu-signin { margin-top: 0.75rem; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); background: none; border: 1px solid var(--ink); padding: 14px 24px; border-radius: 2px; cursor: pointer; text-align: center; width: 100%; }
         .mob-menu-account { margin-top: 0.75rem; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); background: var(--gold-pale); border: 1px solid var(--gold); padding: 14px 24px; border-radius: 2px; cursor: pointer; text-align: center; width: 100%; text-decoration: none; display: block; }
         .mob-signout { margin-top: 0.75rem; font-family: var(--sans); font-size: 13px; color: var(--ink-light); background: none; border: 1px solid var(--border); padding: 14px 24px; border-radius: 2px; cursor: pointer; text-align: center; width: 100%; }
+        .navbar-link, .navbar-signin, .navbar-cta { white-space: nowrap; }
+        @media (max-width: 1280px) {
+          .navbar { padding: 1.1rem 1.5rem; }
+          .navbar-links { gap: 1.1rem; }
+          .navbar-link-secondary { display: none; }
+        }
+        @media (max-width: 420px) {
+          .mob-signin-btn { display: none; }
+        }
         @media (max-width: 768px) {
           .navbar { display: none; }
           .mob-nav { display: flex; }
@@ -108,18 +118,12 @@ export default function NavBar({ onPostClick }) {
 
       {/* DESKTOP */}
       <nav className="navbar">
-        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <svg width="30" height="30" viewBox="0 0 110 110">
-            <circle cx="55" cy="55" r="50" fill="none" stroke="#b8924a" strokeWidth="3"/>
-            <circle cx="55" cy="55" r="42" fill="#b8924a" fillOpacity="0.12"/>
-          </svg>
-          <span style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.4rem', fontWeight: 600, color: '#1a1714' }}>
-            Prop<span style={{ color: '#b8924a' }}>Offer</span>
-          </span>
+        <a href="/" aria-label="PropOffer home" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0, marginRight: '1.5rem' }}>
+          <Logo size={30} />
         </a>
         <div className="navbar-links">
           {navLinks.map(link => (
-            <Link key={link.href} href={link.href} className="navbar-link">{link.label}</Link>
+            <Link key={link.href} href={link.href} className={`navbar-link ${link.secondary ? 'navbar-link-secondary' : ''}`}>{link.label}</Link>
           ))}
           {user ? (
             <>
@@ -136,14 +140,8 @@ export default function NavBar({ onPostClick }) {
 
       {/* MOBILE */}
       <nav className="mob-nav">
-        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <svg width="28" height="28" viewBox="0 0 110 110">
-            <circle cx="55" cy="55" r="50" fill="none" stroke="#b8924a" strokeWidth="3"/>
-            <circle cx="55" cy="55" r="42" fill="#b8924a" fillOpacity="0.12"/>
-          </svg>
-          <span style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.3rem', fontWeight: 600, color: '#1a1714' }}>
-            Prop<span style={{ color: '#b8924a' }}>Offer</span>
-          </span>
+        <a href="/" aria-label="PropOffer home" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Logo size={26} />
         </a>
         <div className="mob-right">
           {user ? (
