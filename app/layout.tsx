@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   ],
 
   // ── CANONICAL & ROBOTS ──────────────────────────────────────────────
-  metadataBase: new URL("https://propoffer.com.au"),
+  metadataBase: new URL("https://www.propoffer.com.au"),
   alternates: {
     canonical: "/",
   },
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_AU",
-    url: "https://propoffer.com.au",
+    url: "https://www.propoffer.com.au",
     siteName: "PropOffer",
     title: "PropOffer — Australia's Buyer-First Property Marketplace",
     description:
@@ -96,7 +96,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               name: "PropOffer",
-              url: "https://propoffer.com.au",
+              url: "https://www.propoffer.com.au",
               description:
                 "Australia's buyer-first property marketplace. Buyers post requirements, sellers respond directly.",
               potentialAction: {
@@ -104,7 +104,7 @@ export default function RootLayout({
                 target: {
                   "@type": "EntryPoint",
                   urlTemplate:
-                    "https://propoffer.com.au/marketplace?q={search_term_string}",
+                    "https://www.propoffer.com.au/marketplace?q={search_term_string}",
                 },
                 "query-input": "required name=search_term_string",
               },
@@ -119,8 +119,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "PropOffer",
-              url: "https://propoffer.com.au",
-              logo: "https://propoffer.com.au/apple-icon",
+              url: "https://www.propoffer.com.au",
+              logo: "https://www.propoffer.com.au/apple-icon",
               contactPoint: {
                 "@type": "ContactPoint",
                 email: "hello@propoffer.com.au",
