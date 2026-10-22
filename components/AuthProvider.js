@@ -15,8 +15,13 @@ export function AuthProvider({ children }) {
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
+      // A reset link that lands anywhere other than /reset-password (e.g. if
+      // Supabase falls back to the Site URL) still needs the new-password form.
+      if (event === 'PASSWORD_RECOVERY' && window.location.pathname !== '/reset-password') {
+        window.location.assign('/reset-password')
+      }
     })
 
     return () => subscription.unsubscribe()

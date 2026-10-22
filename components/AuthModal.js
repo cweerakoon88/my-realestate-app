@@ -12,6 +12,21 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
   const [loading, setLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
+
+  const handleReset = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    setLoading(false)
+    if (error) { setError(error.message); return }
+    // Same message whether or not the address has an account, so the form
+    // can't be used to find out who is registered.
+    setResetSent(true)
+  }
 
   const handleEmailAuth = async (e) => {
     e.preventDefault()
@@ -88,6 +103,52 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
     )
   }
 
+  if (resetSent) {
+    return (
+      <>
+        <style>{modalStyles}</style>
+        <div className="modal-backdrop" onClick={onClose}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={onClose}>✕</button>
+            <div className="modal-check">✉</div>
+            <h2 className="modal-title">Check your email</h2>
+            <p className="modal-subtitle">If an account exists for <strong>{email}</strong>, we've sent a link to choose a new password. Check your spam folder if it doesn't arrive within a few minutes.</p>
+            <button className="modal-switch-btn" onClick={() => { setResetSent(false); setMode('signin'); setPassword('') }}>← Back to sign in</button>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  if (mode === 'forgot') {
+    return (
+      <>
+        <style>{modalStyles}</style>
+        <div className="modal-backdrop" onClick={onClose}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={onClose}>✕</button>
+            <div className="modal-eyebrow">PropOffer</div>
+            <h2 className="modal-title">Reset your password</h2>
+            <p className="modal-subtitle">Enter the email you signed up with and we'll send you a link to choose a new password.</p>
+            <form onSubmit={handleReset}>
+              <div className="field">
+                <label className="field-label">Email address</label>
+                <input className="field-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
+              </div>
+              {error && <div className="modal-error">{error}</div>}
+              <button className="btn-primary-modal" type="submit" disabled={loading}>
+                {loading ? 'Please wait…' : 'Send reset link'}
+              </button>
+            </form>
+            <p className="modal-switch">
+              <button className="modal-switch-btn" onClick={() => { setMode('signin'); setError('') }}>← Back to sign in</button>
+            </p>
+          </div>
+        </div>
+      </>
+    )
+  }
+
   return (
     <>
       <style>{modalStyles}</style>
@@ -126,7 +187,12 @@ export default function AuthModal({ onClose, onSuccess, defaultMode = 'signin' }
               <input className="field-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
             </div>
             <div className="field">
-              <label className="field-label">Password</label>
+              <div className="field-label-row">
+                <label className="field-label">Password</label>
+                {mode === 'signin' && (
+                  <button type="button" className="forgot-link" onClick={() => { setMode('forgot'); setError('') }}>Forgot password?</button>
+                )}
+              </div>
               <input className="field-input" type="password" placeholder={mode === 'signup' ? 'Min. 8 characters' : '••••••••'} value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
             </div>
 
@@ -193,6 +259,9 @@ const modalStyles = `
   .modal-divider span { font-family: var(--sans); font-size: 11px; color: #bbb; letter-spacing: 0.08em; text-transform: uppercase; }
   .field { margin-bottom: 1rem; }
   .field-label { display: block; font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 6px; }
+  .field-label-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .forgot-link { background: none; border: none; padding: 0; cursor: pointer; font-family: var(--sans); font-size: 12px; color: var(--gold); margin-bottom: 6px; }
+  .forgot-link:hover { color: var(--ink); text-decoration: underline; }
   .field-input { width: 100%; font-family: var(--sans); font-size: 14px; color: var(--ink); background: var(--cream); border: 1px solid var(--border); border-radius: 2px; padding: 10px 14px; outline: none; transition: border-color 0.15s; }
   .field-input:focus { border-color: var(--gold); background: var(--warm-white); }
   .field-input::placeholder { color: #bbb; }
